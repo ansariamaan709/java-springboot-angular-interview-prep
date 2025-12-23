@@ -45,44 +45,44 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // Simple property matching
     List<User> findByEmail(String email);
     List<User> findByEmailAndStatus(String email, Status status);
-    
+
     // Comparison operators
     List<User> findByAgeGreaterThan(int age);
     List<User> findByAgeBetween(int start, int end);
     List<User> findByCreatedAtAfter(LocalDateTime date);
-    
+
     // String matching
     List<User> findByNameContaining(String name);          // LIKE %name%
     List<User> findByNameStartingWith(String prefix);      // LIKE prefix%
     List<User> findByEmailEndingWith(String domain);       // LIKE %domain
     List<User> findByNameIgnoreCase(String name);
-    
+
     // Collection operations
     List<User> findByStatusIn(Collection<Status> statuses);
     List<User> findByStatusNotIn(Collection<Status> statuses);
-    
+
     // Null checks
     List<User> findByDeletedAtIsNull();
     List<User> findByDeletedAtIsNotNull();
-    
+
     // Boolean
     List<User> findByActiveTrue();
     List<User> findByActiveFalse();
-    
+
     // Ordering
     List<User> findByStatusOrderByCreatedAtDesc(Status status);
-    
+
     // Limiting results
     User findFirstByOrderByCreatedAtDesc();
     List<User> findTop10ByStatusOrderByScoreDesc(Status status);
-    
+
     // Distinct
     List<User> findDistinctByDepartment(String department);
-    
+
     // Counting & existence
     long countByStatus(Status status);
     boolean existsByEmail(String email);
-    
+
     // Delete
     void deleteByStatus(Status status);
     long deleteByLastLoginBefore(LocalDateTime date);
@@ -108,7 +108,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Optional<Order> findByIdWithDetails(@Param("id") Long id);
 
     // Native SQL query
-    @Query(value = "SELECT * FROM orders WHERE status = ?1 LIMIT ?2", 
+    @Query(value = "SELECT * FROM orders WHERE status = ?1 LIMIT ?2",
            nativeQuery = true)
     List<Order> findTopOrdersByStatus(String status, int limit);
 
@@ -121,7 +121,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     // Modifying queries (UPDATE/DELETE)
     @Modifying
     @Query("UPDATE Order o SET o.status = :status WHERE o.id IN :ids")
-    int updateStatusForOrders(@Param("status") OrderStatus status, 
+    int updateStatusForOrders(@Param("status") OrderStatus status,
                               @Param("ids") List<Long> ids);
 
     @Modifying
@@ -162,11 +162,11 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
             predicates.add(cb.equal(order.get("status"), criteria.getStatus()));
         }
         if (criteria.getMinAmount() != null) {
-            predicates.add(cb.greaterThanOrEqualTo(order.get("totalAmount"), 
+            predicates.add(cb.greaterThanOrEqualTo(order.get("totalAmount"),
                     criteria.getMinAmount()));
         }
         if (criteria.getCustomerId() != null) {
-            predicates.add(cb.equal(order.get("customer").get("id"), 
+            predicates.add(cb.equal(order.get("customer").get("id"),
                     criteria.getCustomerId()));
         }
 
@@ -195,7 +195,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
 }
 
 // Step 3: Extend both interfaces
-public interface OrderRepository extends JpaRepository<Order, Long>, 
+public interface OrderRepository extends JpaRepository<Order, Long>,
                                          OrderRepositoryCustom {
     // Query methods from JpaRepository + custom methods
 }
@@ -219,10 +219,10 @@ public interface UserSummary {
     Long getId();
     String getName();
     String getEmail();
-    
+
     // Nested projection
     DepartmentInfo getDepartment();
-    
+
     interface DepartmentInfo {
         String getName();
         String getCode();
@@ -231,10 +231,10 @@ public interface UserSummary {
 
 // Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    
+
     // Returns only id, name, email, department.name, department.code
     List<UserSummary> findByStatus(Status status);
-    
+
     // With pagination
     Page<UserSummary> findByDepartmentId(Long deptId, Pageable pageable);
 }
@@ -253,15 +253,15 @@ users.forEach(u -> {
 public interface UserDetails {
     String getFirstName();
     String getLastName();
-    
+
     // Computed property using SpEL
     @Value("#{target.firstName + ' ' + target.lastName}")
     String getFullName();
-    
+
     // Call a method
     @Value("#{target.getAge()}")
     int getAge();
-    
+
     // Access bean
     @Value("#{@userFormatter.format(target)}")
     String getFormattedUser();
@@ -295,7 +295,7 @@ public class UserDTO {
 
 // Repository with constructor expression
 public interface UserRepository extends JpaRepository<User, Long> {
-    
+
     @Query("SELECT new com.example.dto.UserDTO(u.id, u.name, u.email, u.department.name) " +
            "FROM User u WHERE u.status = :status")
     List<UserDTO> findUserDTOsByStatus(@Param("status") Status status);
@@ -315,7 +315,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // Generic projection method
     <T> List<T> findByStatus(Status status, Class<T> type);
-    
+
     <T> Optional<T> findById(Long id, Class<T> type);
 }
 
@@ -344,7 +344,7 @@ public class Product {
     private BigDecimal price;
     private boolean inStock;
     private LocalDateTime createdAt;
-    
+
     @ManyToOne
     private Brand brand;
 }
@@ -353,7 +353,7 @@ public class Product {
 public class ProductSpecifications {
 
     public static Specification<Product> hasCategory(String category) {
-        return (root, query, cb) -> 
+        return (root, query, cb) ->
             category == null ? null : cb.equal(root.get("category"), category);
     }
 
@@ -371,8 +371,8 @@ public class ProductSpecifications {
     }
 
     public static Specification<Product> hasNameLike(String name) {
-        return (root, query, cb) -> 
-            name == null ? null : cb.like(cb.lower(root.get("name")), 
+        return (root, query, cb) ->
+            name == null ? null : cb.like(cb.lower(root.get("name")),
                     "%" + name.toLowerCase() + "%");
     }
 
@@ -402,7 +402,7 @@ public class ProductService {
     private ProductRepository productRepository;
 
     public Page<Product> searchProducts(ProductSearchRequest request, Pageable pageable) {
-        
+
         Specification<Product> spec = Specification
             .where(ProductSpecifications.hasCategory(request.getCategory()))
             .and(ProductSpecifications.hasPriceBetween(request.getMinPrice(), request.getMaxPrice()))
@@ -428,7 +428,7 @@ public class OrderSpecifications {
         return (root, query, cb) -> {
             if (customerName == null) return null;
             Join<Order, Customer> customerJoin = root.join("customer");
-            return cb.like(cb.lower(customerJoin.get("name")), 
+            return cb.like(cb.lower(customerJoin.get("name")),
                     "%" + customerName.toLowerCase() + "%");
         };
     }
@@ -437,12 +437,12 @@ public class OrderSpecifications {
     public static Specification<Order> hasItemWithProduct(Long productId) {
         return (root, query, cb) -> {
             if (productId == null) return null;
-            
+
             Subquery<Long> subquery = query.subquery(Long.class);
             Root<OrderItem> itemRoot = subquery.from(OrderItem.class);
             subquery.select(itemRoot.get("order").get("id"))
                     .where(cb.equal(itemRoot.get("product").get("id"), productId));
-            
+
             return root.get("id").in(subquery);
         };
     }
@@ -451,7 +451,7 @@ public class OrderSpecifications {
     public static Specification<Order> hasTotalGreaterThan(BigDecimal minTotal) {
         return (root, query, cb) -> {
             if (minTotal == null) return null;
-            
+
             // For aggregate, need to use subquery or handle in service layer
             return cb.greaterThan(root.get("totalAmount"), minTotal);
         };
@@ -525,14 +525,14 @@ public abstract class BaseEntity {
 @Entity
 @Table(name = "orders")
 public class Order extends BaseEntity {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     private String orderNumber;
     private BigDecimal totalAmount;
-    
+
     // Other fields...
 }
 ```
@@ -842,29 +842,29 @@ spring:
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
-    
+
     hikari:
       # Pool sizing
-      maximum-pool-size: 20          # Max connections in pool
-      minimum-idle: 10               # Min idle connections maintained
-      
+      maximum-pool-size: 20 # Max connections in pool
+      minimum-idle: 10 # Min idle connections maintained
+
       # Timeouts
-      connection-timeout: 30000      # Max wait for connection (30s)
-      idle-timeout: 600000           # Max idle time before eviction (10min)
-      max-lifetime: 1800000          # Max connection lifetime (30min)
-      
+      connection-timeout: 30000 # Max wait for connection (30s)
+      idle-timeout: 600000 # Max idle time before eviction (10min)
+      max-lifetime: 1800000 # Max connection lifetime (30min)
+
       # Validation
-      validation-timeout: 5000       # Max time for connection validation
-      
+      validation-timeout: 5000 # Max time for connection validation
+
       # Leak detection
-      leak-detection-threshold: 60000  # Log warning if connection held > 60s
-      
+      leak-detection-threshold: 60000 # Log warning if connection held > 60s
+
       # Performance
-      auto-commit: false             # Better performance with explicit transactions
-      
+      auto-commit: false # Better performance with explicit transactions
+
       # Pool name (for monitoring)
       pool-name: MyAppHikariPool
-      
+
       # Register MBeans for JMX monitoring
       register-mbeans: true
 ```
@@ -883,14 +883,14 @@ public class DataSourceConfig {
     @ConfigurationProperties("spring.datasource.hikari")
     public HikariConfig hikariConfig() {
         HikariConfig config = new HikariConfig();
-        
+
         // Dynamic pool size based on CPU cores
         int cores = Runtime.getRuntime().availableProcessors();
         int poolSize = (cores * 2) + 1;
-        
+
         config.setMaximumPoolSize(Math.max(poolSize, 10));
         config.setMinimumIdle(Math.max(poolSize / 2, 5));
-        
+
         return config;
     }
 
@@ -944,10 +944,10 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
-    baseline-on-migrate: true       # Create baseline for existing DBs
-    validate-on-migrate: true       # Validate migrations before running
-    out-of-order: false             # Don't allow out-of-order migrations
-    clean-disabled: true            # Disable clean in production!
+    baseline-on-migrate: true # Create baseline for existing DBs
+    validate-on-migrate: true # Validate migrations before running
+    out-of-order: false # Don't allow out-of-order migrations
+    clean-disabled: true # Disable clean in production!
 ```
 
 **Migration file naming:** `V{version}__{description}.sql`
@@ -969,7 +969,7 @@ CREATE INDEX idx_users_status ON users(status);
 -- V2__add_department_to_users.sql
 ALTER TABLE users ADD COLUMN department_id BIGINT;
 
-ALTER TABLE users ADD CONSTRAINT fk_users_department 
+ALTER TABLE users ADD CONSTRAINT fk_users_department
     FOREIGN KEY (department_id) REFERENCES departments(id);
 
 -- V3__add_soft_delete.sql
@@ -994,6 +994,7 @@ spring:
 ```
 
 **Master changelog:**
+
 ```xml
 <!-- db/changelog/db.changelog-master.xml -->
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1009,6 +1010,7 @@ spring:
 ```
 
 **Individual changeset:**
+
 ```xml
 <!-- db/changelog/changes/001-create-users.xml -->
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1032,11 +1034,11 @@ spring:
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        
+
         <createIndex tableName="users" indexName="idx_users_email">
             <column name="email"/>
         </createIndex>
-        
+
         <rollback>
             <dropTable tableName="users"/>
         </rollback>
@@ -1070,7 +1072,7 @@ public class BatchRepository {
     public void batchInsert(List<User> users, int batchSize) {
         for (int i = 0; i < users.size(); i++) {
             entityManager.persist(users.get(i));
-            
+
             if (i > 0 && i % batchSize == 0) {
                 entityManager.flush();
                 entityManager.clear();  // Detach entities to free memory
@@ -1134,7 +1136,7 @@ public class ReportService {
 public class Order {
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
     private List<OrderItem> items;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Customer customer;
 }
@@ -1238,7 +1240,7 @@ public class TenantFilter implements Filter {
             throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String tenantId = httpRequest.getHeader("X-Tenant-ID");
-        
+
         try {
             TenantContext.setCurrentTenant(tenantId);
             chain.doFilter(request, response);
@@ -1385,10 +1387,10 @@ public User saveOrUpdate(User user) {
 
 **Answer:**
 
-| Method | Behavior | Use Case |
-|--------|----------|----------|
-| `findById(id)` | Executes SELECT immediately, returns `Optional<T>` | When you need the entity data |
-| `getReferenceById(id)` | Returns proxy, no DB hit until property accessed | When you only need reference (e.g., setting FK) |
+| Method                 | Behavior                                           | Use Case                                        |
+| ---------------------- | -------------------------------------------------- | ----------------------------------------------- |
+| `findById(id)`         | Executes SELECT immediately, returns `Optional<T>` | When you need the entity data                   |
+| `getReferenceById(id)` | Returns proxy, no DB hit until property accessed   | When you only need reference (e.g., setting FK) |
 
 ```java
 // findById - Immediate database query
@@ -1404,6 +1406,7 @@ userRef.getName();  // NOW it queries the database
 ```
 
 **Use `getReferenceById` when:**
+
 - Setting foreign key relationships
 - You don't need entity data, just the reference
 - Performance optimization
@@ -1415,15 +1418,16 @@ userRef.getName();  // NOW it queries the database
 **Answer:**
 
 **Optimistic Locking** (preferred for low contention):
+
 ```java
 @Entity
 public class Product {
     @Id
     private Long id;
-    
+
     @Version
     private Long version;  // Auto-incremented on update
-    
+
     private int stock;
 }
 
@@ -1435,6 +1439,7 @@ public class Product {
 ```
 
 **Pessimistic Locking** (for high contention):
+
 ```java
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
@@ -1457,6 +1462,7 @@ public void decrementStock(Long productId) {
 ```
 
 **When to use:**
+
 - **Optimistic**: Read-heavy, rare conflicts, better throughput
 - **Pessimistic**: Write-heavy, frequent conflicts, data integrity critical
 
@@ -1466,13 +1472,13 @@ public void decrementStock(Long productId) {
 
 **Answer:**
 
-| Aspect | JPQL | Criteria API | Native SQL |
-|--------|------|--------------|------------|
-| **Type Safety** | No (string-based) | Yes (compile-time) | No |
-| **Dynamic Queries** | Concatenation (risky) | Built programmatically | Concatenation |
-| **Database Portable** | Yes | Yes | No |
-| **Complex Queries** | Limited | Full power | Full power |
-| **Readability** | High | Lower | Depends |
+| Aspect                | JPQL                  | Criteria API           | Native SQL    |
+| --------------------- | --------------------- | ---------------------- | ------------- |
+| **Type Safety**       | No (string-based)     | Yes (compile-time)     | No            |
+| **Dynamic Queries**   | Concatenation (risky) | Built programmatically | Concatenation |
+| **Database Portable** | Yes                   | Yes                    | No            |
+| **Complex Queries**   | Limited               | Full power             | Full power    |
+| **Readability**       | High                  | Lower                  | Depends       |
 
 ```java
 // JPQL - Simple, readable
@@ -1484,7 +1490,7 @@ public List<User> findUsers(UserSearchCriteria criteria) {
     CriteriaBuilder cb = em.getCriteriaBuilder();
     CriteriaQuery<User> query = cb.createQuery(User.class);
     Root<User> user = query.from(User.class);
-    
+
     List<Predicate> predicates = new ArrayList<>();
     if (criteria.getStatus() != null) {
         predicates.add(cb.equal(user.get("status"), criteria.getStatus()));
@@ -1492,13 +1498,13 @@ public List<User> findUsers(UserSearchCriteria criteria) {
     if (criteria.getMinAge() != null) {
         predicates.add(cb.greaterThan(user.get("age"), criteria.getMinAge()));
     }
-    
+
     query.where(predicates.toArray(new Predicate[0]));
     return em.createQuery(query).getResultList();
 }
 
 // Native SQL - Full database power
-@Query(value = "SELECT * FROM users WHERE status = ?1 FOR UPDATE SKIP LOCKED", 
+@Query(value = "SELECT * FROM users WHERE status = ?1 FOR UPDATE SKIP LOCKED",
        nativeQuery = true)
 List<User> findForProcessing(String status);
 ```
@@ -1512,6 +1518,7 @@ List<User> findForProcessing(String status);
 **Step-by-step optimization:**
 
 1. **Enable SQL logging to identify the problem:**
+
 ```yaml
 spring.jpa.show-sql=true
 logging.level.org.hibernate.SQL=DEBUG
@@ -1519,18 +1526,21 @@ logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
 ```
 
 2. **Fix N+1 with JOIN FETCH or EntityGraph:**
+
 ```java
 @EntityGraph(attributePaths = {"items", "customer"})
 List<Order> findByStatus(OrderStatus status);
 ```
 
 3. **Use projections instead of full entities:**
+
 ```java
 @Query("SELECT new OrderDTO(o.id, o.total, c.name) FROM Order o JOIN o.customer c")
 List<OrderDTO> findOrderSummaries();
 ```
 
 4. **Add database indexes:**
+
 ```java
 @Table(indexes = {
     @Index(name = "idx_order_status", columnList = "status"),
@@ -1539,18 +1549,21 @@ List<OrderDTO> findOrderSummaries();
 ```
 
 5. **Use read-only transactions:**
+
 ```java
 @Transactional(readOnly = true)
 public List<Order> getOrders() { ... }
 ```
 
 6. **Batch fetching for collections:**
+
 ```java
 @BatchSize(size = 20)
 private List<OrderItem> items;
 ```
 
 7. **Pagination for large result sets:**
+
 ```java
 Page<Order> findByStatus(OrderStatus status, Pageable pageable);
 ```
@@ -1576,6 +1589,7 @@ Client → Proxy → Target Bean
 **Limitations:**
 
 1. **Self-invocation bypasses proxy:**
+
 ```java
 @Service
 public class OrderService {
@@ -1584,7 +1598,7 @@ public class OrderService {
         // ...
         this.sendNotification();  // BYPASSES PROXY! @Transactional ignored
     }
-    
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendNotification() { }
 }
@@ -1599,17 +1613,20 @@ public void createOrder() {
 ```
 
 2. **Only works on public methods:**
+
 ```java
 @Transactional  // IGNORED on private/protected
 private void internalMethod() { }
 ```
 
 3. **Only works on Spring-managed beans:**
+
 ```java
 new OrderService().createOrder();  // No proxy, no transaction!
 ```
 
 4. **Checked exceptions don't rollback by default:**
+
 ```java
 @Transactional  // Won't rollback on IOException
 public void process() throws IOException { }
@@ -1623,12 +1640,14 @@ public void process() throws IOException { }
 ## Summary: Best Practices Checklist
 
 ✅ **Repository Design**
+
 - Use query derivation for simple queries
 - Use `@Query` for complex JPQL
 - Implement custom repository for dynamic queries
 - Use Specifications for composable filters
 
 ✅ **Performance**
+
 - Always use projections when full entity not needed
 - Fix N+1 with JOIN FETCH or EntityGraph
 - Use `@Transactional(readOnly = true)` for reads
@@ -1636,18 +1655,21 @@ public void process() throws IOException { }
 - Add appropriate database indexes
 
 ✅ **Transactions**
+
 - Understand propagation types
 - Use `REQUIRES_NEW` for independent operations (audit logs)
 - Don't catch exceptions without re-throwing
 - Avoid self-invocation issues
 
 ✅ **Connection Pool**
+
 - Size pool based on CPU cores
 - Monitor active/idle connections
 - Enable leak detection in dev
 - Set appropriate timeouts
 
 ✅ **Migrations**
+
 - Use Flyway or Liquibase
 - Never modify existing migrations
 - Test migrations in CI/CD

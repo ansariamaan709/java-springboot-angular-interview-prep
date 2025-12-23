@@ -65,39 +65,43 @@
 
 ```typescript
 // app.routes.ts (Standalone - Angular 14+)
-import { Routes } from '@angular/router';
+import { Routes } from "@angular/router";
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent },
-  { path: 'about', component: AboutComponent },
-  { path: 'users', component: UsersComponent },
-  { path: '**', component: NotFoundComponent }  // Wildcard
+  { path: "", component: HomeComponent },
+  { path: "about", component: AboutComponent },
+  { path: "users", component: UsersComponent },
+  { path: "**", component: NotFoundComponent }, // Wildcard
 ];
 
 // main.ts
-import { bootstrapApplication } from '@angular/platform-browser';
-import { provideRouter } from '@angular/router';
-import { routes } from './app/app.routes';
+import { bootstrapApplication } from "@angular/platform-browser";
+import { provideRouter } from "@angular/router";
+import { routes } from "./app/app.routes";
 
 bootstrapApplication(AppComponent, {
-  providers: [provideRouter(routes)]
+  providers: [provideRouter(routes)],
 });
 
 // app.component.ts
 @Component({
-  selector: 'app-root',
+  selector: "app-root",
   standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
   template: `
     <nav>
-      <a routerLink="/" routerLinkActive="active" 
-         [routerLinkActiveOptions]="{exact: true}">Home</a>
+      <a
+        routerLink="/"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        >Home</a
+      >
       <a routerLink="/about" routerLinkActive="active">About</a>
       <a routerLink="/users" routerLinkActive="active">Users</a>
     </nav>
-    
+
     <router-outlet />
-  `
+  `,
 })
 export class AppComponent {}
 ```
@@ -107,23 +111,22 @@ export class AppComponent {}
 ```typescript
 // app-routing.module.ts
 @NgModule({
-  imports: [RouterModule.forRoot(routes, {
-    scrollPositionRestoration: 'enabled',
-    anchorScrolling: 'enabled',
-    preloadingStrategy: PreloadAllModules
-  })],
-  exports: [RouterModule]
+  imports: [
+    RouterModule.forRoot(routes, {
+      scrollPositionRestoration: "enabled",
+      anchorScrolling: "enabled",
+      preloadingStrategy: PreloadAllModules,
+    }),
+  ],
+  exports: [RouterModule],
 })
 export class AppRoutingModule {}
 
 // app.module.ts
 @NgModule({
-  imports: [
-    BrowserModule,
-    AppRoutingModule
-  ],
+  imports: [BrowserModule, AppRoutingModule],
   declarations: [AppComponent],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule {}
 ```
@@ -137,26 +140,27 @@ export class AppModule {}
 ```typescript
 const routes: Routes = [
   {
-    path: 'users',                    // URL path
-    component: UsersComponent,        // Component to render
-    title: 'User List',               // Page title (Angular 14+)
-    data: { role: 'admin' },          // Static data
-    pathMatch: 'full',                // Matching strategy
-    redirectTo: '/home',              // Redirect target
-    canActivate: [AuthGuard],         // Guards
+    path: "users", // URL path
+    component: UsersComponent, // Component to render
+    title: "User List", // Page title (Angular 14+)
+    data: { role: "admin" }, // Static data
+    pathMatch: "full", // Matching strategy
+    redirectTo: "/home", // Redirect target
+    canActivate: [AuthGuard], // Guards
     canDeactivate: [UnsavedGuard],
     canActivateChild: [RoleGuard],
-    canMatch: [FeatureGuard],         // Angular 14.1+
-    resolve: { user: UserResolver },   // Resolvers
-    loadComponent: () => import('./user.component'),  // Lazy component
-    loadChildren: () => import('./user.routes'),      // Lazy routes
-    children: [                        // Child routes
-      { path: ':id', component: UserDetailComponent }
+    canMatch: [FeatureGuard], // Angular 14.1+
+    resolve: { user: UserResolver }, // Resolvers
+    loadComponent: () => import("./user.component"), // Lazy component
+    loadChildren: () => import("./user.routes"), // Lazy routes
+    children: [
+      // Child routes
+      { path: ":id", component: UserDetailComponent },
     ],
-    outlet: 'sidebar',                // Named outlet
-    providers: [UserService],         // Route-scoped providers
-    runGuardsAndResolvers: 'always'   // When to re-run
-  }
+    outlet: "sidebar", // Named outlet
+    providers: [UserService], // Route-scoped providers
+    runGuardsAndResolvers: "always", // When to re-run
+  },
 ];
 ```
 
@@ -165,13 +169,13 @@ const routes: Routes = [
 ```typescript
 const routes: Routes = [
   // 'prefix' (default) - matches if URL starts with path
-  { path: 'users', component: UsersComponent },  // Matches /users, /users/123
-  
+  { path: "users", component: UsersComponent }, // Matches /users, /users/123
+
   // 'full' - entire URL must match
-  { path: '', component: HomeComponent, pathMatch: 'full' },  // Only /
-  
+  { path: "", component: HomeComponent, pathMatch: "full" }, // Only /
+
   // Required for redirects from empty path
-  { path: '', redirectTo: '/home', pathMatch: 'full' }
+  { path: "", redirectTo: "/home", pathMatch: "full" },
 ];
 ```
 
@@ -180,24 +184,26 @@ const routes: Routes = [
 ```typescript
 const routes: Routes = [
   // Simple redirect
-  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
-  
+  { path: "", redirectTo: "/dashboard", pathMatch: "full" },
+
   // Redirect with preserving query params
-  { 
-    path: 'old-path', 
-    redirectTo: '/new-path',
-    pathMatch: 'prefix'  // /old-path/sub → /new-path/sub
+  {
+    path: "old-path",
+    redirectTo: "/new-path",
+    pathMatch: "prefix", // /old-path/sub → /new-path/sub
   },
-  
+
   // Redirect to external (use guard)
   {
-    path: 'external',
-    canActivate: [() => {
-      window.location.href = 'https://external.com';
-      return false;
-    }],
-    component: EmptyComponent
-  }
+    path: "external",
+    canActivate: [
+      () => {
+        window.location.href = "https://external.com";
+        return false;
+      },
+    ],
+    component: EmptyComponent,
+  },
 ];
 ```
 
@@ -205,11 +211,11 @@ const routes: Routes = [
 
 ```typescript
 const routes: Routes = [
-  { path: '', component: HomeComponent },
-  { path: 'users', component: UsersComponent },
-  
+  { path: "", component: HomeComponent },
+  { path: "users", component: UsersComponent },
+
   // MUST be last - catches all unmatched routes
-  { path: '**', component: NotFoundComponent }
+  { path: "**", component: NotFoundComponent },
 ];
 ```
 
@@ -228,15 +234,13 @@ const routes: Routes = [
 <!-- Generates: /users/123 -->
 
 <!-- With query params -->
-<a [routerLink]="['/users']" 
-   [queryParams]="{ page: 1, sort: 'name' }">
+<a [routerLink]="['/users']" [queryParams]="{ page: 1, sort: 'name' }">
   Users
 </a>
 <!-- Generates: /users?page=1&sort=name -->
 
 <!-- Preserve query params -->
-<a [routerLink]="['/users', userId]" 
-   queryParamsHandling="preserve">
+<a [routerLink]="['/users', userId]" queryParamsHandling="preserve">
   View User
 </a>
 <!-- Options: 'merge', 'preserve', '' (default - remove) -->
@@ -246,26 +250,27 @@ const routes: Routes = [
 <!-- Generates: /help#section2 -->
 
 <!-- Relative navigation -->
-<a routerLink="./details">Details</a>   <!-- Relative to current -->
-<a routerLink="../edit">Edit</a>        <!-- Up one level -->
+<a routerLink="./details">Details</a>
+<!-- Relative to current -->
+<a routerLink="../edit">Edit</a>
+<!-- Up one level -->
 
 <!-- RouterLinkActive -->
-<a routerLink="/users" 
-   routerLinkActive="active highlighted"
-   [routerLinkActiveOptions]="{ exact: true }">
+<a
+  routerLink="/users"
+  routerLinkActive="active highlighted"
+  [routerLinkActiveOptions]="{ exact: true }"
+>
   Users
 </a>
 
 <!-- Multiple classes -->
-<a routerLink="/dashboard"
-   [routerLinkActive]="['active', 'current']">
+<a routerLink="/dashboard" [routerLinkActive]="['active', 'current']">
   Dashboard
 </a>
 
 <!-- Check if active in template -->
-<a routerLink="/users" 
-   routerLinkActive="active" 
-   #rla="routerLinkActive">
+<a routerLink="/users" routerLinkActive="active" #rla="routerLinkActive">
   Users {{ rla.isActive ? '(current)' : '' }}
 </a>
 ```
@@ -281,17 +286,17 @@ export class NavigationComponent {
     private router: Router,
     private route: ActivatedRoute
   ) {}
-  
+
   // Absolute navigation
   goToUsers() {
     this.router.navigate(['/users']);
   }
-  
+
   // With parameters
   goToUser(id: number) {
     this.router.navigate(['/users', id]);
   }
-  
+
   // With query params
   goToUsersWithParams() {
     this.router.navigate(['/users'], {
@@ -299,43 +304,43 @@ export class NavigationComponent {
       queryParamsHandling: 'merge'  // Merge with existing
     });
   }
-  
+
   // With fragment
   goToSection() {
     this.router.navigate(['/help'], { fragment: 'faq' });
   }
-  
+
   // Relative navigation
   goToDetails() {
     this.router.navigate(['details'], { relativeTo: this.route });
   }
-  
+
   goUp() {
     this.router.navigate(['..'], { relativeTo: this.route });
   }
-  
+
   // Replace current history entry
   replaceNavigation() {
     this.router.navigate(['/new-page'], { replaceUrl: true });
   }
-  
+
   // Skip location change (no URL update)
   silentNavigation() {
     this.router.navigate(['/page'], { skipLocationChange: true });
   }
-  
+
   // Using navigateByUrl (full URL)
   goByUrl() {
     this.router.navigateByUrl('/users/123?tab=profile#info');
   }
-  
+
   // With state (hidden data)
   goWithState() {
     this.router.navigate(['/checkout'], {
       state: { cart: this.cartItems }
     });
   }
-  
+
   // Access state in target component
   ngOnInit() {
     const state = this.router.getCurrentNavigation()?.extras.state;
@@ -362,19 +367,19 @@ const routes: Routes = [
 @Component({...})
 export class UserDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
-  
+
   // Method 1: Snapshot (one-time read)
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     console.log('User ID:', id);
   }
-  
+
   // Method 2: Observable (for param changes)
   userId$ = this.route.paramMap.pipe(
     map(params => params.get('id')),
     filter((id): id is string => id !== null)
   );
-  
+
   // Method 3: Using resolve
   user$ = this.route.data.pipe(
     map(data => data['user'])
@@ -385,7 +390,7 @@ export class UserDetailComponent implements OnInit {
 @Component({...})
 export class CommentComponent {
   private route = inject(ActivatedRoute);
-  
+
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       const postId = params.get('postId');
@@ -404,25 +409,25 @@ export class CommentComponent {
 export class UsersComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  
+
   // Read query params
   ngOnInit() {
     // Snapshot
     const page = this.route.snapshot.queryParamMap.get('page');
-    
+
     // Observable
     this.route.queryParamMap.subscribe(params => {
       const page = params.get('page');
       const sort = params.get('sort');
       const filters = params.getAll('filter');  // Multiple values
     });
-    
+
     // Or as object
     this.route.queryParams.subscribe(params => {
       console.log(params);  // { page: '1', sort: 'name', filter: 'active' }
     });
   }
-  
+
   // Update query params
   changePage(page: number) {
     this.router.navigate([], {
@@ -431,7 +436,7 @@ export class UsersComponent implements OnInit {
       queryParamsHandling: 'merge'  // Keep other params
     });
   }
-  
+
   // Remove query param
   clearFilter() {
     this.router.navigate([], {
@@ -451,11 +456,11 @@ export class UsersComponent implements OnInit {
 @Component({...})
 export class HelpComponent implements OnInit {
   private route = inject(ActivatedRoute);
-  
+
   ngOnInit() {
     // Snapshot
     const fragment = this.route.snapshot.fragment;
-    
+
     // Observable
     this.route.fragment.subscribe(fragment => {
       if (fragment) {
@@ -474,7 +479,7 @@ const routes: Routes = [
   {
     path: 'admin',
     component: AdminComponent,
-    data: { 
+    data: {
       title: 'Admin Panel',
       roles: ['admin', 'superadmin'],
       animation: 'AdminPage'
@@ -486,11 +491,11 @@ const routes: Routes = [
 @Component({...})
 export class AdminComponent implements OnInit {
   private route = inject(ActivatedRoute);
-  
+
   ngOnInit() {
     // Snapshot
     const title = this.route.snapshot.data['title'];
-    
+
     // Observable (includes resolved data)
     this.route.data.subscribe(data => {
       console.log(data.title);
@@ -509,23 +514,23 @@ export class AdminComponent implements OnInit {
 ```typescript
 const routes: Routes = [
   {
-    path: 'users',
+    path: "users",
     component: UsersComponent,
     children: [
-      { path: '', component: UserListComponent },
-      { path: ':id', component: UserDetailComponent },
-      { path: ':id/edit', component: UserEditComponent }
-    ]
-  }
+      { path: "", component: UserListComponent },
+      { path: ":id", component: UserDetailComponent },
+      { path: ":id/edit", component: UserEditComponent },
+    ],
+  },
 ];
 
 // Parent component MUST have <router-outlet>
 @Component({
-  selector: 'app-users',
+  selector: "app-users",
   template: `
     <h1>Users Section</h1>
     <router-outlet></router-outlet>
-  `
+  `,
 })
 export class UsersComponent {}
 ```
@@ -536,18 +541,18 @@ export class UsersComponent {}
 @Component({...})
 export class UserEditComponent implements OnInit {
   private route = inject(ActivatedRoute);
-  
+
   ngOnInit() {
     // Get parent params
     const userId = this.route.parent?.snapshot.paramMap.get('id');
-    
+
     // Or traverse up
     let currentRoute = this.route;
     while (currentRoute.parent) {
       console.log(currentRoute.snapshot.params);
       currentRoute = currentRoute.parent;
     }
-    
+
     // Using paramsInheritanceStrategy in router config
     // Allows accessing all ancestor params directly
   }
@@ -604,33 +609,33 @@ this.router.navigate([{ outlets: { sidebar: 'notifications' } }]);
 ```typescript
 // app.routes.ts
 const routes: Routes = [
-  { path: '', component: HomeComponent },
+  { path: "", component: HomeComponent },
   {
-    path: 'admin',
-    loadChildren: () => import('./admin/admin.routes')
-      .then(m => m.ADMIN_ROUTES)
+    path: "admin",
+    loadChildren: () =>
+      import("./admin/admin.routes").then((m) => m.ADMIN_ROUTES),
   },
   {
-    path: 'users',
-    loadChildren: () => import('./users/users.module')
-      .then(m => m.UsersModule)
-  }
+    path: "users",
+    loadChildren: () =>
+      import("./users/users.module").then((m) => m.UsersModule),
+  },
 ];
 
 // admin/admin.routes.ts
 export const ADMIN_ROUTES: Routes = [
-  { path: '', component: AdminDashboardComponent },
-  { path: 'settings', component: AdminSettingsComponent }
+  { path: "", component: AdminDashboardComponent },
+  { path: "settings", component: AdminSettingsComponent },
 ];
 
 // users/users.module.ts (NgModule approach)
 @NgModule({
   imports: [
     RouterModule.forChild([
-      { path: '', component: UsersListComponent },
-      { path: ':id', component: UserDetailComponent }
-    ])
-  ]
+      { path: "", component: UsersListComponent },
+      { path: ":id", component: UserDetailComponent },
+    ]),
+  ],
 })
 export class UsersModule {}
 ```
@@ -640,52 +645,52 @@ export class UsersModule {}
 ```typescript
 const routes: Routes = [
   {
-    path: 'profile',
-    loadComponent: () => import('./profile/profile.component')
-      .then(m => m.ProfileComponent)
+    path: "profile",
+    loadComponent: () =>
+      import("./profile/profile.component").then((m) => m.ProfileComponent),
   },
   {
-    path: 'settings',
-    loadComponent: () => import('./settings/settings.component')
-      .then(m => m.SettingsComponent),
-    providers: [SettingsService]  // Route-level providers
-  }
+    path: "settings",
+    loadComponent: () =>
+      import("./settings/settings.component").then((m) => m.SettingsComponent),
+    providers: [SettingsService], // Route-level providers
+  },
 ];
 ```
 
 ### Preloading Strategies
 
 ```typescript
-import { PreloadAllModules, NoPreloading } from '@angular/router';
+import { PreloadAllModules, NoPreloading } from "@angular/router";
 
 // Preload all lazy modules after initial load
 provideRouter(routes, withPreloading(PreloadAllModules));
 
 // Or with NgModule
 RouterModule.forRoot(routes, {
-  preloadingStrategy: PreloadAllModules
+  preloadingStrategy: PreloadAllModules,
 });
 
 // Custom preloading strategy
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class SelectivePreloadingStrategy implements PreloadingStrategy {
   preload(route: Route, load: () => Observable<any>): Observable<any> {
     // Preload only routes with data.preload = true
-    return route.data?.['preload'] ? load() : of(null);
+    return route.data?.["preload"] ? load() : of(null);
   }
 }
 
 const routes: Routes = [
   {
-    path: 'admin',
-    loadChildren: () => import('./admin/admin.routes'),
-    data: { preload: true }  // Will be preloaded
+    path: "admin",
+    loadChildren: () => import("./admin/admin.routes"),
+    data: { preload: true }, // Will be preloaded
   },
   {
-    path: 'reports',
-    loadChildren: () => import('./reports/reports.routes'),
-    data: { preload: false }  // Won't be preloaded
-  }
+    path: "reports",
+    loadChildren: () => import("./reports/reports.routes"),
+    data: { preload: false }, // Won't be preloaded
+  },
 ];
 
 provideRouter(routes, withPreloading(SelectivePreloadingStrategy));
@@ -718,52 +723,49 @@ provideRouter(routes, withPreloading(SelectivePreloadingStrategy));
 
 ```typescript
 // auth.guard.ts
-import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { inject } from "@angular/core";
+import { CanActivateFn, Router } from "@angular/router";
 
 export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
-  
+
   if (authService.isLoggedIn()) {
     return true;
   }
-  
+
   // Redirect to login with return URL
-  return router.createUrlTree(['/login'], {
-    queryParams: { returnUrl: state.url }
+  return router.createUrlTree(["/login"], {
+    queryParams: { returnUrl: state.url },
   });
 };
 
 // Role guard
 export const roleGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
-  const requiredRoles = route.data['roles'] as string[];
-  
-  return requiredRoles.some(role => authService.hasRole(role));
+  const requiredRoles = route.data["roles"] as string[];
+
+  return requiredRoles.some((role) => authService.hasRole(role));
 };
 
 // Route configuration
 const routes: Routes = [
   {
-    path: 'admin',
+    path: "admin",
     component: AdminComponent,
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['admin', 'superadmin'] }
-  }
+    data: { roles: ["admin", "superadmin"] },
+  },
 ];
 ```
 
 ### Class-Based Guards (Traditional)
 
 ```typescript
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class AuthGuard implements CanActivate {
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
-  
+  constructor(private authService: AuthService, private router: Router) {}
+
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
@@ -771,9 +773,9 @@ export class AuthGuard implements CanActivate {
     if (this.authService.isLoggedIn()) {
       return true;
     }
-    
-    return this.router.createUrlTree(['/login'], {
-      queryParams: { returnUrl: state.url }
+
+    return this.router.createUrlTree(["/login"], {
+      queryParams: { returnUrl: state.url },
     });
   }
 }
@@ -788,7 +790,7 @@ export interface CanComponentDeactivate {
 }
 
 // Functional guard
-export const unsavedChangesGuard: CanDeactivateFn<CanComponentDeactivate> = 
+export const unsavedChangesGuard: CanDeactivateFn<CanComponentDeactivate> =
   (component, currentRoute, currentState, nextState) => {
     return component.canDeactivate ? component.canDeactivate() : true;
   };
@@ -800,7 +802,7 @@ export class EditFormComponent implements CanComponentDeactivate {
     name: [''],
     email: ['']
   });
-  
+
   canDeactivate(): boolean {
     if (this.form.dirty) {
       return confirm('You have unsaved changes. Leave anyway?');
@@ -825,19 +827,19 @@ const routes: Routes = [
 // Only match route if condition is met
 export const featureGuard: CanMatchFn = (route, segments) => {
   const featureService = inject(FeatureService);
-  return featureService.isFeatureEnabled('newDashboard');
+  return featureService.isFeatureEnabled("newDashboard");
 };
 
 const routes: Routes = [
   {
-    path: 'dashboard',
+    path: "dashboard",
     canMatch: [featureGuard],
-    loadComponent: () => import('./new-dashboard.component')
+    loadComponent: () => import("./new-dashboard.component"),
   },
   {
-    path: 'dashboard',
-    loadComponent: () => import('./old-dashboard.component')
-  }
+    path: "dashboard",
+    loadComponent: () => import("./old-dashboard.component"),
+  },
 ];
 // If feature enabled: loads new dashboard
 // If feature disabled: falls through to old dashboard
@@ -848,17 +850,17 @@ const routes: Routes = [
 ```typescript
 const routes: Routes = [
   {
-    path: 'admin',
+    path: "admin",
     canActivate: [authGuard, roleGuard, subscriptionGuard],
     canActivateChild: [roleGuard],
     canDeactivate: [unsavedChangesGuard],
     canMatch: [featureGuard],
     component: AdminComponent,
     children: [
-      { path: 'users', component: AdminUsersComponent },
-      { path: 'settings', component: AdminSettingsComponent }
-    ]
-  }
+      { path: "users", component: AdminUsersComponent },
+      { path: "settings", component: AdminSettingsComponent },
+    ],
+  },
 ];
 
 // Guards run in order - if any returns false/UrlTree, navigation stops
@@ -879,7 +881,7 @@ import { ResolveFn } from '@angular/router';
 export const userResolver: ResolveFn<User> = (route, state) => {
   const userService = inject(UserService);
   const userId = route.paramMap.get('id')!;
-  
+
   return userService.getUser(userId).pipe(
     catchError(error => {
       // Handle error - maybe redirect
@@ -903,10 +905,10 @@ const routes: Routes = [
 @Component({...})
 export class UserDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
-  
+
   // Resolved data is available immediately
   user = this.route.snapshot.data['user'];
-  
+
   // Or as observable
   user$ = this.route.data.pipe(
     map(data => data['user'] as User)
@@ -917,15 +919,15 @@ export class UserDetailComponent implements OnInit {
 ### Class-Based Resolver
 
 ```typescript
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class UserResolver implements Resolve<User> {
   constructor(private userService: UserService) {}
-  
+
   resolve(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Observable<User> {
-    return this.userService.getUser(route.paramMap.get('id')!);
+    return this.userService.getUser(route.paramMap.get("id")!);
   }
 }
 ```
@@ -950,7 +952,7 @@ const routes: Routes = [
 @Component({...})
 export class DashboardComponent {
   private route = inject(ActivatedRoute);
-  
+
   data$ = this.route.data;
   // { user: User, stats: Stats, notifications: Notification[] }
 }
@@ -963,8 +965,8 @@ export class DashboardComponent {
 ### All Router Events
 
 ```typescript
-import { 
-  Router, 
+import {
+  Router,
   NavigationStart,
   NavigationEnd,
   NavigationCancel,
@@ -980,24 +982,24 @@ import {
 export class AppComponent implements OnInit {
   private router = inject(Router);
   isLoading = false;
-  
+
   ngOnInit() {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
         this.isLoading = true;
         console.log('Navigation started to:', event.url);
       }
-      
+
       if (event instanceof NavigationEnd) {
         this.isLoading = false;
         console.log('Navigation ended:', event.urlAfterRedirects);
       }
-      
+
       if (event instanceof NavigationCancel) {
         this.isLoading = false;
         console.log('Navigation cancelled:', event.reason);
       }
-      
+
       if (event instanceof NavigationError) {
         this.isLoading = false;
         console.error('Navigation error:', event.error);
@@ -1010,43 +1012,48 @@ export class AppComponent implements OnInit {
 ### Filtering Events
 
 ```typescript
-import { filter } from 'rxjs/operators';
+import { filter } from "rxjs/operators";
 
 // Filter specific event types
-this.router.events.pipe(
-  filter(event => event instanceof NavigationEnd)
-).subscribe((event: NavigationEnd) => {
-  // Track page view
-  this.analytics.trackPageView(event.urlAfterRedirects);
-});
+this.router.events
+  .pipe(filter((event) => event instanceof NavigationEnd))
+  .subscribe((event: NavigationEnd) => {
+    // Track page view
+    this.analytics.trackPageView(event.urlAfterRedirects);
+  });
 
 // Or type-safe filter
-this.router.events.pipe(
-  filter((event): event is NavigationEnd => event instanceof NavigationEnd)
-).subscribe(event => {
-  console.log(event.url);
-});
+this.router.events
+  .pipe(
+    filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+  )
+  .subscribe((event) => {
+    console.log(event.url);
+  });
 ```
 
 ### Loading Indicator Service
 
 ```typescript
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class LoadingService {
   private loadingSubject = new BehaviorSubject<boolean>(false);
   loading$ = this.loadingSubject.asObservable();
-  
+
   constructor(private router: Router) {
-    this.router.events.pipe(
-      filter(event => 
-        event instanceof NavigationStart ||
-        event instanceof NavigationEnd ||
-        event instanceof NavigationCancel ||
-        event instanceof NavigationError
+    this.router.events
+      .pipe(
+        filter(
+          (event) =>
+            event instanceof NavigationStart ||
+            event instanceof NavigationEnd ||
+            event instanceof NavigationCancel ||
+            event instanceof NavigationError
+        )
       )
-    ).subscribe(event => {
-      this.loadingSubject.next(event instanceof NavigationStart);
-    });
+      .subscribe((event) => {
+        this.loadingSubject.next(event instanceof NavigationStart);
+      });
   }
 }
 ```
@@ -1060,23 +1067,21 @@ export class LoadingService {
 ```typescript
 // Angular 14+ built-in title
 const routes: Routes = [
-  { path: '', component: HomeComponent, title: 'Home' },
-  { path: 'about', component: AboutComponent, title: 'About Us' },
-  { 
-    path: 'users/:id', 
+  { path: "", component: HomeComponent, title: "Home" },
+  { path: "about", component: AboutComponent, title: "About Us" },
+  {
+    path: "users/:id",
     component: UserComponent,
-    title: userTitleResolver  // Dynamic title
-  }
+    title: userTitleResolver, // Dynamic title
+  },
 ];
 
 // Dynamic title resolver
 export const userTitleResolver: ResolveFn<string> = (route) => {
   const userService = inject(UserService);
-  const userId = route.paramMap.get('id')!;
-  
-  return userService.getUser(userId).pipe(
-    map(user => `User: ${user.name}`)
-  );
+  const userId = route.paramMap.get("id")!;
+
+  return userService.getUser(userId).pipe(map((user) => `User: ${user.name}`));
 };
 
 // Custom title strategy
@@ -1085,46 +1090,60 @@ export class CustomTitleStrategy extends TitleStrategy {
   constructor(private title: Title) {
     super();
   }
-  
+
   updateTitle(snapshot: RouterStateSnapshot): void {
     const title = this.buildTitle(snapshot);
-    this.title.setTitle(title ? `${title} | MyApp` : 'MyApp');
+    this.title.setTitle(title ? `${title} | MyApp` : "MyApp");
   }
 }
 
 // Provide custom strategy
-provideRouter(routes, withRouterConfig({
-  titleStrategy: CustomTitleStrategy
-}));
+provideRouter(
+  routes,
+  withRouterConfig({
+    titleStrategy: CustomTitleStrategy,
+  })
+);
 ```
 
 ### Route Animations
 
 ```typescript
 // Define animations
-import { trigger, transition, style, query, animate, group } from '@angular/animations';
+import {
+  trigger,
+  transition,
+  style,
+  query,
+  animate,
+  group,
+} from "@angular/animations";
 
-export const routeAnimations = trigger('routeAnimations', [
-  transition('HomePage <=> AboutPage', [
-    style({ position: 'relative' }),
-    query(':enter, :leave', [
+export const routeAnimations = trigger("routeAnimations", [
+  transition("HomePage <=> AboutPage", [
+    style({ position: "relative" }),
+    query(":enter, :leave", [
       style({
-        position: 'absolute',
+        position: "absolute",
         top: 0,
         left: 0,
-        width: '100%'
-      })
+        width: "100%",
+      }),
     ]),
-    query(':enter', [style({ left: '-100%' })]),
-    query(':leave', [animate('300ms ease-out', style({ left: '100%' }))]),
-    query(':enter', [animate('300ms ease-out', style({ left: '0%' }))])
-  ])
+    query(":enter", [style({ left: "-100%" })]),
+    query(":leave", [animate("300ms ease-out", style({ left: "100%" }))]),
+    query(":enter", [animate("300ms ease-out", style({ left: "0%" }))]),
+  ]),
 ]);
 
 // Add data to routes
 const routes: Routes = [
-  { path: '', component: HomeComponent, data: { animation: 'HomePage' } },
-  { path: 'about', component: AboutComponent, data: { animation: 'AboutPage' } }
+  { path: "", component: HomeComponent, data: { animation: "HomePage" } },
+  {
+    path: "about",
+    component: AboutComponent,
+    data: { animation: "AboutPage" },
+  },
 ];
 
 // Component
@@ -1134,11 +1153,11 @@ const routes: Routes = [
       <router-outlet></router-outlet>
     </div>
   `,
-  animations: [routeAnimations]
+  animations: [routeAnimations],
 })
 export class AppComponent {
   getRouteAnimationData() {
-    return this.route.snapshot.firstChild?.data['animation'];
+    return this.route.snapshot.firstChild?.data["animation"];
   }
 }
 ```
@@ -1147,18 +1166,19 @@ export class AppComponent {
 
 ```typescript
 // Enable scroll restoration
-provideRouter(routes, 
+provideRouter(
+  routes,
   withInMemoryScrolling({
-    scrollPositionRestoration: 'enabled',  // 'disabled' | 'enabled' | 'top'
-    anchorScrolling: 'enabled'             // Enable #fragment scrolling
+    scrollPositionRestoration: "enabled", // 'disabled' | 'enabled' | 'top'
+    anchorScrolling: "enabled", // Enable #fragment scrolling
   })
 );
 
 // With NgModule
 RouterModule.forRoot(routes, {
-  scrollPositionRestoration: 'enabled',
-  anchorScrolling: 'enabled',
-  scrollOffset: [0, 64]  // Offset for fixed header
+  scrollPositionRestoration: "enabled",
+  anchorScrolling: "enabled",
+  scrollOffset: [0, 64], // Offset for fixed header
 });
 
 // Custom scroll behavior
@@ -1175,11 +1195,11 @@ export class CustomScrollBehavior implements ViewportScroller {
 @Injectable()
 export class LowerCaseUrlSerializer implements UrlSerializer {
   private defaultSerializer = new DefaultUrlSerializer();
-  
+
   parse(url: string): UrlTree {
     return this.defaultSerializer.parse(url.toLowerCase());
   }
-  
+
   serialize(tree: UrlTree): string {
     return this.defaultSerializer.serialize(tree).toLowerCase();
   }
@@ -1197,41 +1217,43 @@ export class LowerCaseUrlSerializer implements UrlSerializer {
 
 **Answer:**
 
-| Guard | When Called | Purpose |
-|-------|-------------|---------|
-| **canActivate** | After route is matched | Prevent access to matched route |
-| **canMatch** | Before route matching | Prevent route from being considered |
+| Guard           | When Called            | Purpose                             |
+| --------------- | ---------------------- | ----------------------------------- |
+| **canActivate** | After route is matched | Prevent access to matched route     |
+| **canMatch**    | Before route matching  | Prevent route from being considered |
 
 ```typescript
 // canMatch - affects which route is matched
 const routes: Routes = [
   {
-    path: 'dashboard',
-    canMatch: [premiumGuard],    // If false, try next route
-    component: PremiumDashboard
+    path: "dashboard",
+    canMatch: [premiumGuard], // If false, try next route
+    component: PremiumDashboard,
   },
   {
-    path: 'dashboard',
-    component: BasicDashboard     // Fallback
-  }
+    path: "dashboard",
+    component: BasicDashboard, // Fallback
+  },
 ];
 
 // canActivate - blocks access to matched route
 const routes: Routes = [
   {
-    path: 'admin',
-    canActivate: [authGuard],     // If false, navigation fails
-    component: AdminComponent
-  }
+    path: "admin",
+    canActivate: [authGuard], // If false, navigation fails
+    component: AdminComponent,
+  },
 ];
 ```
 
 **Use canMatch when:**
+
 - Different components for different user types
 - Feature flags
 - A/B testing
 
 **Use canActivate when:**
+
 - Authorization/authentication
 - Redirecting to login
 
@@ -1242,6 +1264,7 @@ const routes: Routes = [
 **Answer:**
 
 **Lazy Loading:**
+
 - Load modules/components on demand
 - Reduces initial bundle size
 - Improves initial load time
@@ -1249,27 +1272,27 @@ const routes: Routes = [
 ```typescript
 const routes: Routes = [
   {
-    path: 'admin',
-    loadChildren: () => import('./admin/admin.routes')
-      .then(m => m.ADMIN_ROUTES)
-  }
+    path: "admin",
+    loadChildren: () =>
+      import("./admin/admin.routes").then((m) => m.ADMIN_ROUTES),
+  },
 ];
 ```
 
 **Preloading Strategies:**
 
-| Strategy | Behavior |
-|----------|----------|
-| **NoPreloading** | Default - only load on navigation |
+| Strategy              | Behavior                                    |
+| --------------------- | ------------------------------------------- |
+| **NoPreloading**      | Default - only load on navigation           |
 | **PreloadAllModules** | Preload all lazy modules after initial load |
-| **Custom** | Selective preloading based on conditions |
+| **Custom**            | Selective preloading based on conditions    |
 
 ```typescript
 // Custom strategy
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class SelectivePreloader implements PreloadingStrategy {
   preload(route: Route, load: () => Observable<any>): Observable<any> {
-    return route.data?.['preload'] ? load() : of(null);
+    return route.data?.["preload"] ? load() : of(null);
   }
 }
 ```
@@ -1289,14 +1312,14 @@ export interface CanComponentDeactivate {
 }
 
 // Guard
-export const unsavedGuard: CanDeactivateFn<CanComponentDeactivate> = 
+export const unsavedGuard: CanDeactivateFn<CanComponentDeactivate> =
   (component) => component.canDeactivate();
 
 // Component
 @Component({...})
 export class EditComponent implements CanComponentDeactivate {
   form = this.fb.group({ name: [''] });
-  
+
   canDeactivate(): boolean {
     if (this.form.dirty) {
       return confirm('Discard changes?');
@@ -1312,18 +1335,19 @@ export class EditComponent implements CanComponentDeactivate {
 
 **Answer:**
 
-| Type | URL Part | Example |
-|------|----------|---------|
-| **paramMap** | Path segments | `/users/123` → `{ id: '123' }` |
-| **queryParamMap** | Query string | `?page=1&sort=name` → `{ page: '1', sort: 'name' }` |
+| Type              | URL Part      | Example                                             |
+| ----------------- | ------------- | --------------------------------------------------- |
+| **paramMap**      | Path segments | `/users/123` → `{ id: '123' }`                      |
+| **queryParamMap** | Query string  | `?page=1&sort=name` → `{ page: '1', sort: 'name' }` |
 
 ```typescript
 // Route: /users/:id?page=1&sort=name
-const id = route.snapshot.paramMap.get('id');           // '123'
-const page = route.snapshot.queryParamMap.get('page');  // '1'
+const id = route.snapshot.paramMap.get("id"); // '123'
+const page = route.snapshot.queryParamMap.get("page"); // '1'
 ```
 
 **Key differences:**
+
 - Route params are part of route definition
 - Query params are optional, not tied to route
 - Route params use `paramMap`, query params use `queryParamMap`
@@ -1337,6 +1361,7 @@ const page = route.snapshot.queryParamMap.get('page');  // '1'
 **Resolvers** pre-fetch data before a route activates.
 
 **How they work:**
+
 1. Navigation starts
 2. Guards run (canActivate, etc.)
 3. Resolvers run (parallel)
@@ -1359,11 +1384,13 @@ ngOnInit() {
 ```
 
 **When to use:**
+
 - ✅ Critical data needed before component renders
 - ✅ Prevent empty states/loading spinners
 - ✅ Handle errors before navigation completes
 
 **When NOT to use:**
+
 - ❌ Large datasets (blocks navigation)
 - ❌ Optional/secondary data
 - ❌ Real-time data (use services instead)
@@ -1373,31 +1400,37 @@ ngOnInit() {
 ## Summary Checklist
 
 ✅ **Route Configuration**
+
 - Understand all route properties
 - Know pathMatch strategies
 - Handle wildcards correctly
 
 ✅ **Navigation**
+
 - RouterLink for templates
 - Router.navigate for code
 - Handle query params and fragments
 
 ✅ **Child Routes**
+
 - Nested router-outlets
 - Accessing parent params
 - Named outlets
 
 ✅ **Lazy Loading**
+
 - loadChildren vs loadComponent
 - Preloading strategies
 - Route-level providers
 
 ✅ **Guards**
+
 - canActivate, canDeactivate, canMatch
 - Functional vs class-based
 - Return types (boolean, UrlTree, Observable)
 
 ✅ **Resolvers**
+
 - Pre-fetch data
 - Handle errors
 - Know when to use

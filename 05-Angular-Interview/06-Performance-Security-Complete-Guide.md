@@ -76,13 +76,13 @@
 @Component({...})
 export class MyComponent {
   constructor(private cdr: ChangeDetectorRef) {}
-  
+
   // Manual triggers
   triggerDetection() {
     this.cdr.detectChanges();    // Run CD for this component and children
     this.cdr.markForCheck();     // Mark component for check (OnPush)
   }
-  
+
   // Detach from CD tree (advanced)
   detach() {
     this.cdr.detach();           // Remove from CD tree
@@ -99,14 +99,14 @@ export class MyComponent {
 
 ```typescript
 @Component({
-  selector: 'app-user-card',
+  selector: "app-user-card",
   template: `
     <div class="card">
       <h3>{{ user.name }}</h3>
       <p>{{ user.email }}</p>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush  // Enable OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush, // Enable OnPush
 })
 export class UserCardComponent {
   @Input() user!: User;
@@ -121,27 +121,27 @@ export class UserCardComponent {
   template: `
     <p>{{ data }}</p>
     <button (click)="onClick()">Click</button>
-  `
+  `,
 })
 export class OnPushComponent {
   @Input() data!: string;
-  
+
   constructor(private cdr: ChangeDetectorRef) {}
-  
+
   // 1. Input reference changes (primitive or new object reference)
   // @Input() data changes → triggers CD
-  
+
   // 2. DOM event within component
   onClick() {
     // This click triggers CD for this component
   }
-  
+
   // 3. Async pipe emits
   // Observable | async → triggers CD
-  
+
   // 4. Manual trigger
   manualTrigger() {
-    this.cdr.markForCheck();  // Marks for next CD cycle
+    this.cdr.markForCheck(); // Marks for next CD cycle
     this.cdr.detectChanges(); // Immediate CD
   }
 }
@@ -153,9 +153,7 @@ export class OnPushComponent {
 // PROBLEM: Mutating objects doesn't trigger CD
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <p>{{ user.name }}</p>
-  `
+  template: ` <p>{{ user.name }}</p> `,
 })
 export class UserComponent {
   @Input() user!: User;
@@ -163,19 +161,19 @@ export class UserComponent {
 
 // Parent component
 @Component({
-  template: `<app-user [user]="currentUser"></app-user>`
+  template: `<app-user [user]="currentUser"></app-user>`,
 })
 export class ParentComponent {
-  currentUser = { name: 'John' };
-  
+  currentUser = { name: "John" };
+
   // BAD - Mutation, won't trigger child CD
   updateNameBad() {
-    this.currentUser.name = 'Jane';  // Same reference!
+    this.currentUser.name = "Jane"; // Same reference!
   }
-  
+
   // GOOD - New reference
   updateNameGood() {
-    this.currentUser = { ...this.currentUser, name: 'Jane' };
+    this.currentUser = { ...this.currentUser, name: "Jane" };
   }
 }
 ```
@@ -224,21 +222,21 @@ export class ListComponent {
 ```typescript
 // app.routes.ts
 const routes: Routes = [
-  { path: '', component: HomeComponent },
-  
+  { path: "", component: HomeComponent },
+
   // Lazy load entire feature
   {
-    path: 'admin',
-    loadChildren: () => import('./admin/admin.routes')
-      .then(m => m.ADMIN_ROUTES)
+    path: "admin",
+    loadChildren: () =>
+      import("./admin/admin.routes").then((m) => m.ADMIN_ROUTES),
   },
-  
+
   // Lazy load single component
   {
-    path: 'profile',
-    loadComponent: () => import('./profile/profile.component')
-      .then(m => m.ProfileComponent)
-  }
+    path: "profile",
+    loadComponent: () =>
+      import("./profile/profile.component").then((m) => m.ProfileComponent),
+  },
 ];
 ```
 
@@ -277,15 +275,15 @@ export class SelectivePreloader implements PreloadingStrategy {
   template: `
     <button (click)="loadChart()">Show Chart</button>
     <div #chartContainer></div>
-  `
+  `,
 })
 export class ReportComponent {
-  @ViewChild('chartContainer', { read: ViewContainerRef }) 
+  @ViewChild("chartContainer", { read: ViewContainerRef })
   container!: ViewContainerRef;
-  
+
   async loadChart() {
     // Dynamically import heavy library only when needed
-    const { ChartComponent } = await import('./chart/chart.component');
+    const { ChartComponent } = await import("./chart/chart.component");
     this.container.createComponent(ChartComponent);
   }
 }
@@ -309,15 +307,15 @@ npx webpack-bundle-analyzer dist/your-app/stats.json
 
 ```typescript
 // BAD - Imports entire library
-import * as _ from 'lodash';
+import * as _ from "lodash";
 _.map(items, fn);
 
 // GOOD - Import only what you need
-import map from 'lodash-es/map';
+import map from "lodash-es/map";
 map(items, fn);
 
 // Or use subpath imports
-import { map, filter } from 'lodash-es';
+import { map, filter } from "lodash-es";
 ```
 
 ### Production Build Optimizations
@@ -376,10 +374,13 @@ not IE 11
     <ul>
       <li *ngFor="let item of items">{{ item.name }}</li>
     </ul>
-  `
+  `,
 })
 export class ListBadComponent {
-  items = [{ id: 1, name: 'A' }, { id: 2, name: 'B' }];
+  items = [
+    { id: 1, name: "A" },
+    { id: 2, name: "B" },
+  ];
 }
 
 // WITH trackBy - Angular reuses DOM elements
@@ -388,11 +389,14 @@ export class ListBadComponent {
     <ul>
       <li *ngFor="let item of items; trackBy: trackById">{{ item.name }}</li>
     </ul>
-  `
+  `,
 })
 export class ListGoodComponent {
-  items = [{ id: 1, name: 'A' }, { id: 2, name: 'B' }];
-  
+  items = [
+    { id: 1, name: "A" },
+    { id: 2, name: "B" },
+  ];
+
   trackById(index: number, item: Item): number {
     return item.id;
   }
@@ -403,18 +407,18 @@ export class ListGoodComponent {
 
 ```typescript
 // PURE PIPE (default) - Only re-runs when input reference changes
-@Pipe({ name: 'filter', pure: true })
+@Pipe({ name: "filter", pure: true })
 export class FilterPipe implements PipeTransform {
   transform(items: Item[], search: string): Item[] {
-    return items.filter(item => item.name.includes(search));
+    return items.filter((item) => item.name.includes(search));
   }
 }
 
 // IMPURE PIPE - Runs on EVERY change detection cycle (expensive!)
-@Pipe({ name: 'filter', pure: false })
+@Pipe({ name: "filter", pure: false })
 export class ImpureFilterPipe implements PipeTransform {
   transform(items: Item[], search: string): Item[] {
-    return items.filter(item => item.name.includes(search));
+    return items.filter((item) => item.name.includes(search));
   }
 }
 
@@ -427,8 +431,9 @@ export class ImpureFilterPipe implements PipeTransform {
 // BAD - Function called on every CD cycle
 @Component({
   template: `
-    <div>{{ calculateTotal() }}</div>  <!-- Called every CD! -->
-  `
+    <div>{{ calculateTotal() }}</div>
+    <!-- Called every CD! -->
+  `,
 })
 export class BadComponent {
   calculateTotal(): number {
@@ -438,13 +443,11 @@ export class BadComponent {
 
 // GOOD - Use memoization or computed property
 @Component({
-  template: `
-    <div>{{ total }}</div>
-  `
+  template: ` <div>{{ total }}</div> `,
 })
 export class GoodComponent {
   total = 0;
-  
+
   updateTotal() {
     this.total = this.items.reduce((sum, item) => sum + item.price, 0);
   }
@@ -452,11 +455,11 @@ export class GoodComponent {
 
 // BEST with Signals (Angular 16+)
 @Component({
-  template: `<div>{{ total() }}</div>`
+  template: `<div>{{ total() }}</div>`,
 })
 export class SignalComponent {
   items = signal<Item[]>([]);
-  total = computed(() => 
+  total = computed(() =>
     this.items().reduce((sum, item) => sum + item.price, 0)
   );
 }
@@ -465,7 +468,7 @@ export class SignalComponent {
 ### Virtual Scrolling
 
 ```typescript
-import { ScrollingModule } from '@angular/cdk/scrolling';
+import { ScrollingModule } from "@angular/cdk/scrolling";
 
 @Component({
   standalone: true,
@@ -477,14 +480,16 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
       </div>
     </cdk-virtual-scroll-viewport>
   `,
-  styles: [`
-    .viewport {
-      height: 400px;
-    }
-    .item {
-      height: 50px;
-    }
-  `]
+  styles: [
+    `
+      .viewport {
+        height: 400px;
+      }
+      .item {
+        height: 50px;
+      }
+    `,
+  ],
 })
 export class VirtualListComponent {
   items = Array.from({ length: 10000 }, (_, i) => ({ name: `Item ${i}` }));
@@ -509,33 +514,33 @@ export class MemoryLeakFreeComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private resizeHandler!: () => void;
   private intervalId!: number;
-  
+
   ngOnInit() {
     // 1. Subscribe with takeUntil
     this.dataService.getData().pipe(
       takeUntil(this.destroy$)
     ).subscribe();
-    
+
     // 2. Store event listener reference
     this.resizeHandler = () => this.onResize();
     window.addEventListener('resize', this.resizeHandler);
-    
+
     // 3. Store timer reference
     this.intervalId = window.setInterval(() => this.poll(), 5000);
   }
-  
+
   ngOnDestroy() {
     // 1. Complete destroy subject
     this.destroy$.next();
     this.destroy$.complete();
-    
+
     // 2. Remove event listener
     window.removeEventListener('resize', this.resizeHandler);
-    
+
     // 3. Clear timer
     clearInterval(this.intervalId);
   }
-  
+
   private onResize() { /* ... */ }
   private poll() { /* ... */ }
 }
@@ -544,7 +549,7 @@ export class MemoryLeakFreeComponent implements OnInit, OnDestroy {
 @Component({...})
 export class ModernComponent {
   private destroyRef = inject(DestroyRef);
-  
+
   ngOnInit() {
     this.dataService.getData().pipe(
       takeUntilDestroyed(this.destroyRef)
@@ -558,24 +563,24 @@ export class ModernComponent {
 ```typescript
 // For heavy components that don't need frequent updates
 @Component({
-  template: `<div>{{ heavyData }}</div>`
+  template: `<div>{{ heavyData }}</div>`,
 })
 export class HeavyComponent implements OnInit, OnDestroy {
-  heavyData = '';
-  
+  heavyData = "";
+
   constructor(private cdr: ChangeDetectorRef) {}
-  
+
   ngOnInit() {
     // Detach from CD tree
     this.cdr.detach();
-    
+
     // Manually run CD only when needed
     this.loadData();
   }
-  
+
   loadData() {
     this.heavyData = this.processHeavyData();
-    this.cdr.detectChanges();  // Manual update
+    this.cdr.detectChanges(); // Manual update
   }
 }
 ```
@@ -628,21 +633,21 @@ export class HeavyComponent implements OnInit, OnDestroy {
   template: `
     <!-- SAFE: Angular sanitizes this -->
     <div [innerHTML]="userContent"></div>
-    
+
     <!-- SAFE: Interpolation is always escaped -->
     <p>{{ userInput }}</p>
-    
+
     <!-- SAFE: Property binding is sanitized -->
     <a [href]="userUrl">Link</a>
-  `
+  `,
 })
 export class SafeComponent {
   userContent = '<script>alert("xss")</script><b>Bold</b>';
   // Rendered: <b>Bold</b> (script removed)
-  
+
   userInput = '<script>alert("xss")</script>';
   // Rendered: &lt;script&gt;alert("xss")&lt;/script&gt; (escaped)
-  
+
   userUrl = 'javascript:alert("xss")';
   // Rendered: unsafe:javascript:alert("xss") (prefixed with unsafe:)
 }
@@ -651,28 +656,28 @@ export class SafeComponent {
 ### Bypassing Sanitization (Use Carefully!)
 
 ```typescript
-import { DomSanitizer, SafeHtml, SafeUrl } from '@angular/platform-browser';
+import { DomSanitizer, SafeHtml, SafeUrl } from "@angular/platform-browser";
 
 @Component({
   template: `
     <div [innerHTML]="trustedHtml"></div>
     <iframe [src]="trustedUrl"></iframe>
-  `
+  `,
 })
 export class TrustedContentComponent {
   trustedHtml: SafeHtml;
   trustedUrl: SafeUrl;
-  
+
   constructor(private sanitizer: DomSanitizer) {
     // DANGEROUS - Only use with trusted content!
     // Typically from your own server, never from users
-    
+
     this.trustedHtml = this.sanitizer.bypassSecurityTrustHtml(
       '<video><source src="trusted.mp4"></video>'
     );
-    
+
     this.trustedUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-      'https://trusted-domain.com/embed'
+      "https://trusted-domain.com/embed"
     );
   }
 }
@@ -689,14 +694,17 @@ export class TrustedContentComponent {
 
 ```html
 <!-- index.html -->
-<meta http-equiv="Content-Security-Policy" content="
+<meta
+  http-equiv="Content-Security-Policy"
+  content="
   default-src 'self';
   script-src 'self';
   style-src 'self' 'unsafe-inline';
   img-src 'self' data: https:;
   font-src 'self';
   connect-src 'self' https://api.example.com;
-">
+"
+/>
 ```
 
 ---
@@ -709,19 +717,19 @@ export class TrustedContentComponent {
 // CSRF interceptor
 export const csrfInterceptor: HttpInterceptorFn = (req, next) => {
   // Get CSRF token from cookie (set by server)
-  const csrfToken = getCookie('XSRF-TOKEN');
-  
-  if (csrfToken && !req.headers.has('X-XSRF-TOKEN')) {
+  const csrfToken = getCookie("XSRF-TOKEN");
+
+  if (csrfToken && !req.headers.has("X-XSRF-TOKEN")) {
     req = req.clone({
-      setHeaders: { 'X-XSRF-TOKEN': csrfToken }
+      setHeaders: { "X-XSRF-TOKEN": csrfToken },
     });
   }
-  
+
   return next(req);
 };
 
 function getCookie(name: string): string | null {
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
   return match ? match[2] : null;
 }
 
@@ -730,10 +738,12 @@ function getCookie(name: string): string | null {
 // and adds X-XSRF-TOKEN header
 
 // With provideHttpClient
-provideHttpClient(withXsrfConfiguration({
-  cookieName: 'XSRF-TOKEN',
-  headerName: 'X-XSRF-TOKEN'
-}));
+provideHttpClient(
+  withXsrfConfiguration({
+    cookieName: "XSRF-TOKEN",
+    headerName: "X-XSRF-TOKEN",
+  })
+);
 ```
 
 ---
@@ -743,66 +753,63 @@ provideHttpClient(withXsrfConfiguration({
 ### JWT Authentication Service
 
 ```typescript
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
-  
-  private tokenKey = 'auth_token';
-  
-  constructor(
-    private http: HttpClient,
-    private router: Router
-  ) {
+
+  private tokenKey = "auth_token";
+
+  constructor(private http: HttpClient, private router: Router) {
     this.loadStoredUser();
   }
-  
+
   login(credentials: LoginCredentials): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>('/api/auth/login', credentials).pipe(
-      tap(response => {
+    return this.http.post<AuthResponse>("/api/auth/login", credentials).pipe(
+      tap((response) => {
         this.storeToken(response.token);
         this.currentUserSubject.next(response.user);
       })
     );
   }
-  
+
   logout(): void {
     localStorage.removeItem(this.tokenKey);
     this.currentUserSubject.next(null);
-    this.router.navigate(['/login']);
+    this.router.navigate(["/login"]);
   }
-  
+
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
   }
-  
+
   isAuthenticated(): boolean {
     const token = this.getToken();
     if (!token) return false;
-    
+
     // Check if token is expired
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const payload = JSON.parse(atob(token.split(".")[1]));
       return payload.exp > Date.now() / 1000;
     } catch {
       return false;
     }
   }
-  
+
   hasRole(role: string): boolean {
     const user = this.currentUserSubject.value;
     return user?.roles?.includes(role) ?? false;
   }
-  
+
   private storeToken(token: string): void {
     localStorage.setItem(this.tokenKey, token);
   }
-  
+
   private loadStoredUser(): void {
     const token = this.getToken();
     if (token && this.isAuthenticated()) {
       // Decode user from token or fetch from API
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const payload = JSON.parse(atob(token.split(".")[1]));
       this.currentUserSubject.next(payload.user);
     }
   }
@@ -815,43 +822,43 @@ export class AuthService {
 export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
-  
+
   if (authService.isAuthenticated()) {
     return true;
   }
-  
-  return router.createUrlTree(['/login'], {
-    queryParams: { returnUrl: state.url }
+
+  return router.createUrlTree(["/login"], {
+    queryParams: { returnUrl: state.url },
   });
 };
 
 export const roleGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
-  
-  const requiredRoles = route.data['roles'] as string[];
-  
+
+  const requiredRoles = route.data["roles"] as string[];
+
   if (!authService.isAuthenticated()) {
-    return router.createUrlTree(['/login']);
+    return router.createUrlTree(["/login"]);
   }
-  
-  const hasRole = requiredRoles.some(role => authService.hasRole(role));
-  
+
+  const hasRole = requiredRoles.some((role) => authService.hasRole(role));
+
   if (hasRole) {
     return true;
   }
-  
-  return router.createUrlTree(['/unauthorized']);
+
+  return router.createUrlTree(["/unauthorized"]);
 };
 
 // Route config
 const routes: Routes = [
   {
-    path: 'admin',
+    path: "admin",
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['admin'] },
-    loadChildren: () => import('./admin/admin.routes')
-  }
+    data: { roles: ["admin"] },
+    loadChildren: () => import("./admin/admin.routes"),
+  },
 ];
 ```
 
@@ -860,23 +867,23 @@ const routes: Routes = [
 ```typescript
 export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
-  
+
   // Skip for auth endpoints
-  if (req.url.includes('/auth/')) {
+  if (req.url.includes("/auth/")) {
     return next(req);
   }
-  
+
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
         return authService.refreshToken().pipe(
-          switchMap(newToken => {
+          switchMap((newToken) => {
             const clonedReq = req.clone({
-              setHeaders: { Authorization: `Bearer ${newToken}` }
+              setHeaders: { Authorization: `Bearer ${newToken}` },
             });
             return next(clonedReq);
           }),
-          catchError(refreshError => {
+          catchError((refreshError) => {
             authService.logout();
             return throwError(() => refreshError);
           })
@@ -894,23 +901,29 @@ export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
 // Token storage options:
 
 // 1. localStorage - Vulnerable to XSS, persists
-localStorage.setItem('token', token);
+localStorage.setItem("token", token);
 
 // 2. sessionStorage - Vulnerable to XSS, cleared on tab close
-sessionStorage.setItem('token', token);
+sessionStorage.setItem("token", token);
 
 // 3. HttpOnly Cookie - Not accessible via JS, CSRF protection needed
 // Set by server:
 // Set-Cookie: token=xxx; HttpOnly; Secure; SameSite=Strict
 
 // 4. Memory only - Most secure but lost on refresh
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class TokenService {
   private token: string | null = null;
-  
-  setToken(token: string) { this.token = token; }
-  getToken() { return this.token; }
-  clearToken() { this.token = null; }
+
+  setToken(token: string) {
+    this.token = token;
+  }
+  getToken() {
+    return this.token;
+  }
+  clearToken() {
+    this.token = null;
+  }
 }
 
 // Best practice for SPAs:
@@ -930,11 +943,13 @@ export class TokenService {
 **Change Detection (CD)** is Angular's mechanism to keep the DOM in sync with component data.
 
 **Default Strategy:**
+
 - Runs for ALL components on every async event
 - Top-down traversal of component tree
 - Expensive for large apps
 
 **OnPush Strategy:**
+
 - Only runs when:
   1. Input reference changes
   2. Event fires within component
@@ -944,7 +959,7 @@ export class TokenService {
 ```typescript
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `{{ data | async }}`  // async pipe handles CD
+  template: `{{ data | async }}`, // async pipe handles CD
 })
 export class OptimizedComponent {
   @Input() data!: Observable<Data>;
@@ -960,33 +975,39 @@ export class OptimizedComponent {
 **Answer:**
 
 **1. Lazy Loading:**
+
 ```typescript
 { path: 'admin', loadChildren: () => import('./admin/admin.routes') }
 ```
 
 **2. Tree Shaking:**
+
 ```typescript
 // Import only what you need
-import { map } from 'lodash-es';  // Not: import * as _ from 'lodash'
+import { map } from "lodash-es"; // Not: import * as _ from 'lodash'
 ```
 
 **3. Production Build:**
+
 ```bash
 ng build --configuration=production
 ```
 
 **4. Bundle Budgets:**
+
 ```json
 "budgets": [{ "type": "initial", "maximumWarning": "500kb" }]
 ```
 
 **5. Analyze Bundles:**
+
 ```bash
 ng build --stats-json
 npx webpack-bundle-analyzer dist/stats.json
 ```
 
 **6. Remove unused code:**
+
 - Remove unused imports
 - Use `providedIn: 'root'` for tree-shakeable services
 - Avoid importing entire libraries
@@ -997,13 +1018,13 @@ npx webpack-bundle-analyzer dist/stats.json
 
 **Answer:**
 
-| Vulnerability | Prevention |
-|--------------|------------|
-| **XSS** | Angular auto-sanitizes; never use `bypassSecurityTrust*` with user input |
-| **CSRF** | Use HttpOnly cookies + CSRF tokens |
-| **Injection** | Validate inputs server-side |
-| **Sensitive Data Exposure** | Don't store secrets in frontend code |
-| **Broken Auth** | Use JWT properly, refresh tokens, secure storage |
+| Vulnerability               | Prevention                                                               |
+| --------------------------- | ------------------------------------------------------------------------ |
+| **XSS**                     | Angular auto-sanitizes; never use `bypassSecurityTrust*` with user input |
+| **CSRF**                    | Use HttpOnly cookies + CSRF tokens                                       |
+| **Injection**               | Validate inputs server-side                                              |
+| **Sensitive Data Exposure** | Don't store secrets in frontend code                                     |
+| **Broken Auth**             | Use JWT properly, refresh tokens, secure storage                         |
 
 ```typescript
 // XSS Prevention - Angular does this automatically
@@ -1011,10 +1032,12 @@ npx webpack-bundle-analyzer dist/stats.json
 this.sanitizer.bypassSecurityTrustHtml(userInput); // DANGEROUS!
 
 // CSRF Protection
-provideHttpClient(withXsrfConfiguration({
-  cookieName: 'XSRF-TOKEN',
-  headerName: 'X-XSRF-TOKEN'
-}));
+provideHttpClient(
+  withXsrfConfiguration({
+    cookieName: "XSRF-TOKEN",
+    headerName: "X-XSRF-TOKEN",
+  })
+);
 ```
 
 ---
@@ -1024,6 +1047,7 @@ provideHttpClient(withXsrfConfiguration({
 **Answer:**
 
 **Common Leak Sources:**
+
 1. Unsubscribed Observables
 2. Event listeners
 3. Timers
@@ -1062,11 +1086,13 @@ ngOnDestroy() { this.sub.unsubscribe(); }
 **Answer:**
 
 Without `trackBy`, Angular:
+
 - Can't identify which items changed
 - Destroys and recreates ALL DOM elements on any change
 - Loses component state, causes flicker
 
 With `trackBy`:
+
 - Angular tracks items by unique identifier
 - Only updates/creates/removes changed items
 - Preserves DOM and component state
@@ -1082,6 +1108,7 @@ trackById(index: number, item: Item): number {
 ```
 
 **Performance impact:**
+
 - List of 1000 items: updating 1 item
 - Without trackBy: 1000 DOM operations
 - With trackBy: 1 DOM operation
@@ -1091,28 +1118,33 @@ trackById(index: number, item: Item): number {
 ## Summary Checklist
 
 ✅ **Change Detection**
+
 - Understand default vs OnPush
 - Use OnPush with immutable data
 - Prefer async pipe
 
 ✅ **Performance**
+
 - Lazy load routes
 - Use trackBy with ngFor
 - Avoid expensive template expressions
 - Virtual scrolling for long lists
 
 ✅ **Bundle Optimization**
+
 - Tree shaking
 - Bundle budgets
 - Analyze with webpack-bundle-analyzer
 
 ✅ **Security**
+
 - Trust Angular's sanitization
 - Never bypass security with user input
 - Use CSRF tokens
 - Implement proper auth guards
 
 ✅ **Memory Management**
+
 - Always unsubscribe
 - Use takeUntilDestroyed
 - Prefer async pipe
