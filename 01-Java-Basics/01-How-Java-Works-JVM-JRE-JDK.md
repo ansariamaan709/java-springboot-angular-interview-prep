@@ -1001,6 +1001,278 @@ MyClass obj = new MyClass(); // Throws NoClassDefFoundError
 
 ---
 
+### Q10: What is the difference between -Xms and -Xmx?
+
+**Answer:**
+
+| Parameter | Meaning           | Default                 |
+| --------- | ----------------- | ----------------------- |
+| -Xms      | Initial heap size | 1/64 of physical memory |
+| -Xmx      | Maximum heap size | 1/4 of physical memory  |
+
+```bash
+# Set initial heap to 512MB, max to 2GB
+java -Xms512m -Xmx2g MyApplication
+
+# Common practice: Set both equal to avoid resizing
+java -Xms2g -Xmx2g MyApplication
+```
+
+**Why set them equal?**
+
+- Avoids GC pause during heap expansion
+- Predictable memory footprint
+- Better for production environments
+
+---
+
+### Q11: What is the difference between Serial, Parallel, CMS, and G1 garbage collectors?
+
+**Answer:**
+
+| GC       | Threads    | Use Case               | Flag                    |
+| -------- | ---------- | ---------------------- | ----------------------- |
+| Serial   | Single     | Small apps, client     | -XX:+UseSerialGC        |
+| Parallel | Multiple   | Throughput priority    | -XX:+UseParallelGC      |
+| CMS      | Concurrent | Low pause (deprecated) | -XX:+UseConcMarkSweepGC |
+| G1       | Concurrent | Balanced, large heap   | -XX:+UseG1GC            |
+| ZGC      | Concurrent | Ultra-low latency      | -XX:+UseZGC             |
+
+**Default (Java 9+):** G1 GC
+
+---
+
+### Q12: What is the difference between Young Generation and Old Generation?
+
+**Answer:**
+
+| Young Generation          | Old Generation        |
+| ------------------------- | --------------------- |
+| New objects created here  | Long-lived objects    |
+| Eden + Survivor spaces    | Tenured space         |
+| Minor GC (frequent, fast) | Major GC (rare, slow) |
+| Most objects die young    | Survived many GCs     |
+
+```
+Heap
+├── Young Generation
+│   ├── Eden Space (new objects)
+│   ├── Survivor 0 (S0)
+│   └── Survivor 1 (S1)
+└── Old Generation (Tenured)
+```
+
+**Object lifecycle:**
+
+1. Created in Eden
+2. Survives GC → moves to Survivor
+3. Survives multiple GCs → moves to Old Gen
+
+---
+
+### Q13: What is a memory leak in Java? How to detect?
+
+**Answer:**
+Memory leak occurs when objects are no longer needed but still referenced, preventing GC.
+
+**Common causes:**
+
+1. Static collections holding references
+2. Unclosed resources (streams, connections)
+3. Inner classes holding outer class reference
+4. ThreadLocal not cleaned up
+5. Listeners not unregistered
+
+```java
+// Example memory leak
+public class Cache {
+    private static final Map<String, Object> cache = new HashMap<>();
+
+    public void add(String key, Object value) {
+        cache.put(key, value);  // Never removed!
+    }
+}
+```
+
+**Detection tools:**
+
+- VisualVM
+- JProfiler
+- Eclipse MAT
+- `jmap -histo:live <pid>`
+
+---
+
+### Q14: Explain bytecode verification process.
+
+**Answer:**
+Bytecode verifier ensures .class files are safe to execute:
+
+1. **Structural checks:** Valid file format, magic number (CAFEBABE)
+2. **Type checking:** Operations match operand types
+3. **Branch verification:** Jump targets valid
+4. **Stack verification:** No stack overflow/underflow
+5. **Object initialization:** Constructor called before use
+
+```
+.class file → Verifier → Pass → Execute
+                      → Fail → VerifyError
+```
+
+**Why needed?**
+
+- Prevents malicious code execution
+- Ensures type safety at runtime
+- Protects JVM integrity
+
+---
+
+### Q15: What is String Constant Pool and how does it relate to JVM memory?
+
+**Answer:**
+String Pool stores unique string literals for reuse.
+
+**Location:**
+
+- Java 6 and earlier: PermGen
+- Java 7+: Heap (inside Young/Old generation)
+
+```java
+String s1 = "Hello";       // Goes to pool
+String s2 = "Hello";       // Reuses from pool
+String s3 = new String("Hello");  // Heap, not pool
+String s4 = s3.intern();   // Now in pool
+
+s1 == s2  // true (same pool reference)
+s1 == s3  // false (different objects)
+s1 == s4  // true (intern returns pool reference)
+```
+
+---
+
+### Q16: What is the difference between interpreter and JIT compiler?
+
+**Answer:**
+
+| Interpreter                    | JIT Compiler                       |
+| ------------------------------ | ---------------------------------- |
+| Executes bytecode line by line | Compiles bytecode to native code   |
+| No compilation delay           | Initial compilation delay          |
+| Slower execution               | Faster execution after compile     |
+| Used for cold code             | Used for hot (frequently run) code |
+
+**JVM uses both:**
+
+1. Initially interprets bytecode
+2. Monitors execution frequency
+3. Hot code compiled by JIT
+4. Native code cached and reused
+
+---
+
+### Q17: What happens if main method is not static?
+
+**Answer:**
+The program won't run. JVM looks for `public static void main(String[] args)`.
+
+**Why static?**
+
+- JVM needs to call main() without creating an instance
+- No object exists before main() runs
+- Entry point must be accessible without instantiation
+
+```java
+// Won't work - not static
+public class Test {
+    public void main(String[] args) {
+        System.out.println("Hello");
+    }
+}
+// Error: Main method not found in class Test
+```
+
+---
+
+### Q18: Can you explain Java compilation and execution flow?
+
+**Answer:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    COMPILATION (javac)                       │
+├─────────────────────────────────────────────────────────────┤
+│  .java file → Lexical Analysis → Syntax Analysis →          │
+│  Semantic Analysis → Bytecode Generation → .class file      │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│                    EXECUTION (java)                          │
+├─────────────────────────────────────────────────────────────┤
+│  .class file → Class Loader → Bytecode Verifier →           │
+│  Interpreter/JIT → Native Code → Execution                   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### Q19: What is escape analysis in JVM?
+
+**Answer:**
+Escape analysis determines if an object's reference escapes the method/thread.
+
+**If object doesn't escape, JVM can:**
+
+1. **Stack allocation:** Allocate on stack instead of heap
+2. **Scalar replacement:** Replace object with primitive fields
+3. **Lock elision:** Remove unnecessary synchronization
+
+```java
+public int sum() {
+    // Point doesn't escape - can be stack allocated
+    Point p = new Point(3, 4);
+    return p.x + p.y;
+}
+```
+
+**Benefits:**
+
+- Reduced GC pressure
+- Better cache locality
+- Improved performance
+
+---
+
+### Q20: What are daemon threads? How do they affect JVM shutdown?
+
+**Answer:**
+Daemon threads are background service threads.
+
+**Characteristics:**
+
+- JVM exits when only daemon threads remain
+- Used for background tasks (GC thread, finalizer thread)
+- Cannot prevent JVM shutdown
+
+```java
+Thread daemon = new Thread(() -> {
+    while (true) {
+        // Background task
+    }
+});
+daemon.setDaemon(true);  // Must set before start()
+daemon.start();
+
+// When main thread ends, JVM exits even if daemon running
+```
+
+**Use cases:**
+
+- Garbage collection
+- Resource cleanup
+- Background monitoring
+
+---
+
 ## Common Interview Traps
 
 ### Trap 1: "Is JVM platform independent?"

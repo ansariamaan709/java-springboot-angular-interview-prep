@@ -1338,6 +1338,292 @@ Best practice: Use `-XX:+DisableExplicitGC` to ignore calls.
 
 ---
 
+### Q11: What is the difference between heap and stack memory?
+
+| Aspect        | Heap                        | Stack                         |
+| ------------- | --------------------------- | ----------------------------- |
+| **Scope**     | Shared by all threads       | Per-thread                    |
+| **Stores**    | Objects, instance variables | Local variables, method calls |
+| **Lifecycle** | Until GC collects           | Until method returns          |
+| **Size**      | Configurable (-Xmx)         | Fixed per thread (-Xss)       |
+| **Speed**     | Slower (GC overhead)        | Faster (LIFO allocation)      |
+| **Error**     | OutOfMemoryError            | StackOverflowError            |
+
+```java
+public void demo() {
+    int x = 10;              // Stack
+    String s = "Hello";      // Stack (reference), String pool (value)
+    User u = new User();     // Stack (reference), Heap (object)
+
+    List<User> list = new ArrayList<>();  // Stack (ref), Heap (ArrayList + array)
+}
+```
+
+---
+
+### Q12: How does String Pool work in memory?
+
+**Answer:**
+String pool is a special area in heap (was in PermGen before Java 7) that stores unique string literals.
+
+```java
+String s1 = "Hello";        // Goes to pool
+String s2 = "Hello";        // Reuses from pool
+String s3 = new String("Hello");  // New object in heap
+
+System.out.println(s1 == s2);      // true (same reference)
+System.out.println(s1 == s3);      // false (different objects)
+System.out.println(s1 == s3.intern());  // true (intern adds to pool)
+```
+
+**Memory impact:**
+
+- Pool reduces memory for repeated strings
+- `intern()` can add strings to pool but be careful of pool size
+- `-XX:StringTableSize` controls hash table size
+
+---
+
+### Q13: What are GC Roots and why are they important?
+
+**Answer:**
+GC Roots are starting points for garbage collection. Any object reachable from GC roots is NOT collected.
+
+**Types of GC Roots:**
+
+1. **Local variables** - In active method stack frames
+2. **Active threads** - Thread objects themselves
+3. **Static fields** - Class static variables
+4. **JNI references** - Native code references
+5. **Synchronized objects** - Objects used as monitors
+
+```java
+// GC Root examples
+class GCRootDemo {
+    static Object staticRef;     // GC Root (static field)
+
+    void method() {
+        Object localRef = new Object();  // GC Root (local variable)
+        synchronized (localRef) {        // GC Root (monitor)
+            // ...
+        }
+    }
+}
+```
+
+**Why important:**
+
+- Determines which objects survive collection
+- Memory leaks occur when unneeded objects still have GC root references
+
+---
+
+### Q14: What is memory fragmentation and how does compaction help?
+
+**Answer:**
+**Fragmentation:** After multiple GC cycles, free memory becomes scattered into small chunks.
+
+```
+BEFORE compaction:
+[Obj][FREE][Obj][FREE][FREE][Obj][FREE]
+
+Allocation of 3-block object fails despite 4 free blocks!
+
+AFTER compaction:
+[Obj][Obj][Obj][FREE][FREE][FREE][FREE]
+
+Now 3-block allocation succeeds!
+```
+
+**Compaction phases:**
+
+1. **Mark** - Identify live objects
+2. **Sweep** - Identify garbage
+3. **Compact** - Move live objects together
+
+**GC compaction behavior:**
+| GC | Compaction |
+|----|------------|
+| Serial | Full compaction |
+| Parallel | Full compaction |
+| CMS | No compaction (prone to fragmentation) |
+| G1 | Incremental compaction |
+| ZGC | Concurrent compaction |
+
+---
+
+### Q15: Explain the TLAB (Thread Local Allocation Buffer).
+
+**Answer:**
+TLAB is a per-thread Eden region that allows lock-free allocation.
+
+```
+Eden Space:
+┌─────────────────────────────────────┐
+│ TLAB-T1 │ TLAB-T2 │ TLAB-T3 │ Free │
+│ (Thread1)│(Thread2)│(Thread3)│      │
+└─────────────────────────────────────┘
+```
+
+**Benefits:**
+
+- No synchronization needed for small allocations
+- Faster allocation (bump pointer)
+- Each thread allocates in its own buffer
+
+**JVM flags:**
+
+```
+-XX:+UseTLAB           # Enable (default)
+-XX:TLABSize=512k      # Initial size
+-XX:+PrintTLAB         # Debug output
+```
+
+**When TLAB doesn't work:**
+
+- Large objects (> TLAB size) → Direct Eden allocation
+- TLAB full → Allocate new TLAB or shared Eden
+
+---
+
+### Q16: What is Metaspace and how does it differ from PermGen?
+
+| Aspect           | PermGen (Java 7-)         | Metaspace (Java 8+)                |
+| ---------------- | ------------------------- | ---------------------------------- |
+| **Location**     | Java Heap                 | Native memory                      |
+| **Default size** | Fixed (64MB)              | Auto-grow (unlimited)              |
+| **OOM error**    | OutOfMemoryError: PermGen | OutOfMemoryError: Metaspace        |
+| **GC**           | Full GC only              | Concurrent possible                |
+| **Contents**     | Classes, methods, strings | Classes, methods (strings in heap) |
+
+**Metaspace tuning:**
+
+```
+-XX:MetaspaceSize=256m       # Initial size
+-XX:MaxMetaspaceSize=512m    # Max (prevent runaway growth)
+-XX:CompressedClassSpaceSize=256m  # For class pointers
+```
+
+**Monitor metaspace:**
+
+```bash
+jstat -gc <pid>
+# MC: Metaspace capacity, MU: Metaspace used
+```
+
+---
+
+### Q17: How do you troubleshoot OutOfMemoryError?
+
+**Answer:**
+
+| OOM Type                    | Cause                     | Solution                          |
+| --------------------------- | ------------------------- | --------------------------------- |
+| **Java heap space**         | Objects fill heap         | Increase -Xmx, fix memory leak    |
+| **GC overhead limit**       | 98% time in GC, <2% freed | Fix memory leak, increase heap    |
+| **Metaspace**               | Too many classes loaded   | Increase MaxMetaspaceSize         |
+| **Direct buffer**           | NIO buffer exhaustion     | -XX:MaxDirectMemorySize           |
+| **Unable to create thread** | Too many threads          | Reduce stack size, thread pooling |
+
+**Troubleshooting steps:**
+
+```bash
+# 1. Enable heap dump on OOM
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:HeapDumpPath=/path/to/dump.hprof
+
+# 2. Analyze with tools
+jmap -histo:live <pid>           # Object histogram
+jmap -dump:format=b,file=heap.hprof <pid>  # Full dump
+
+# 3. Use profilers
+# - Eclipse MAT for heap analysis
+# - VisualVM for live monitoring
+# - JProfiler for detailed profiling
+```
+
+---
+
+### Q18: What are Soft, Weak, Phantom, and Strong references?
+
+| Reference   | GC Behavior                                     | Use Case               |
+| ----------- | ----------------------------------------------- | ---------------------- |
+| **Strong**  | Never collected while reachable                 | Normal references      |
+| **Soft**    | Collected when memory is low                    | Caches                 |
+| **Weak**    | Collected at next GC                            | WeakHashMap, listeners |
+| **Phantom** | Collected, but notification before finalization | Resource cleanup       |
+
+```java
+// Strong
+Object strong = new Object();
+
+// Soft - for memory-sensitive caches
+SoftReference<byte[]> cache = new SoftReference<>(new byte[1024*1024]);
+if (cache.get() == null) { /* Recreate */ }
+
+// Weak - allows GC when no strong refs
+WeakReference<Object> weak = new WeakReference<>(new Object());
+// weak.get() returns null after GC
+
+// Phantom - cleanup notification
+PhantomReference<Object> phantom = new PhantomReference<>(obj, refQueue);
+// After GC, phantom appears in refQueue
+```
+
+---
+
+### Q19: How does card table work in generational GC?
+
+**Answer:**
+Card table tracks old-to-young references to avoid scanning entire old generation.
+
+```
+Old Generation:
+┌─────┬─────┬─────┬─────┬─────┐
+│Card1│Card2│Card3│Card4│Card5│
+└──┬──┴─────┴──┬──┴─────┴─────┘
+   │           │
+   ↓           ↓
+Card Table: [1][0][1][0][0]  (dirty/clean)
+```
+
+**How it works:**
+
+1. When old object references young object, card is marked "dirty"
+2. During Minor GC, only dirty cards are scanned
+3. Reduces old gen scanning from O(old_gen_size) to O(dirty_cards)
+
+**Write barrier:**
+
+```java
+// JVM inserts code like this on field writes:
+oldObject.field = youngObject;
+cardTable[address >> 9] = DIRTY;  // Mark card dirty
+```
+
+---
+
+### Q20: Compare Serial, Parallel, G1, and ZGC collectors.
+
+| Aspect       | Serial           | Parallel           | G1           | ZGC         |
+| ------------ | ---------------- | ------------------ | ------------ | ----------- |
+| **Threads**  | Single           | Multiple           | Multiple     | Multiple    |
+| **STW**      | All phases       | All phases         | Minimal      | < 1ms       |
+| **Use case** | Small apps       | Throughput         | Balanced     | Low latency |
+| **Default**  | Client JVM       | Java 8 server      | Java 9+      | None        |
+| **Flag**     | -XX:+UseSerialGC | -XX:+UseParallelGC | -XX:+UseG1GC | -XX:+UseZGC |
+
+**Choosing a GC:**
+
+```
+High throughput (batch jobs)     → Parallel GC
+Low latency (web apps)           → G1 GC
+Ultra-low latency (<1ms)         → ZGC / Shenandoah
+Small heap (<100MB)              → Serial GC
+```
+
+---
+
 ## Key Takeaways
 
 | Topic              | Key Point                                          |

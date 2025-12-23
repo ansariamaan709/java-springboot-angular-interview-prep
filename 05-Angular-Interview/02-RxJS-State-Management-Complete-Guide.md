@@ -1551,6 +1551,410 @@ const calculation$ = new AsyncSubject<number>();
 
 ---
 
+### Q6: Explain the async pipe and its benefits.
+
+**Answer:**
+The async pipe subscribes and unsubscribes automatically.
+
+```typescript
+// Component
+@Component({
+  template: `
+    <!-- Async pipe handles subscription -->
+    <div *ngIf="users$ | async as users">
+      <div *ngFor="let user of users">{{ user.name }}</div>
+    </div>
+
+    <!-- Multiple subscriptions (bad) -->
+    <div>{{ (data$ | async)?.name }}</div>
+    <div>{{ (data$ | async)?.email }}</div>
+    <!-- Two subscriptions! -->
+
+    <!-- Better: Single subscription -->
+    <ng-container *ngIf="data$ | async as data">
+      <div>{{ data.name }}</div>
+      <div>{{ data.email }}</div>
+    </ng-container>
+  `,
+})
+export class UserListComponent {
+  users$ = this.userService.getUsers();
+  data$ = this.dataService.getData().pipe(shareReplay(1));
+}
+```
+
+**Benefits:**
+
+- Automatic unsubscription (no memory leaks)
+- Triggers change detection
+- Less boilerplate code
+- Works with OnPush strategy
+
+---
+
+### Q7: How do you combine multiple observables?
+
+**Answer:**
+
+```typescript
+// combineLatest - All emit, then emit on any change
+combineLatest([user$, settings$, theme$]).pipe(
+  map(([user, settings, theme]) => ({ user, settings, theme }))
+);
+
+// forkJoin - Wait for all to complete (like Promise.all)
+forkJoin({
+  users: this.http.get<User[]>("/api/users"),
+  products: this.http.get<Product[]>("/api/products"),
+  orders: this.http.get<Order[]>("/api/orders"),
+}).subscribe(({ users, products, orders }) => {
+  // All data available here
+});
+
+// merge - Emit from any source as they come
+merge(
+  fromEvent(document, "click"),
+  fromEvent(document, "keypress"),
+  fromEvent(document, "scroll")
+).subscribe((event) => {
+  // Reacts to any user activity
+});
+
+// zip - Pairs values by index
+zip(letter$, number$).subscribe(([letter, num]) => {
+  // ['a', 1], ['b', 2], ['c', 3]
+});
+
+// withLatestFrom - Main stream + latest from others
+search$.pipe(
+  withLatestFrom(filters$),
+  switchMap(([query, filters]) => this.search(query, filters))
+);
+```
+
+---
+
+### Q8: What is the difference between tap and map?
+
+**Answer:**
+
+```typescript
+// map - Transforms values
+of(1, 2, 3)
+  .pipe(map((x) => x * 2))
+  .subscribe((x) => console.log(x)); // 2, 4, 6
+
+// tap - Side effects, doesn't transform
+of(1, 2, 3)
+  .pipe(
+    tap((x) => console.log("Before:", x)), // Logs: 1, 2, 3
+    map((x) => x * 2),
+    tap((x) => console.log("After:", x)) // Logs: 2, 4, 6
+  )
+  .subscribe();
+
+// Common tap uses
+this.http.get("/api/users").pipe(
+  tap(() => (this.loading = false)), // Update loading state
+  tap((users) => console.log(users)), // Logging/debugging
+  tap((users) => this.cache.set(users)) // Caching
+);
+```
+
+| tap                  | map                   |
+| -------------------- | --------------------- |
+| Side effects         | Transformation        |
+| Returns same value   | Returns new value     |
+| For logging, caching | For data modification |
+
+---
+
+### Q9: How do you implement debounce and throttle?
+
+**Answer:**
+
+```typescript
+// debounceTime - Wait for pause in emissions
+searchInput.valueChanges.pipe(
+  debounceTime(300), // Wait 300ms after last keystroke
+  distinctUntilChanged(), // Skip if same value
+  switchMap((query) => this.search(query))
+);
+
+// throttleTime - Max one emission per time window
+scroll$.pipe(
+  throttleTime(100) // Max one event per 100ms
+);
+
+// auditTime - Emit last value of each time window
+mousemove$.pipe(
+  auditTime(100) // Last position every 100ms
+);
+
+// Comparison
+// Input: -a--b--c-----d---e-f-g---->
+// debounce(3): -----------c---------g-> (waits for pause)
+// throttle(3): -a-----c-----d-----g---> (first of each window)
+// audit(3):    ----b-----c-----d-----g-> (last of each window)
+```
+
+---
+
+### Q10: What is shareReplay and when to use it?
+
+**Answer:**
+`shareReplay` multicasts and caches emissions.
+
+```typescript
+// Problem: Multiple subscriptions = multiple HTTP calls
+const users$ = this.http.get<User[]>('/api/users');
+
+// Template subscribes twice
+<div *ngIf="users$ | async as users">...</div>
+<div>Count: {{ (users$ | async)?.length }}</div>
+// Two HTTP requests!
+
+// Solution: shareReplay
+const users$ = this.http.get<User[]>('/api/users').pipe(
+  shareReplay(1)  // Cache 1 value, share among subscribers
+);
+// Now only one HTTP request
+
+// With refCount for automatic cleanup
+const data$ = source$.pipe(
+  shareReplay({ bufferSize: 1, refCount: true })
+);
+// Unsubscribes from source when all subscribers unsubscribe
+```
+
+**Use cases:**
+
+- HTTP responses used in multiple places
+- Expensive computations
+- Shared state streams
+
+---
+
+### Q11: Explain NgRx selectors and their benefits.
+
+**Answer:**
+Selectors are pure functions for deriving state.
+
+```typescript
+// Basic selectors
+export const selectUserState = (state: AppState) => state.user;
+
+export const selectAllUsers = createSelector(
+  selectUserState,
+  (state) => state.users
+);
+
+export const selectActiveUsers = createSelector(selectAllUsers, (users) =>
+  users.filter((u) => u.active)
+);
+
+// Parameterized selector
+export const selectUserById = (id: number) =>
+  createSelector(selectAllUsers, (users) => users.find((u) => u.id === id));
+
+// Combining selectors
+export const selectUserWithOrders = createSelector(
+  selectActiveUsers,
+  selectAllOrders,
+  (users, orders) =>
+    users.map((user) => ({
+      ...user,
+      orders: orders.filter((o) => o.userId === user.id),
+    }))
+);
+
+// Usage in component
+users$ = this.store.select(selectActiveUsers);
+userWithOrders$ = this.store.select(selectUserWithOrders);
+```
+
+**Benefits:**
+
+- Memoized (cached until inputs change)
+- Composable
+- Testable (pure functions)
+- Performance (avoids unnecessary recalculation)
+
+---
+
+### Q12: How do you handle loading and error states with RxJS?
+
+**Answer:**
+
+```typescript
+// Loading state pattern
+interface State<T> {
+  data: T | null;
+  loading: boolean;
+  error: string | null;
+}
+
+// In service
+loadUsers(): Observable<State<User[]>> {
+  return this.http.get<User[]>('/api/users').pipe(
+    map(data => ({ data, loading: false, error: null })),
+    startWith({ data: null, loading: true, error: null }),
+    catchError(err => of({
+      data: null,
+      loading: false,
+      error: err.message
+    }))
+  );
+}
+
+// In component
+state$ = this.service.loadUsers();
+
+// Template
+<ng-container *ngIf="state$ | async as state">
+  <app-loader *ngIf="state.loading"></app-loader>
+  <app-error *ngIf="state.error" [message]="state.error"></app-error>
+  <app-user-list *ngIf="state.data" [users]="state.data"></app-user-list>
+</ng-container>
+```
+
+---
+
+### Q13: What is the difference between hot and cold observables?
+
+**Answer:**
+
+| Cold Observable                    | Hot Observable           |
+| ---------------------------------- | ------------------------ |
+| Creates producer on subscribe      | Producer exists already  |
+| Each subscriber gets own execution | Shared execution         |
+| HTTP requests, intervals           | Mouse events, WebSockets |
+| Unicast                            | Multicast                |
+
+```typescript
+// Cold - Each subscriber triggers new HTTP request
+const cold$ = this.http.get("/api/data");
+cold$.subscribe(); // Request 1
+cold$.subscribe(); // Request 2
+
+// Hot - Shared source
+const hot$ = new Subject<string>();
+hot$.subscribe((v) => console.log("A:", v));
+hot$.subscribe((v) => console.log("B:", v));
+hot$.next("hello"); // Both A and B receive 'hello'
+
+// Making cold observable hot
+const shared$ = this.http.get("/api/data").pipe(
+  shareReplay(1) // Now hot (multicast)
+);
+shared$.subscribe(); // Request 1
+shared$.subscribe(); // No new request, gets cached value
+```
+
+---
+
+### Q14: How do you test RxJS observables?
+
+**Answer:**
+
+```typescript
+// Using marble testing
+import { TestScheduler } from "rxjs/testing";
+
+describe("SearchService", () => {
+  let scheduler: TestScheduler;
+
+  beforeEach(() => {
+    scheduler = new TestScheduler((actual, expected) => {
+      expect(actual).toEqual(expected);
+    });
+  });
+
+  it("should debounce search", () => {
+    scheduler.run(({ cold, expectObservable }) => {
+      const input = cold("a-b-c-----d|");
+      const expected = "  ------c-----d|";
+
+      const result = input.pipe(debounceTime(5));
+      expectObservable(result).toBe(expected);
+    });
+  });
+});
+
+// Using fakeAsync
+it("should load users", fakeAsync(() => {
+  let result: User[];
+  service.getUsers().subscribe((users) => (result = users));
+
+  tick(); // Advance time
+
+  expect(result).toHaveLength(3);
+}));
+
+// Simple subscribe testing
+it("should emit values", (done) => {
+  service.getData().subscribe({
+    next: (value) => expect(value).toBe("expected"),
+    complete: () => done(),
+  });
+});
+```
+
+---
+
+### Q15: Explain the retry and retryWhen operators.
+
+**Answer:**
+
+```typescript
+// retry - Simple retry N times
+this.http.get("/api/data").pipe(
+  retry(3) // Retry up to 3 times on error
+);
+
+// retry with delay (RxJS 7+)
+this.http.get("/api/data").pipe(
+  retry({
+    count: 3,
+    delay: 1000, // Wait 1 second between retries
+  })
+);
+
+// Exponential backoff
+this.http.get("/api/data").pipe(
+  retry({
+    count: 3,
+    delay: (error, retryCount) => timer(Math.pow(2, retryCount) * 1000),
+    // 2s, 4s, 8s
+  })
+);
+
+// retryWhen (deprecated, use retry with config)
+this.http.get("/api/data").pipe(
+  retryWhen((errors) =>
+    errors.pipe(
+      delayWhen((_, index) => timer(1000 * Math.pow(2, index))),
+      take(3)
+    )
+  )
+);
+
+// Only retry specific errors
+this.http.get("/api/data").pipe(
+  retry({
+    count: 3,
+    delay: (error) => {
+      if (error.status === 503) {
+        return timer(1000); // Retry 503
+      }
+      return throwError(() => error); // Don't retry others
+    },
+  })
+);
+```
+
+---
+
 ## Summary: RxJS & State Management Checklist
 
 ✅ **RxJS Essentials**

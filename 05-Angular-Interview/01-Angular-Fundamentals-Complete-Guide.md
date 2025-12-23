@@ -1577,6 +1577,385 @@ export class CardComponent implements AfterViewInit, AfterContentInit {
 
 ---
 
+### Q7: What are standalone components and why use them?
+
+**Answer:**
+Standalone components (Angular 14+) don't need to be declared in an NgModule.
+
+```typescript
+// Standalone component
+@Component({
+  selector: "app-user-card",
+  standalone: true,
+  imports: [CommonModule, RouterModule], // Import dependencies directly
+  template: `
+    <div *ngIf="user">
+      <h2>{{ user.name }}</h2>
+      <a [routerLink]="['/users', user.id]">View Profile</a>
+    </div>
+  `,
+})
+export class UserCardComponent {
+  @Input() user!: User;
+}
+
+// Using in another standalone component
+@Component({
+  standalone: true,
+  imports: [UserCardComponent],
+  template: `<app-user-card [user]="user" />`,
+})
+export class UserListComponent {}
+
+// Bootstrap standalone app
+bootstrapApplication(AppComponent, {
+  providers: [provideRouter(routes), provideHttpClient()],
+});
+```
+
+**Benefits:**
+
+- Less boilerplate (no NgModule)
+- Better tree-shaking
+- Easier lazy loading
+- Clear dependency declarations
+
+---
+
+### Q8: Explain Angular pipes and how to create a custom one.
+
+**Answer:**
+Pipes transform data in templates.
+
+```typescript
+// Built-in pipes
+{{ date | date:'short' }}
+{{ price | currency:'USD' }}
+{{ text | uppercase | slice:0:10 }}
+{{ items | async }}
+{{ object | json }}
+
+// Custom pipe
+@Pipe({
+  name: 'truncate',
+  standalone: true,
+  pure: true  // Default - only recalculates when input changes
+})
+export class TruncatePipe implements PipeTransform {
+  transform(value: string, limit: number = 50, suffix: string = '...'): string {
+    if (!value) return '';
+    return value.length > limit
+      ? value.substring(0, limit) + suffix
+      : value;
+  }
+}
+
+// Usage
+{{ description | truncate:100:'...' }}
+
+// Impure pipe (recalculates every change detection)
+@Pipe({ name: 'filter', pure: false })
+export class FilterPipe implements PipeTransform {
+  transform(items: any[], field: string, value: any): any[] {
+    return items?.filter(item => item[field] === value);
+  }
+}
+```
+
+**Warning:** Avoid impure pipes with large arrays - causes performance issues.
+
+---
+
+### Q9: What is Zone.js and how does it affect change detection?
+
+**Answer:**
+Zone.js patches async APIs to notify Angular when to run change detection.
+
+**Patched APIs:**
+
+- setTimeout/setInterval
+- Promise
+- XMLHttpRequest/fetch
+- DOM events
+- WebSocket
+
+```typescript
+// Zone.js triggers change detection after:
+button.addEventListener('click', handler);  // Patched
+setTimeout(() => {}, 100);                  // Patched
+fetch('/api/data');                         // Patched
+
+// Running outside Angular's zone (skip change detection)
+constructor(private ngZone: NgZone) {}
+
+doSomething() {
+  this.ngZone.runOutsideAngular(() => {
+    // Runs outside zone - no change detection triggered
+    setInterval(() => this.heavyCalculation(), 100);
+  });
+
+  // Re-enter zone when needed
+  this.ngZone.run(() => {
+    this.updateUI();  // Triggers change detection
+  });
+}
+```
+
+**Zoneless Angular (experimental):**
+Angular 16+ supports zoneless mode with Signals for better performance.
+
+---
+
+### Q10: How do you communicate between components?
+
+**Answer:**
+
+| Method                 | Use Case             |
+| ---------------------- | -------------------- |
+| @Input/@Output         | Parent-child         |
+| Service with Subject   | Unrelated components |
+| ViewChild/ContentChild | Direct reference     |
+| Router state           | Via navigation       |
+| NgRx/Signals           | Global state         |
+
+```typescript
+// 1. @Input/@Output
+@Component({
+  template: `
+    <app-child
+      [data]="parentData"
+      (dataChange)="onDataChange($event)">
+    </app-child>
+  `
+})
+export class ParentComponent {}
+
+// 2. Service with BehaviorSubject
+@Injectable({ providedIn: 'root' })
+export class DataService {
+  private dataSubject = new BehaviorSubject<string>('');
+  data$ = this.dataSubject.asObservable();
+
+  updateData(value: string) {
+    this.dataSubject.next(value);
+  }
+}
+
+// 3. ViewChild
+@ViewChild(ChildComponent) child!: ChildComponent;
+
+ngAfterViewInit() {
+  this.child.doSomething();
+}
+```
+
+---
+
+### Q11: What are structural directives and how do they work?
+
+**Answer:**
+Structural directives modify DOM structure (prefixed with \*).
+
+```typescript
+// Built-in structural directives
+<div *ngIf="condition">Shown if true</div>
+<div *ngFor="let item of items; index as i; trackBy: trackById">
+  {{ i }}: {{ item.name }}
+</div>
+<div [ngSwitch]="status">
+  <span *ngSwitchCase="'active'">Active</span>
+  <span *ngSwitchCase="'inactive'">Inactive</span>
+  <span *ngSwitchDefault>Unknown</span>
+</div>
+
+// Custom structural directive
+@Directive({
+  selector: '[appUnless]',
+  standalone: true
+})
+export class UnlessDirective {
+  constructor(
+    private templateRef: TemplateRef<any>,
+    private viewContainer: ViewContainerRef
+  ) {}
+
+  @Input() set appUnless(condition: boolean) {
+    if (!condition) {
+      this.viewContainer.createEmbeddedView(this.templateRef);
+    } else {
+      this.viewContainer.clear();
+    }
+  }
+}
+
+// Usage
+<div *appUnless="isLoading">Content shown when NOT loading</div>
+```
+
+---
+
+### Q12: What is the difference between Observable and Promise?
+
+**Answer:**
+
+| Observable                  | Promise                      |
+| --------------------------- | ---------------------------- |
+| Multiple values over time   | Single value                 |
+| Lazy (needs subscribe)      | Eager (executes immediately) |
+| Cancelable (unsubscribe)    | Not cancelable               |
+| Has operators (map, filter) | Limited chaining             |
+| Push-based                  | Push-based                   |
+
+```typescript
+// Promise - single value, eager
+const promise = new Promise((resolve) => {
+  console.log("Promise created"); // Runs immediately
+  resolve("done");
+});
+
+// Observable - lazy, multiple values
+const observable = new Observable((subscriber) => {
+  console.log("Observable subscribed"); // Runs on subscribe
+  subscriber.next(1);
+  subscriber.next(2);
+  subscriber.complete();
+});
+
+// Must subscribe to execute
+const sub = observable.subscribe((value) => console.log(value));
+
+// Can cancel
+sub.unsubscribe();
+
+// Convert between them
+const obs = from(promise); // Promise to Observable
+const prom = firstValueFrom(observable); // Observable to Promise
+```
+
+---
+
+### Q13: How do you handle errors in Angular?
+
+**Answer:**
+
+```typescript
+// 1. Global error handler
+@Injectable()
+export class GlobalErrorHandler implements ErrorHandler {
+  constructor(private errorService: ErrorService) {}
+
+  handleError(error: any): void {
+    console.error('Global error:', error);
+    this.errorService.logError(error);
+    // Show user-friendly message
+  }
+}
+
+// Register in app config
+providers: [{ provide: ErrorHandler, useClass: GlobalErrorHandler }]
+
+// 2. HTTP errors with interceptor
+export const errorInterceptor: HttpInterceptorFn = (req, next) => {
+  return next(req).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401) {
+        // Redirect to login
+      } else if (error.status === 404) {
+        // Show not found
+      }
+      return throwError(() => error);
+    })
+  );
+};
+
+// 3. Component-level try-catch
+async loadData() {
+  try {
+    this.data = await firstValueFrom(this.service.getData());
+  } catch (error) {
+    this.errorMessage = 'Failed to load data';
+  }
+}
+```
+
+---
+
+### Q14: What is NgModule and its metadata properties?
+
+**Answer:**
+
+```typescript
+@NgModule({
+  // Components, directives, pipes declared in this module
+  declarations: [AppComponent, HeaderComponent, FooterComponent],
+
+  // Other modules whose exports are needed
+  imports: [BrowserModule, HttpClientModule, SharedModule],
+
+  // Services available throughout the module
+  providers: [
+    UserService,
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+  ],
+
+  // Components, directives, pipes available to importing modules
+  exports: [HeaderComponent, FooterComponent],
+
+  // Root component (only in AppModule)
+  bootstrap: [AppComponent],
+
+  // Components loaded dynamically (deprecated, use lazy loading)
+  entryComponents: [],
+})
+export class AppModule {}
+```
+
+**Module types:**
+
+- **Root (AppModule):** Bootstraps the app
+- **Feature:** Encapsulates a feature
+- **Shared:** Reusable components/pipes/directives
+- **Core:** Singleton services (imported once in AppModule)
+
+---
+
+### Q15: How does ngOnChanges work and when to use it?
+
+**Answer:**
+`ngOnChanges` is called when @Input properties change.
+
+```typescript
+@Component({...})
+export class UserComponent implements OnChanges {
+  @Input() userId!: number;
+  @Input() config!: UserConfig;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Check if specific input changed
+    if (changes['userId']) {
+      const change = changes['userId'];
+      console.log('Previous:', change.previousValue);
+      console.log('Current:', change.currentValue);
+      console.log('First change:', change.firstChange);
+
+      this.loadUser(change.currentValue);
+    }
+
+    // Note: For objects, only reference change triggers this
+    // config = newConfig triggers it
+    // config.property = newValue does NOT trigger it
+  }
+}
+```
+
+**Gotchas:**
+
+- Only detects reference changes for objects/arrays
+- Called before ngOnInit on first change
+- Not called for internal object mutations
+
+---
+
 ## Summary: Angular Fundamentals Checklist
 
 ✅ **Components**

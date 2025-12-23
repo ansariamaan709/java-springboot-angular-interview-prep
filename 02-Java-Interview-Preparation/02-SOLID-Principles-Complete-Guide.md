@@ -1390,6 +1390,350 @@ They complement each other:
 
 ---
 
+### Q9: How can you apply SRP in a real Spring Boot project?
+
+**Answer:**
+
+```java
+// BEFORE: UserController doing too much
+@RestController
+public class UserController {
+    public void createUser() { /* validation + save + email + audit */ }
+}
+
+// AFTER: Separate concerns
+@RestController
+public class UserController {
+    @Autowired private UserService userService;
+    @Autowired private UserValidator validator;
+
+    @PostMapping("/users")
+    public ResponseEntity<User> createUser(@RequestBody UserDto dto) {
+        validator.validate(dto);
+        return ResponseEntity.ok(userService.create(dto));
+    }
+}
+
+@Service
+public class UserService {
+    @Autowired private UserRepository repository;
+    @Autowired private EmailService emailService;
+    @Autowired private AuditService auditService;
+
+    public User create(UserDto dto) {
+        User user = repository.save(mapper.toEntity(dto));
+        emailService.sendWelcome(user);
+        auditService.log("USER_CREATED", user.getId());
+        return user;
+    }
+}
+```
+
+**Key separations:**
+
+- Controller: HTTP handling
+- Validator: Input validation
+- Service: Business logic
+- Repository: Data access
+- EmailService: Notifications
+- AuditService: Logging
+
+---
+
+### Q10: What is a classic LSP violation and how to fix it?
+
+**Answer:**
+Classic violation: Square extending Rectangle
+
+```java
+// VIOLATION
+class Rectangle {
+    protected int width, height;
+
+    public void setWidth(int w) { width = w; }
+    public void setHeight(int h) { height = h; }
+    public int getArea() { return width * height; }
+}
+
+class Square extends Rectangle {
+    @Override
+    public void setWidth(int w) {
+        width = height = w;  // Breaks expectations!
+    }
+
+    @Override
+    public void setHeight(int h) {
+        width = height = h;  // Breaks expectations!
+    }
+}
+
+// Client code fails
+void resize(Rectangle r) {
+    r.setWidth(5);
+    r.setHeight(10);
+    assert r.getArea() == 50;  // Fails for Square!
+}
+
+// SOLUTION: Use composition or separate hierarchy
+interface Shape {
+    int getArea();
+}
+
+record Rectangle(int width, int height) implements Shape {
+    public int getArea() { return width * height; }
+}
+
+record Square(int side) implements Shape {
+    public int getArea() { return side * side; }
+}
+```
+
+---
+
+### Q11: How is ISP applied in Java standard library?
+
+**Answer:**
+
+```java
+// Collection interface hierarchy demonstrates ISP
+interface Collection<E> {
+    boolean add(E e);
+    boolean remove(Object o);
+    int size();
+}
+
+interface List<E> extends Collection<E> {
+    E get(int index);
+    void add(int index, E element);
+}
+
+interface Set<E> extends Collection<E> {
+    // No index-based operations needed
+}
+
+interface Queue<E> extends Collection<E> {
+    E poll();
+    E peek();
+}
+
+// Client only depends on what it needs
+void processItems(Collection<String> items) {
+    for (String item : items) {
+        process(item);
+    }
+}
+
+void accessByIndex(List<String> items) {
+    for (int i = 0; i < items.size(); i++) {
+        process(items.get(i));
+    }
+}
+```
+
+**Anti-pattern to avoid:**
+
+```java
+// BAD: Fat interface
+interface Worker {
+    void work();
+    void eat();
+    void sleep();
+}
+
+class Robot implements Worker {
+    public void work() { /* OK */ }
+    public void eat() { throw new UnsupportedOperationException(); }  // Violation!
+    public void sleep() { throw new UnsupportedOperationException(); }
+}
+
+// GOOD: Segregated interfaces
+interface Workable { void work(); }
+interface Feedable { void eat(); }
+interface Sleepable { void sleep(); }
+
+class Robot implements Workable {
+    public void work() { /* OK */ }
+}
+```
+
+---
+
+### Q12: Show DIP with a practical example.
+
+**Answer:**
+
+```java
+// VIOLATION: High-level depends on low-level
+class OrderService {
+    private MySQLDatabase database = new MySQLDatabase();  // Concrete!
+    private EmailSender emailSender = new EmailSender();   // Concrete!
+
+    public void placeOrder(Order order) {
+        database.save(order);
+        emailSender.send(order.getEmail());
+    }
+}
+
+// SOLUTION: Depend on abstractions
+interface OrderRepository {
+    void save(Order order);
+}
+
+interface NotificationService {
+    void notify(String recipient, String message);
+}
+
+class OrderService {
+    private final OrderRepository repository;
+    private final NotificationService notifier;
+
+    // Dependencies injected
+    public OrderService(OrderRepository repo, NotificationService notifier) {
+        this.repository = repo;
+        this.notifier = notifier;
+    }
+
+    public void placeOrder(Order order) {
+        repository.save(order);
+        notifier.notify(order.getEmail(), "Order placed");
+    }
+}
+
+// Can now inject any implementation
+@Configuration
+class AppConfig {
+    @Bean
+    OrderService orderService(OrderRepository repo, NotificationService ns) {
+        return new OrderService(repo, ns);
+    }
+}
+```
+
+**Benefits:**
+
+- Testable (mock dependencies)
+- Flexible (swap implementations)
+- Decoupled (changes don't cascade)
+
+---
+
+### Q13: How does OCP work with Strategy pattern?
+
+**Answer:**
+
+```java
+// OCP-compliant payment system
+interface PaymentStrategy {
+    void pay(BigDecimal amount);
+}
+
+class CreditCardPayment implements PaymentStrategy {
+    public void pay(BigDecimal amount) {
+        // Credit card logic
+    }
+}
+
+class PayPalPayment implements PaymentStrategy {
+    public void pay(BigDecimal amount) {
+        // PayPal logic
+    }
+}
+
+class CryptoPayment implements PaymentStrategy {  // NEW - no modification!
+    public void pay(BigDecimal amount) {
+        // Crypto logic
+    }
+}
+
+// Closed for modification, open for extension
+class PaymentProcessor {
+    private PaymentStrategy strategy;
+
+    public PaymentProcessor(PaymentStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public void processPayment(BigDecimal amount) {
+        strategy.pay(amount);  // Works with any strategy
+    }
+}
+```
+
+---
+
+### Q14: What are common SOLID violations in code reviews?
+
+**Answer:**
+
+| Violation | Code Smell                                           | Fix                          |
+| --------- | ---------------------------------------------------- | ---------------------------- |
+| **SRP**   | Class > 500 lines, many imports                      | Split by responsibility      |
+| **OCP**   | Switch on type, if-else chains                       | Strategy/Factory pattern     |
+| **LSP**   | `instanceof` checks, `UnsupportedOperationException` | Composition over inheritance |
+| **ISP**   | Empty method implementations                         | Split interface              |
+| **DIP**   | `new ConcreteClass()` in business code               | Inject dependencies          |
+
+```java
+// SRP violation - God class
+class UserManager {
+    void createUser() {}
+    void sendEmail() {}
+    void generateReport() {}
+    void validatePayment() {}
+}
+
+// OCP violation
+void calculatePrice(Product p) {
+    if (p instanceof Book) { /* ... */ }
+    else if (p instanceof Electronic) { /* ... */ }
+    // Add new type = modify this method
+}
+
+// LSP violation
+class Bird { void fly() {} }
+class Penguin extends Bird {
+    void fly() { throw new UnsupportedOperationException(); }
+}
+```
+
+---
+
+### Q15: How do you balance SOLID with YAGNI?
+
+**Answer:**
+**YAGNI = "You Aren't Gonna Need It"**
+
+**Guidelines:**
+
+1. Don't add abstraction for one implementation
+2. Add interface when second implementation appears
+3. Refactor when code smells emerge
+
+```java
+// TOO EARLY (YAGNI violation)
+interface UserRepository { }
+class UserRepositoryImpl implements UserRepository { }  // Only one impl!
+
+// JUST RIGHT (pragmatic)
+class UserRepository {  // Start simple
+    public User findById(Long id) { /* ... */ }
+}
+
+// When you need caching:
+interface UserRepository { User findById(Long id); }
+class JpaUserRepository implements UserRepository { }
+class CachedUserRepository implements UserRepository { }
+```
+
+**Balance rule:** Apply SOLID when:
+
+- Multiple implementations exist
+- Code is hard to test
+- Changes cascade across files
+- Class responsibilities unclear
+
+---
+
 ## Key Takeaways
 
 | Principle | Key Point                  | Technique                          |

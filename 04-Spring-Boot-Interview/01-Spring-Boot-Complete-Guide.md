@@ -1878,6 +1878,404 @@ Activation:
 
 ---
 
+### Q11: What is the difference between @RequestParam, @PathVariable, and @RequestBody?
+
+**Answer:**
+
+```java
+// @PathVariable - from URL path
+@GetMapping("/users/{id}")
+public User getUser(@PathVariable Long id) { }
+// GET /users/123 → id = 123
+
+// @RequestParam - from query string
+@GetMapping("/users")
+public List<User> search(@RequestParam String name,
+                         @RequestParam(defaultValue = "0") int page) { }
+// GET /users?name=John&page=2 → name="John", page=2
+
+// @RequestBody - from request body (JSON)
+@PostMapping("/users")
+public User create(@RequestBody @Valid UserDto dto) { }
+// POST /users with JSON body
+```
+
+| Annotation    | Source       | Required           | Default      |
+| ------------- | ------------ | ------------------ | ------------ |
+| @PathVariable | URL path     | Yes                | -            |
+| @RequestParam | Query string | Yes (configurable) | defaultValue |
+| @RequestBody  | Body         | Yes                | -            |
+
+---
+
+### Q12: How do you implement pagination and sorting in Spring Data JPA?
+
+**Answer:**
+
+```java
+// Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+    Page<User> findByStatus(String status, Pageable pageable);
+}
+
+// Controller
+@GetMapping("/users")
+public Page<User> getUsers(
+    @RequestParam(defaultValue = "0") int page,
+    @RequestParam(defaultValue = "10") int size,
+    @RequestParam(defaultValue = "createdAt,desc") String[] sort) {
+
+    List<Sort.Order> orders = new ArrayList<>();
+    for (String s : sort) {
+        String[] parts = s.split(",");
+        orders.add(new Sort.Order(
+            parts.length > 1 && parts[1].equals("desc") ?
+                Sort.Direction.DESC : Sort.Direction.ASC,
+            parts[0]));
+    }
+
+    Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
+    return userRepository.findAll(pageable);
+}
+
+// Response contains: content, totalElements, totalPages, size, number
+```
+
+---
+
+### Q13: What is Spring AOP and when to use it?
+
+**Answer:**
+AOP (Aspect-Oriented Programming) handles cross-cutting concerns:
+
+```java
+@Aspect
+@Component
+public class LoggingAspect {
+
+    // Pointcut - where to apply
+    @Pointcut("execution(* com.example.service.*.*(..))")
+    public void serviceMethods() {}
+
+    // Before advice
+    @Before("serviceMethods()")
+    public void logBefore(JoinPoint jp) {
+        log.info("Calling: {}", jp.getSignature().getName());
+    }
+
+    // Around advice - most powerful
+    @Around("serviceMethods()")
+    public Object logAround(ProceedingJoinPoint pjp) throws Throwable {
+        long start = System.currentTimeMillis();
+        try {
+            return pjp.proceed();
+        } finally {
+            log.info("{} took {}ms", pjp.getSignature(),
+                     System.currentTimeMillis() - start);
+        }
+    }
+
+    // After returning
+    @AfterReturning(pointcut = "serviceMethods()", returning = "result")
+    public void logAfter(Object result) {
+        log.info("Returned: {}", result);
+    }
+}
+```
+
+**Use cases:** Logging, security, transactions, caching, auditing.
+
+---
+
+### Q14: What is the difference between @Component, @Bean, and @Configuration?
+
+**Answer:**
+| Annotation | Level | Purpose |
+|------------|-------|---------|
+| @Component | Class | Auto-detected by component scan |
+| @Bean | Method | Manual bean creation in config class |
+| @Configuration | Class | Declares config class with @Bean methods |
+
+```java
+// @Component - automatic
+@Component
+public class UserValidator { }
+
+// @Bean - manual creation, third-party classes
+@Configuration
+public class AppConfig {
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();  // Can't add @Component to RestTemplate
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    }
+}
+```
+
+**Key difference:** @Configuration uses CGLIB proxy for singleton semantics within the class.
+
+---
+
+### Q15: How do you handle validation in Spring Boot?
+
+**Answer:**
+
+```java
+// DTO with validation annotations
+public class UserDto {
+    @NotBlank(message = "Name is required")
+    private String name;
+
+    @Email(message = "Invalid email format")
+    @NotNull
+    private String email;
+
+    @Size(min = 8, max = 100, message = "Password must be 8-100 chars")
+    private String password;
+
+    @Past(message = "Birth date must be in past")
+    private LocalDate birthDate;
+
+    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Invalid phone")
+    private String phone;
+}
+
+// Controller with @Valid
+@PostMapping("/users")
+public ResponseEntity<User> create(@Valid @RequestBody UserDto dto) {
+    return ResponseEntity.ok(userService.create(dto));
+}
+
+// Global exception handler
+@ExceptionHandler(MethodArgumentNotValidException.class)
+public ResponseEntity<Map<String, String>> handleValidation(
+        MethodArgumentNotValidException ex) {
+    Map<String, String> errors = ex.getBindingResult()
+        .getFieldErrors()
+        .stream()
+        .collect(Collectors.toMap(
+            FieldError::getField,
+            FieldError::getDefaultMessage
+        ));
+    return ResponseEntity.badRequest().body(errors);
+}
+```
+
+---
+
+### Q16: What is Spring WebFlux and when to use it?
+
+**Answer:**
+WebFlux is Spring's reactive web framework for non-blocking I/O.
+
+| Aspect       | Spring MVC              | Spring WebFlux              |
+| ------------ | ----------------------- | --------------------------- |
+| **Model**    | Blocking, servlet-based | Non-blocking, reactive      |
+| **Threads**  | Thread per request      | Event loop (few threads)    |
+| **Server**   | Tomcat, Jetty           | Netty, Undertow             |
+| **Use case** | Traditional apps        | High concurrency, streaming |
+
+```java
+// Reactive controller
+@RestController
+public class UserController {
+
+    @GetMapping("/users/{id}")
+    public Mono<User> getUser(@PathVariable Long id) {
+        return userRepository.findById(id);
+    }
+
+    @GetMapping("/users")
+    public Flux<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @GetMapping(value = "/users/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<User> streamUsers() {
+        return userRepository.findAll()
+            .delayElements(Duration.ofSeconds(1));
+    }
+}
+```
+
+**Use WebFlux when:**
+
+- High number of concurrent connections
+- Streaming data
+- Microservices calling multiple external services
+
+---
+
+### Q17: How do you configure and use caching in Spring Boot?
+
+**Answer:**
+
+```java
+// Enable caching
+@SpringBootApplication
+@EnableCaching
+public class Application { }
+
+// Cache annotations
+@Service
+public class UserService {
+
+    @Cacheable(value = "users", key = "#id")
+    public User findById(Long id) {
+        return userRepository.findById(id).orElseThrow();
+    }
+
+    @CachePut(value = "users", key = "#user.id")
+    public User save(User user) {
+        return userRepository.save(user);
+    }
+
+    @CacheEvict(value = "users", key = "#id")
+    public void delete(Long id) {
+        userRepository.deleteById(id);
+    }
+
+    @CacheEvict(value = "users", allEntries = true)
+    public void clearCache() { }
+}
+
+// Redis cache configuration
+spring:
+  cache:
+    type: redis
+  redis:
+    host: localhost
+    port: 6379
+```
+
+---
+
+### Q18: What is @Conditional and how does Spring Boot use it?
+
+**Answer:**
+@Conditional creates beans only when conditions are met.
+
+```java
+// Custom condition
+public class OnWindowsCondition implements Condition {
+    @Override
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+        return context.getEnvironment().getProperty("os.name").contains("Windows");
+    }
+}
+
+@Bean
+@Conditional(OnWindowsCondition.class)
+public FileService windowsFileService() { }
+
+// Built-in conditions (Spring Boot)
+@ConditionalOnClass(DataSource.class)
+@ConditionalOnMissingBean(DataSource.class)
+@ConditionalOnProperty(name = "feature.enabled", havingValue = "true")
+@ConditionalOnBean(JpaRepository.class)
+@ConditionalOnMissingClass("com.example.SomeClass")
+@ConditionalOnWebApplication
+@ConditionalOnNotWebApplication
+```
+
+**Auto-configuration uses these to enable features only when needed.**
+
+---
+
+### Q19: How do you implement rate limiting in Spring Boot?
+
+**Answer:**
+
+```java
+// Using Bucket4j
+@Configuration
+public class RateLimitConfig {
+    @Bean
+    public Bucket bucket() {
+        return Bucket.builder()
+            .addLimit(Bandwidth.classic(100, Refill.intervally(100, Duration.ofMinutes(1))))
+            .build();
+    }
+}
+
+// Filter or Interceptor
+@Component
+public class RateLimitFilter extends OncePerRequestFilter {
+    @Autowired private Bucket bucket;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+            HttpServletResponse response, FilterChain chain) throws IOException {
+        if (bucket.tryConsume(1)) {
+            chain.doFilter(request, response);
+        } else {
+            response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+            response.getWriter().write("Rate limit exceeded");
+        }
+    }
+}
+
+// With Spring Cloud Gateway
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: api_route
+          uri: lb://api-service
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+```
+
+---
+
+### Q20: Explain the difference between @RestController and @Controller.
+
+**Answer:**
+| @Controller | @RestController |
+|-------------|-----------------|
+| Returns view names | Returns data directly |
+| Needs @ResponseBody on methods | @ResponseBody implicit |
+| For MVC web apps | For REST APIs |
+
+```java
+// @Controller - MVC
+@Controller
+public class WebController {
+    @GetMapping("/home")
+    public String home(Model model) {
+        model.addAttribute("message", "Hello");
+        return "home";  // View name
+    }
+
+    @GetMapping("/api/data")
+    @ResponseBody  // Needed to return JSON
+    public DataDto getData() {
+        return new DataDto();
+    }
+}
+
+// @RestController = @Controller + @ResponseBody
+@RestController
+@RequestMapping("/api")
+public class ApiController {
+    @GetMapping("/users")
+    public List<User> getUsers() {  // Returns JSON directly
+        return userService.findAll();
+    }
+}
+```
+
+---
+
 ## Key Takeaways
 
 | Topic             | Key Point                                                    |

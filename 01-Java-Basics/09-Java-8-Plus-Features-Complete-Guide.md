@@ -1618,6 +1618,317 @@ var arr = new int[]{1, 2, 3};  // OK
 
 ---
 
+### Q11: What is the difference between Collection.forEach() and Stream.forEach()?
+
+| Collection.forEach()              | Stream.forEach()                  |
+| --------------------------------- | --------------------------------- |
+| Directly on collection            | Part of stream pipeline           |
+| Iterates in collection order      | May not maintain order (parallel) |
+| Can modify collection (with care) | Should not modify source          |
+| No lazy evaluation                | Lazy evaluation                   |
+
+```java
+List<String> list = List.of("A", "B", "C");
+
+// Collection.forEach
+list.forEach(System.out::println);  // A, B, C in order
+
+// Stream.forEach
+list.stream().forEach(System.out::println);  // A, B, C in order
+
+// Parallel - order not guaranteed
+list.parallelStream().forEach(System.out::println);  // Random order
+
+// Use forEachOrdered for parallel with order
+list.parallelStream().forEachOrdered(System.out::println);  // A, B, C
+```
+
+---
+
+### Q12: Explain the difference between Predicate, Function, Consumer, and Supplier.
+
+| Interface | Input | Output  | Method   | Example                    |
+| --------- | ----- | ------- | -------- | -------------------------- |
+| Predicate | T     | boolean | test()   | x -> x > 5                 |
+| Function  | T     | R       | apply()  | x -> x.toString()          |
+| Consumer  | T     | void    | accept() | x -> System.out.println(x) |
+| Supplier  | none  | T       | get()    | () -> new Object()         |
+
+```java
+Predicate<Integer> isEven = n -> n % 2 == 0;
+Function<String, Integer> toLength = s -> s.length();
+Consumer<String> printer = s -> System.out.println(s);
+Supplier<Double> random = () -> Math.random();
+
+// Composed predicates
+Predicate<Integer> isPositive = n -> n > 0;
+Predicate<Integer> isPositiveEven = isPositive.and(isEven);
+
+// Composed functions
+Function<String, String> toUpperCase = String::toUpperCase;
+Function<String, Integer> lengthOfUpper = toUpperCase.andThen(toLength);
+```
+
+---
+
+### Q13: What is Optional.flatMap() vs Optional.map()?
+
+```java
+Optional<String> name = Optional.of("John");
+
+// map - transforms value
+Optional<Integer> length = name.map(String::length);  // Optional[4]
+
+// If transformation returns Optional, map wraps it
+Optional<Optional<Integer>> nested = name.map(s -> Optional.of(s.length()));
+
+// flatMap - unwraps nested Optional
+Optional<Integer> flat = name.flatMap(s -> Optional.of(s.length()));
+
+// Practical example
+class Person {
+    Optional<Address> getAddress() { ... }
+}
+
+class Address {
+    Optional<String> getCity() { ... }
+}
+
+// Without flatMap
+Optional<Optional<Optional<String>>> ugly = person.map(Person::getAddress)
+    .map(addr -> addr.map(Address::getCity));
+
+// With flatMap
+Optional<String> city = person.flatMap(Person::getAddress)
+    .flatMap(Address::getCity);
+```
+
+---
+
+### Q14: What is method reference and its types?
+
+**Method references** are shorthand for lambdas that call a single method.
+
+| Type               | Syntax                  | Lambda Equivalent           |
+| ------------------ | ----------------------- | --------------------------- |
+| Static             | `Class::staticMethod`   | `x -> Class.method(x)`      |
+| Instance (bound)   | `obj::instanceMethod`   | `x -> obj.method(x)`        |
+| Instance (unbound) | `Class::instanceMethod` | `(obj, x) -> obj.method(x)` |
+| Constructor        | `Class::new`            | `x -> new Class(x)`         |
+
+```java
+// Static method reference
+Function<String, Integer> parseInt = Integer::parseInt;
+
+// Instance method (bound)
+String str = "Hello";
+Supplier<Integer> length = str::length;
+
+// Instance method (unbound)
+Function<String, Integer> lengthFn = String::length;
+
+// Constructor reference
+Supplier<ArrayList<String>> listSupplier = ArrayList::new;
+Function<Integer, ArrayList<String>> listWithSize = ArrayList::new;
+```
+
+---
+
+### Q15: What are sealed classes (Java 17)?
+
+**Answer:**
+Sealed classes restrict which classes can extend them.
+
+```java
+// Sealed class - only permits specific subclasses
+public sealed class Shape permits Circle, Rectangle, Triangle {
+    abstract double area();
+}
+
+// Permitted subclasses must be final, sealed, or non-sealed
+public final class Circle extends Shape {
+    double radius;
+    @Override double area() { return Math.PI * radius * radius; }
+}
+
+public sealed class Rectangle extends Shape permits Square {
+    double width, height;
+    @Override double area() { return width * height; }
+}
+
+public final class Square extends Rectangle { }
+
+public non-sealed class Triangle extends Shape {
+    // Can be extended by any class
+    @Override double area() { return 0.5 * base * height; }
+}
+```
+
+**Benefits:**
+
+- Complete control over class hierarchy
+- Exhaustive pattern matching
+- Better domain modeling
+
+---
+
+### Q16: What is pattern matching for instanceof (Java 16)?
+
+```java
+// Old way
+if (obj instanceof String) {
+    String s = (String) obj;
+    System.out.println(s.length());
+}
+
+// New way (Java 16+)
+if (obj instanceof String s) {
+    System.out.println(s.length());  // s already cast
+}
+
+// With negation
+if (!(obj instanceof String s)) {
+    return;
+}
+System.out.println(s.length());  // s in scope
+
+// In switch (Java 21)
+String result = switch (obj) {
+    case Integer i -> "Integer: " + i;
+    case String s -> "String: " + s;
+    case null -> "null";
+    default -> "Unknown";
+};
+```
+
+---
+
+### Q17: What is the difference between LocalDate, LocalTime, and LocalDateTime?
+
+| Type          | Contains           | Example                   |
+| ------------- | ------------------ | ------------------------- |
+| LocalDate     | Date only          | 2024-12-24                |
+| LocalTime     | Time only          | 14:30:00                  |
+| LocalDateTime | Date + Time        | 2024-12-24T14:30:00       |
+| ZonedDateTime | Date + Time + Zone | 2024-12-24T14:30:00+05:30 |
+| Instant       | Epoch timestamp    | 1703411400 seconds        |
+
+```java
+LocalDate date = LocalDate.now();
+LocalTime time = LocalTime.now();
+LocalDateTime dateTime = LocalDateTime.now();
+ZonedDateTime zoned = ZonedDateTime.now();
+Instant instant = Instant.now();
+
+// Conversions
+LocalDateTime combined = LocalDateTime.of(date, time);
+ZonedDateTime withZone = dateTime.atZone(ZoneId.of("Asia/Kolkata"));
+Instant fromDateTime = dateTime.toInstant(ZoneOffset.UTC);
+```
+
+---
+
+### Q18: What is reduce() operation in Streams?
+
+**Answer:**
+reduce() combines elements into a single value.
+
+```java
+List<Integer> numbers = List.of(1, 2, 3, 4, 5);
+
+// With identity and accumulator
+int sum = numbers.stream().reduce(0, (a, b) -> a + b);  // 15
+
+// Without identity (returns Optional)
+Optional<Integer> product = numbers.stream().reduce((a, b) -> a * b);
+
+// Find max
+Optional<Integer> max = numbers.stream().reduce(Integer::max);
+
+// String concatenation
+String concat = strings.stream().reduce("", String::concat);
+
+// With combiner (for parallel)
+int parallelSum = numbers.parallelStream()
+    .reduce(0, Integer::sum, Integer::sum);
+```
+
+---
+
+### Q19: What are text blocks (Java 15)?
+
+**Answer:**
+Text blocks allow multi-line strings with preserved formatting.
+
+```java
+// Old way
+String json = "{\n" +
+    "  \"name\": \"John\",\n" +
+    "  \"age\": 30\n" +
+    "}";
+
+// Text block (Java 15+)
+String json = """
+    {
+      "name": "John",
+      "age": 30
+    }
+    """;
+
+// Features
+String html = """
+    <html>
+        <body>
+            <p>Hello %s</p>
+        </body>
+    </html>
+    """.formatted("World");
+
+// Escaping not needed for quotes
+String query = """
+    SELECT * FROM users
+    WHERE name = "John"
+    """;
+```
+
+---
+
+### Q20: What is the output?
+
+```java
+List<Integer> list = Arrays.asList(1, 2, 3, 4, 5);
+
+long count = list.stream()
+    .filter(n -> {
+        System.out.println("Filter: " + n);
+        return n > 2;
+    })
+    .map(n -> {
+        System.out.println("Map: " + n);
+        return n * 2;
+    })
+    .limit(2)
+    .count();
+
+System.out.println("Count: " + count);
+```
+
+**Answer:**
+
+```
+Filter: 1
+Filter: 2
+Filter: 3
+Map: 3
+Filter: 4
+Map: 4
+Count: 2
+```
+
+**Explanation:** Streams are lazy and process element by element. `limit(2)` stops after finding 2 matching elements. Not all elements are processed.
+
+---
+
 ## Key Takeaways
 
 1. **Lambda + Functional Interfaces** - Core of modern Java

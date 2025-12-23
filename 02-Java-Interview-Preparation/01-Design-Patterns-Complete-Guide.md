@@ -1537,6 +1537,368 @@ public class CommandDemo {
 
 ---
 
+### Q9: Explain the Observer pattern with Java example.
+
+**Answer:**
+Observer pattern defines one-to-many dependency so that when one object changes state, all dependents are notified.
+
+```java
+// Subject (Observable)
+interface Subject {
+    void attach(Observer observer);
+    void detach(Observer observer);
+    void notifyObservers();
+}
+
+// Observer
+interface Observer {
+    void update(String message);
+}
+
+// Concrete Subject
+class NewsPublisher implements Subject {
+    private List<Observer> observers = new ArrayList<>();
+    private String news;
+
+    @Override
+    public void attach(Observer observer) { observers.add(observer); }
+
+    @Override
+    public void detach(Observer observer) { observers.remove(observer); }
+
+    @Override
+    public void notifyObservers() {
+        for (Observer o : observers) {
+            o.update(news);
+        }
+    }
+
+    public void publishNews(String news) {
+        this.news = news;
+        notifyObservers();
+    }
+}
+
+// Concrete Observer
+class NewsSubscriber implements Observer {
+    private String name;
+
+    public NewsSubscriber(String name) { this.name = name; }
+
+    @Override
+    public void update(String message) {
+        System.out.println(name + " received: " + message);
+    }
+}
+```
+
+**Real-world uses:**
+
+- Event listeners (Swing, JavaFX)
+- Message queues
+- Reactive programming (RxJava, Project Reactor)
+
+---
+
+### Q10: What is the Chain of Responsibility pattern?
+
+**Answer:**
+Chain of Responsibility passes request along a chain of handlers until one handles it.
+
+```java
+abstract class Handler {
+    protected Handler next;
+
+    public Handler setNext(Handler next) {
+        this.next = next;
+        return next;
+    }
+
+    public abstract void handle(Request request);
+}
+
+class AuthenticationHandler extends Handler {
+    @Override
+    public void handle(Request request) {
+        if (!request.isAuthenticated()) {
+            throw new SecurityException("Not authenticated");
+        }
+        if (next != null) next.handle(request);
+    }
+}
+
+class AuthorizationHandler extends Handler {
+    @Override
+    public void handle(Request request) {
+        if (!request.isAuthorized()) {
+            throw new SecurityException("Not authorized");
+        }
+        if (next != null) next.handle(request);
+    }
+}
+
+class LoggingHandler extends Handler {
+    @Override
+    public void handle(Request request) {
+        System.out.println("Logging request: " + request);
+        if (next != null) next.handle(request);
+    }
+}
+
+// Usage
+Handler chain = new AuthenticationHandler();
+chain.setNext(new AuthorizationHandler())
+     .setNext(new LoggingHandler());
+chain.handle(request);
+```
+
+**Real-world uses:**
+
+- Servlet filters
+- Spring interceptors
+- Exception handling chains
+
+---
+
+### Q11: Explain Prototype pattern.
+
+**Answer:**
+Prototype creates new objects by cloning existing ones.
+
+```java
+interface Prototype extends Cloneable {
+    Prototype clone();
+}
+
+class Document implements Prototype {
+    private String content;
+    private List<String> attachments;
+
+    public Document(String content) {
+        this.content = content;
+        this.attachments = new ArrayList<>();
+    }
+
+    // Copy constructor for deep clone
+    private Document(Document other) {
+        this.content = other.content;
+        this.attachments = new ArrayList<>(other.attachments);
+    }
+
+    @Override
+    public Document clone() {
+        return new Document(this);  // Deep copy
+    }
+}
+
+// Usage
+Document original = new Document("Template");
+original.addAttachment("file1.pdf");
+
+Document copy = original.clone();  // Independent copy
+```
+
+**When to use:**
+
+- Object creation is expensive
+- Need variations of complex objects
+- Avoiding subclass explosion
+
+---
+
+### Q12: What is the Flyweight pattern?
+
+**Answer:**
+Flyweight shares common state among multiple objects to reduce memory.
+
+```java
+class CharacterFlyweight {
+    // Intrinsic state (shared)
+    private final char character;
+    private final String font;
+
+    CharacterFlyweight(char character, String font) {
+        this.character = character;
+        this.font = font;
+    }
+
+    // Extrinsic state (passed in)
+    public void display(int x, int y, int size) {
+        System.out.println("Char: " + character + " at (" + x + "," + y + ")");
+    }
+}
+
+class FlyweightFactory {
+    private static final Map<String, CharacterFlyweight> pool = new HashMap<>();
+
+    public static CharacterFlyweight getCharacter(char c, String font) {
+        String key = c + "-" + font;
+        return pool.computeIfAbsent(key, k -> new CharacterFlyweight(c, font));
+    }
+}
+
+// Usage - same object reused
+CharacterFlyweight a1 = FlyweightFactory.getCharacter('A', "Arial");
+CharacterFlyweight a2 = FlyweightFactory.getCharacter('A', "Arial");
+System.out.println(a1 == a2);  // true (same object)
+```
+
+**Real-world uses:**
+
+- String pool in Java
+- Integer cache (-128 to 127)
+- Connection pools
+
+---
+
+### Q13: Compare Abstract Factory vs Factory Method.
+
+| Abstract Factory            | Factory Method             |
+| --------------------------- | -------------------------- |
+| Creates families of objects | Creates one type of object |
+| Multiple factory methods    | Single factory method      |
+| Composition-based           | Inheritance-based          |
+| `GUIFactory.createButton()` | `Dialog.createButton()`    |
+
+```java
+// Factory Method
+abstract class Dialog {
+    abstract Button createButton();  // Factory method
+
+    public void render() {
+        Button btn = createButton();
+        btn.render();
+    }
+}
+
+class WindowsDialog extends Dialog {
+    @Override
+    Button createButton() { return new WindowsButton(); }
+}
+
+// Abstract Factory
+interface GUIFactory {
+    Button createButton();
+    Checkbox createCheckbox();
+}
+
+class WindowsFactory implements GUIFactory {
+    public Button createButton() { return new WindowsButton(); }
+    public Checkbox createCheckbox() { return new WindowsCheckbox(); }
+}
+```
+
+---
+
+### Q14: What is the Command pattern?
+
+**Answer:**
+Command encapsulates a request as an object, allowing parameterization and queuing.
+
+```java
+interface Command {
+    void execute();
+    void undo();
+}
+
+class LightOnCommand implements Command {
+    private Light light;
+
+    public LightOnCommand(Light light) { this.light = light; }
+
+    @Override
+    public void execute() { light.turnOn(); }
+
+    @Override
+    public void undo() { light.turnOff(); }
+}
+
+class RemoteControl {
+    private Command[] commands = new Command[7];
+    private Stack<Command> history = new Stack<>();
+
+    public void setCommand(int slot, Command cmd) {
+        commands[slot] = cmd;
+    }
+
+    public void pressButton(int slot) {
+        commands[slot].execute();
+        history.push(commands[slot]);
+    }
+
+    public void undoLast() {
+        if (!history.isEmpty()) {
+            history.pop().undo();
+        }
+    }
+}
+```
+
+**Real-world uses:**
+
+- GUI actions (cut, copy, paste)
+- Transaction rollback
+- Task scheduling
+- Macro recording
+
+---
+
+### Q15: Explain the State pattern.
+
+**Answer:**
+State allows an object to alter its behavior when its internal state changes.
+
+```java
+interface OrderState {
+    void next(Order order);
+    void prev(Order order);
+    void printStatus();
+}
+
+class Order {
+    private OrderState state = new OrderedState();
+
+    public void setState(OrderState state) { this.state = state; }
+    public void nextState() { state.next(this); }
+    public void prevState() { state.prev(this); }
+    public void printStatus() { state.printStatus(); }
+}
+
+class OrderedState implements OrderState {
+    @Override
+    public void next(Order order) { order.setState(new ShippedState()); }
+    @Override
+    public void prev(Order order) { System.out.println("Already at beginning"); }
+    @Override
+    public void printStatus() { System.out.println("Order placed"); }
+}
+
+class ShippedState implements OrderState {
+    @Override
+    public void next(Order order) { order.setState(new DeliveredState()); }
+    @Override
+    public void prev(Order order) { order.setState(new OrderedState()); }
+    @Override
+    public void printStatus() { System.out.println("Order shipped"); }
+}
+
+class DeliveredState implements OrderState {
+    @Override
+    public void next(Order order) { System.out.println("Already delivered"); }
+    @Override
+    public void prev(Order order) { order.setState(new ShippedState()); }
+    @Override
+    public void printStatus() { System.out.println("Order delivered"); }
+}
+```
+
+**Difference from Strategy:**
+
+- **State:** Behavior changes based on internal state
+- **Strategy:** Behavior selected externally
+
+---
+
 ## Key Takeaways
 
 1. **Singleton** - One instance, global access (use Enum)

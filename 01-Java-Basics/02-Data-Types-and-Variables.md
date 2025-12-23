@@ -1244,6 +1244,239 @@ public void example() {
 
 ---
 
+### Q11: What is the output of this code?
+
+```java
+public class Test {
+    public static void main(String[] args) {
+        double d = 0.1 + 0.2;
+        System.out.println(d);
+        System.out.println(d == 0.3);
+    }
+}
+```
+
+**Answer:**
+
+```
+0.30000000000000004
+false
+```
+
+**Explanation:** Floating-point numbers cannot represent 0.1 and 0.2 exactly in binary. This causes precision issues.
+
+**Solution for money/precision:**
+
+```java
+BigDecimal bd1 = new BigDecimal("0.1");
+BigDecimal bd2 = new BigDecimal("0.2");
+BigDecimal sum = bd1.add(bd2);
+System.out.println(sum.equals(new BigDecimal("0.3"))); // true
+```
+
+---
+
+### Q12: What is the difference between int and Integer?
+
+| int (Primitive)        | Integer (Wrapper)                |
+| ---------------------- | -------------------------------- |
+| 32-bit value           | Object on heap                   |
+| Cannot be null         | Can be null                      |
+| No methods             | Has methods (parseInt, toString) |
+| Faster operations      | Slower (boxing overhead)         |
+| Cannot use in generics | Can use in generics              |
+| Default value: 0       | Default value: null              |
+
+```java
+int a = 10;                   // Primitive
+Integer b = 10;               // Autoboxed to Integer
+Integer c = null;             // Valid
+// int d = null;              // Compilation error
+
+List<Integer> list = new ArrayList<>();  // OK
+// List<int> list2;           // Compilation error
+```
+
+---
+
+### Q13: What is NaN in Java?
+
+**Answer:**
+**NaN** (Not a Number) represents undefined results in floating-point operations.
+
+```java
+double nan1 = 0.0 / 0.0;           // NaN
+double nan2 = Math.sqrt(-1);       // NaN
+double nan3 = Double.NaN;          // NaN constant
+
+// NaN properties
+System.out.println(nan1 == nan1);  // false (NaN != NaN)
+System.out.println(Double.isNaN(nan1));  // true
+
+// Infinity
+double posInf = 1.0 / 0.0;         // Infinity
+double negInf = -1.0 / 0.0;        // -Infinity
+System.out.println(Double.isInfinite(posInf));  // true
+```
+
+---
+
+### Q14: What is the output?
+
+```java
+public class Test {
+    public static void main(String[] args) {
+        int x = 5;
+        System.out.println(x++ + ++x);
+
+        int y = 5;
+        y = y++;
+        System.out.println(y);
+    }
+}
+```
+
+**Answer:**
+
+```
+12
+5
+```
+
+**Explanation:**
+
+- `x++ + ++x`: x++ is 5 (x becomes 6), ++x is 7 (x becomes 7). Result: 5 + 7 = 12
+- `y = y++`: y++ returns 5, then increments y to 6, but assignment overwrites with 5
+
+---
+
+### Q15: How does BigDecimal differ from double?
+
+| double           | BigDecimal          |
+| ---------------- | ------------------- |
+| Approximate      | Exact               |
+| Faster           | Slower              |
+| Fixed precision  | Arbitrary precision |
+| Native type      | Object              |
+| Good for science | Good for finance    |
+
+```java
+// double precision issue
+double d1 = 1.0 - 0.9;
+System.out.println(d1);  // 0.09999999999999998
+
+// BigDecimal is exact
+BigDecimal bd1 = new BigDecimal("1.0");
+BigDecimal bd2 = new BigDecimal("0.9");
+System.out.println(bd1.subtract(bd2));  // 0.1
+
+// IMPORTANT: Use String constructor!
+new BigDecimal("0.1");  // Correct
+new BigDecimal(0.1);    // Wrong - inherits double imprecision
+```
+
+---
+
+### Q16: What is the size and range of each primitive type?
+
+| Type    | Size          | Min       | Max      |
+| ------- | ------------- | --------- | -------- |
+| byte    | 8 bits        | -128      | 127      |
+| short   | 16 bits       | -32,768   | 32,767   |
+| int     | 32 bits       | -2^31     | 2^31-1   |
+| long    | 64 bits       | -2^63     | 2^63-1   |
+| float   | 32 bits       | ~-3.4E38  | ~3.4E38  |
+| double  | 64 bits       | ~-1.8E308 | ~1.8E308 |
+| char    | 16 bits       | 0         | 65,535   |
+| boolean | JVM dependent | false     | true     |
+
+---
+
+### Q17: What is widening vs narrowing conversion?
+
+**Widening (Implicit):** Smaller → Larger (no data loss)
+
+```java
+byte b = 10;
+int i = b;       // byte → int (implicit)
+long l = i;      // int → long (implicit)
+double d = l;    // long → double (implicit)
+```
+
+**Narrowing (Explicit):** Larger → Smaller (potential data loss)
+
+```java
+double d = 10.99;
+int i = (int) d;    // 10 (fractional part lost)
+byte b = (byte) 200; // -56 (overflow)
+```
+
+---
+
+### Q18: What happens when Integer wrapper is null and unboxed?
+
+**Answer:** `NullPointerException` is thrown.
+
+```java
+Integer wrapper = null;
+int primitive = wrapper;  // NullPointerException!
+
+// Safe approach
+Integer wrapper2 = null;
+int primitive2 = (wrapper2 != null) ? wrapper2 : 0;
+
+// Or use Optional (Java 8+)
+int value = Optional.ofNullable(wrapper2).orElse(0);
+```
+
+---
+
+### Q19: What is the output?
+
+```java
+public class Test {
+    public static void main(String[] args) {
+        Short s = 128;
+        Integer i = 128;
+
+        System.out.println(s.equals(i));
+        System.out.println(s.intValue() == i);
+    }
+}
+```
+
+**Answer:**
+
+```
+false
+true
+```
+
+**Explanation:**
+
+- `s.equals(i)`: Different types (Short vs Integer), equals returns false
+- `s.intValue() == i`: Both are 128 (int comparison), returns true
+
+---
+
+### Q20: What is the difference between == and equals() for wrapper classes?
+
+```java
+Integer a = 127;
+Integer b = 127;
+System.out.println(a == b);      // true (cached)
+System.out.println(a.equals(b)); // true
+
+Integer c = 128;
+Integer d = 128;
+System.out.println(c == d);      // false (not cached)
+System.out.println(c.equals(d)); // true
+```
+
+**Rule:** Always use `equals()` for wrapper class comparison.
+
+---
+
 ## Common Interview Traps
 
 ### Trap 1: "What is the default value of a local variable?"

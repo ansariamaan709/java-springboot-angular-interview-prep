@@ -1401,6 +1401,407 @@ print(data);      // D - guaranteed to see 42
 
 ---
 
+### Q11: What is JIT compilation and how does it optimize code?
+
+**Answer:**
+JIT (Just-In-Time) compiles bytecode to native code at runtime for frequently executed code.
+
+**Optimization techniques:**
+
+| Technique                 | Description                              |
+| ------------------------- | ---------------------------------------- |
+| **Method inlining**       | Replace call with method body            |
+| **Escape analysis**       | Stack-allocate objects that don't escape |
+| **Loop unrolling**        | Reduce loop overhead                     |
+| **Dead code elimination** | Remove unreachable code                  |
+| **Branch prediction**     | Optimize hot paths                       |
+| **Lock elision**          | Remove unnecessary synchronization       |
+
+```java
+// Before JIT optimization
+public int sum(int[] arr) {
+    int sum = 0;
+    for (int i = 0; i < arr.length; i++) {
+        sum += arr[i];
+    }
+    return sum;
+}
+
+// After JIT (conceptually):
+// - Array bounds check hoisted out of loop
+// - Loop unrolled (process multiple elements per iteration)
+// - SIMD instructions used if available
+```
+
+**JIT flags:**
+
+```
+-XX:+PrintCompilation     # Show compiled methods
+-XX:CompileThreshold=10000  # Invocations before compile
+-XX:+TieredCompilation    # Default in Java 8+
+```
+
+---
+
+### Q12: What are the different class loaders and their hierarchy?
+
+**Answer:**
+
+```
+Bootstrap ClassLoader (null)
+        ↓
+Platform/Extension ClassLoader
+        ↓
+Application/System ClassLoader
+        ↓
+Custom ClassLoaders
+```
+
+| ClassLoader     | Loads              | Example                  |
+| --------------- | ------------------ | ------------------------ |
+| **Bootstrap**   | Core Java (rt.jar) | java.lang._, java.util._ |
+| **Platform**    | Extensions         | javax._, java.sql._      |
+| **Application** | Classpath          | Your application classes |
+| **Custom**      | Special sources    | Plugins, servlets        |
+
+**Parent delegation:**
+
+```java
+// When loading class "com.example.MyClass":
+1. ApplicationClassLoader asks Platform
+2. Platform asks Bootstrap
+3. Bootstrap doesn't have it
+4. Platform doesn't have it
+5. Application loads from classpath
+```
+
+**Why parent delegation:**
+
+- Security: Can't replace core Java classes
+- Consistency: Same class loaded once
+- Isolation: Avoid conflicts
+
+---
+
+### Q13: What is the difference between -Xms and -Xmx, and why set them equal?
+
+**Answer:**
+
+```
+-Xms  = Initial heap size
+-Xmx  = Maximum heap size
+```
+
+**Why set them equal:**
+
+```
+-Xms2g -Xmx2g  # Recommended for production
+```
+
+**Benefits of equal values:**
+
+1. **No runtime resizing** - Avoids GC pauses for heap growth
+2. **Predictable memory** - Know exactly what app needs
+3. **Performance** - No allocation/deallocation overhead
+4. **GC efficiency** - Better heap layout planning
+
+**When to differ:**
+
+- Development environment (save memory)
+- Applications with variable load
+- Container with memory limits
+
+**Other important flags:**
+
+```
+-Xmn512m          # Young generation size
+-XX:MetaspaceSize=256m  # Initial metaspace
+-Xss256k          # Thread stack size
+```
+
+---
+
+### Q14: How do you analyze a thread dump?
+
+**Answer:**
+
+**Capturing thread dump:**
+
+```bash
+jstack <pid> > threads.txt
+kill -3 <pid>    # Unix
+jcmd <pid> Thread.print
+```
+
+**Thread states:**
+| State | Meaning |
+|-------|---------|
+| RUNNABLE | Executing or ready to run |
+| BLOCKED | Waiting for monitor lock |
+| WAITING | Wait for notify/signal |
+| TIMED_WAITING | Wait with timeout |
+
+**Common issues to look for:**
+
+```
+// 1. DEADLOCK
+"Thread-1" waiting for lock held by "Thread-2"
+"Thread-2" waiting for lock held by "Thread-1"
+
+// 2. THREAD STARVATION - Many threads BLOCKED on same lock
+"Thread-1" BLOCKED waiting for <0x0000...>
+"Thread-2" BLOCKED waiting for <0x0000...>
+"Thread-3" BLOCKED waiting for <0x0000...>
+
+// 3. INFINITE LOOP - RUNNABLE with high CPU
+"Thread-1" RUNNABLE
+   at MyClass.infiniteMethod(MyClass.java:42)
+```
+
+**Tools:**
+
+- fastThread.io (online analyzer)
+- Thread Dump Analyzer (TDA)
+- IntelliJ/Eclipse built-in viewers
+
+---
+
+### Q15: Explain Compressed OOPs and why they matter.
+
+**Answer:**
+Compressed Ordinary Object Pointers use 32-bit references in 64-bit JVM.
+
+**Without compression:**
+
+- 64-bit pointers = 8 bytes per reference
+- More memory, more cache misses
+
+**With compression (default < 32GB heap):**
+
+- 32-bit pointers = 4 bytes per reference
+- Shifted and decoded on access
+
+```
+Actual address = compressed_oop << 3 + heap_base
+```
+
+**Memory savings:**
+
+```
+Object with 10 reference fields:
+Without compression: 10 × 8 = 80 bytes
+With compression:    10 × 4 = 40 bytes
+Savings: 50%!
+```
+
+**JVM flags:**
+
+```
+-XX:+UseCompressedOops    # Default if heap < 32GB
+-XX:+UseCompressedClassPointers  # Compress class pointers
+```
+
+**Important:** Keep heap under 32GB to enable compression.
+
+---
+
+### Q16: What is the safepoint and why does it matter?
+
+**Answer:**
+A safepoint is a point in code where all threads are stopped for GC or other JVM operations.
+
+**Safepoint operations:**
+
+- Garbage collection
+- Code deoptimization
+- Thread dump
+- Heap dump
+- Class redefinition
+
+**Safepoint locations:**
+
+- Method calls/returns
+- Loop back edges (not always!)
+- JNI calls
+
+**Problem - counted loops:**
+
+```java
+// No safepoint in loop!
+for (int i = 0; i < 1_000_000_000; i++) {
+    // JVM can't stop this thread
+}
+
+// Solution: Use long
+for (long i = 0; i < 1_000_000_000; i++) {
+    // Safepoints inserted
+}
+```
+
+**Monitoring:**
+
+```
+-XX:+PrintGCApplicationStoppedTime
+-XX:+PrintSafepointStatistics
+```
+
+---
+
+### Q17: How does Method Inlining work and when is it applied?
+
+**Answer:**
+Inlining replaces method call with method body.
+
+```java
+// Before inlining
+int result = add(a, b);
+
+int add(int x, int y) { return x + y; }
+
+// After inlining
+int result = a + b;  // No call overhead!
+```
+
+**Inlining conditions:**
+
+- Method is small (< 35 bytecodes by default)
+- Method is hot (frequently called)
+- Method is final, private, or effectively final
+- Not too deep call chain (< 9 levels)
+
+**JVM flags:**
+
+```
+-XX:MaxInlineSize=35       # Max bytecode size
+-XX:FreqInlineSize=325     # Max for hot methods
+-XX:MaxInlineLevel=9       # Max call depth
+-XX:+PrintInlining         # Show inlining decisions
+```
+
+**Why it matters:**
+
+- Eliminates call overhead
+- Enables further optimizations (constant folding, etc.)
+- Most important JIT optimization
+
+---
+
+### Q18: What tools do you use for JVM monitoring and profiling?
+
+**Answer:**
+
+| Tool               | Purpose             | Use Case             |
+| ------------------ | ------------------- | -------------------- |
+| **jps**            | List JVM processes  | Find process IDs     |
+| **jstat**          | GC statistics       | Monitor memory       |
+| **jstack**         | Thread dump         | Deadlock analysis    |
+| **jmap**           | Heap dump           | Memory leak analysis |
+| **jcmd**           | Diagnostic commands | All-in-one tool      |
+| **VisualVM**       | Visual profiling    | CPU, memory, threads |
+| **JFR**            | Flight Recorder     | Production profiling |
+| **async-profiler** | Sampling profiler   | CPU hotspots         |
+
+**Common commands:**
+
+```bash
+# Process list
+jps -lv
+
+# GC monitoring
+jstat -gcutil <pid> 1000 10
+
+# Thread dump
+jstack <pid>
+
+# Heap dump
+jmap -dump:format=b,file=heap.hprof <pid>
+
+# JFR recording
+jcmd <pid> JFR.start duration=60s filename=recording.jfr
+```
+
+---
+
+### Q19: Explain biased locking and why it was removed in Java 15+.
+
+**Answer:**
+Biased locking optimizes uncontended synchronization by "biasing" lock to first acquiring thread.
+
+**How it worked:**
+
+```java
+synchronized (obj) {  // First thread: Mark as biased
+    // ...
+}
+
+synchronized (obj) {  // Same thread: No atomic ops needed!
+    // ...
+}
+```
+
+**Why removed (deprecated Java 15, removed 17):**
+
+1. **Complexity** - Hard to maintain
+2. **Modern hardware** - Atomic operations are fast
+3. **Safepoint overhead** - Revocation requires safepoint
+4. **Diminishing returns** - Modern apps use concurrent utilities
+
+**Alternative:**
+
+```java
+// Use explicit locks with tryLock()
+ReentrantLock lock = new ReentrantLock();
+if (lock.tryLock()) {
+    try { /* ... */ }
+    finally { lock.unlock(); }
+}
+
+// Or use concurrent collections
+ConcurrentHashMap, CopyOnWriteArrayList
+```
+
+---
+
+### Q20: How do you tune JVM for a Spring Boot microservice?
+
+**Answer:**
+
+```bash
+java \
+  # Memory
+  -Xms512m -Xmx512m \              # Fixed heap
+  -XX:MaxMetaspaceSize=128m \      # Limit metaspace
+
+  # GC (choose one)
+  -XX:+UseG1GC \                   # Balanced
+  -XX:MaxGCPauseMillis=200 \       # Target pause
+
+  # Container-aware (Java 10+)
+  -XX:+UseContainerSupport \
+  -XX:MaxRAMPercentage=75 \        # 75% of container memory
+
+  # Diagnostics
+  -XX:+HeapDumpOnOutOfMemoryError \
+  -XX:HeapDumpPath=/logs/heap.hprof \
+  -Xlog:gc*:file=/logs/gc.log \
+
+  # Performance
+  -XX:+AlwaysPreTouch \            # Pre-allocate heap
+  -XX:+UseStringDeduplication \    # Save memory
+
+  -jar app.jar
+```
+
+**Container-specific:**
+
+```
+# Set memory based on container limit
+-XX:MaxRAMPercentage=75.0
+# Leave 25% for native memory, other processes
+```
+
+---
+
 ## Key Takeaways
 
 | Topic               | Key Point                                              |

@@ -2037,6 +2037,360 @@ MyInterface.Status status = MyInterface.Status.ACTIVE;
 
 ---
 
+### Q11: What is the difference between IS-A and HAS-A relationship?
+
+**Answer:**
+
+| IS-A (Inheritance)        | HAS-A (Composition) |
+| ------------------------- | ------------------- |
+| `extends`, `implements`   | Member variable     |
+| Tight coupling            | Loose coupling      |
+| Changes affect subclasses | Changes isolated    |
+| "Dog IS-A Animal"         | "Car HAS-A Engine"  |
+
+```java
+// IS-A (Inheritance)
+class Dog extends Animal { }  // Dog IS-A Animal
+
+// HAS-A (Composition) - PREFERRED
+class Car {
+    private Engine engine;  // Car HAS-A Engine
+
+    public Car(Engine engine) {
+        this.engine = engine;
+    }
+}
+```
+
+**Prefer composition over inheritance:**
+
+- More flexible
+- Runtime behavior changes possible
+- Avoids inheritance hierarchy complexity
+
+---
+
+### Q12: What is the difference between shallow copy and deep copy?
+
+**Answer:**
+
+| Shallow Copy                | Deep Copy                    |
+| --------------------------- | ---------------------------- |
+| Copies object references    | Copies actual objects        |
+| Changes reflect in original | Independent copy             |
+| Default clone() behavior    | Manual implementation needed |
+
+```java
+class Address {
+    String city;
+}
+
+class Person implements Cloneable {
+    String name;
+    Address address;
+
+    // Shallow copy - address reference is shared
+    public Person shallowCopy() throws CloneNotSupportedException {
+        return (Person) super.clone();
+    }
+
+    // Deep copy - new address object created
+    public Person deepCopy() {
+        Person copy = new Person();
+        copy.name = this.name;
+        copy.address = new Address();
+        copy.address.city = this.address.city;
+        return copy;
+    }
+}
+```
+
+---
+
+### Q13: What is constructor chaining? Explain with example.
+
+**Answer:**
+Constructor chaining is calling one constructor from another using `this()` or `super()`.
+
+```java
+class Person {
+    String name;
+    int age;
+
+    Person() {
+        this("Unknown");  // Calls Person(String)
+    }
+
+    Person(String name) {
+        this(name, 0);    // Calls Person(String, int)
+    }
+
+    Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+}
+
+class Employee extends Person {
+    String department;
+
+    Employee() {
+        super();  // Calls Person()
+    }
+
+    Employee(String name, String department) {
+        super(name);  // Calls Person(String)
+        this.department = department;
+    }
+}
+```
+
+**Rules:**
+
+- `this()` or `super()` must be first statement
+- Cannot use both in same constructor
+- `super()` is implicitly added if not specified
+
+---
+
+### Q14: Explain object cloning in Java.
+
+**Answer:**
+Object cloning creates an exact copy of an object.
+
+```java
+class Employee implements Cloneable {
+    String name;
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();  // Shallow copy
+    }
+}
+
+// Usage
+Employee e1 = new Employee();
+e1.name = "John";
+Employee e2 = (Employee) e1.clone();
+```
+
+**Two types:**
+
+1. **Shallow clone:** Default `clone()` - copies primitive fields, references point to same objects
+2. **Deep clone:** Override `clone()` to copy nested objects
+
+**Alternatives to clone:**
+
+- Copy constructor
+- Serialization
+- Factory method
+
+---
+
+### Q15: What is marker interface? Give examples.
+
+**Answer:**
+Marker interface is an empty interface used to "mark" a class with special capability.
+
+**Examples:**
+
+- `Serializable` - Object can be serialized
+- `Cloneable` - Object can be cloned
+- `Remote` - Object can be used in RMI
+
+```java
+// Marker interface
+public interface Serializable { }
+
+// Usage - just implement, no methods to override
+class Employee implements Serializable {
+    String name;
+}
+
+// Check using instanceof
+if (obj instanceof Serializable) {
+    // Can serialize this object
+}
+```
+
+**Modern alternative:** Annotations
+
+```java
+@Entity  // Marker annotation
+public class User { }
+```
+
+---
+
+### Q16: What is the difference between instance and static initialization blocks?
+
+**Answer:**
+
+| Instance Block              | Static Block                   |
+| --------------------------- | ------------------------------ |
+| Runs when object created    | Runs when class loaded         |
+| Runs before constructor     | Runs once per class            |
+| Can access instance members | Cannot access instance members |
+
+```java
+class Test {
+    static {
+        System.out.println("1. Static block");  // First
+    }
+
+    {
+        System.out.println("3. Instance block");  // Third (per object)
+    }
+
+    Test() {
+        System.out.println("4. Constructor");  // Fourth
+    }
+
+    public static void main(String[] args) {
+        System.out.println("2. Main method");  // Second
+        new Test();
+        new Test();
+    }
+}
+// Output: 1, 2, 3, 4, 3, 4
+```
+
+---
+
+### Q17: Can we have multiple inheritance in Java? Explain.
+
+**Answer:**
+
+- **With classes:** No (Diamond problem)
+- **With interfaces:** Yes
+
+```java
+// Not allowed - multiple class inheritance
+// class C extends A, B { }  // Error
+
+// Allowed - multiple interface inheritance
+interface A { default void show() { System.out.println("A"); } }
+interface B { default void show() { System.out.println("B"); } }
+
+class C implements A, B {
+    @Override
+    public void show() {
+        A.super.show();  // Must resolve conflict
+    }
+}
+```
+
+**Why interfaces allow it:**
+
+- No state (until Java 8)
+- Conflicts must be explicitly resolved
+- No diamond ambiguity with fields
+
+---
+
+### Q18: What is the output?
+
+```java
+public class Test {
+    public static void main(String[] args) {
+        Animal a = new Dog();
+        a.eat();
+        // a.bark();  // Would this compile?
+    }
+}
+
+class Animal {
+    void eat() { System.out.println("Animal eating"); }
+}
+
+class Dog extends Animal {
+    void eat() { System.out.println("Dog eating"); }
+    void bark() { System.out.println("Dog barking"); }
+}
+```
+
+**Answer:**
+
+```
+Dog eating
+```
+
+- `a.eat()` calls Dog's eat() due to runtime polymorphism
+- `a.bark()` would NOT compile because bark() is not in Animal class
+
+**To call bark():**
+
+```java
+((Dog) a).bark();  // Cast required
+```
+
+---
+
+### Q19: What is the difference between aggregation and composition?
+
+**Answer:**
+
+| Aggregation                   | Composition                      |
+| ----------------------------- | -------------------------------- |
+| Weak "has-a"                  | Strong "has-a"                   |
+| Parts can exist independently | Parts cannot exist independently |
+| "University HAS Students"     | "House HAS Rooms"                |
+
+```java
+// Aggregation - Student exists independently
+class University {
+    private List<Student> students;
+
+    public void addStudent(Student s) {
+        students.add(s);  // Student created outside
+    }
+}
+
+// Composition - Room cannot exist without House
+class House {
+    private List<Room> rooms;
+
+    public House() {
+        rooms = new ArrayList<>();
+        rooms.add(new Room());  // Room created inside
+    }
+    // When House is destroyed, Rooms are destroyed
+}
+```
+
+---
+
+### Q20: Explain method overloading resolution.
+
+**Answer:**
+Compiler resolves overloaded methods at compile-time using:
+
+1. **Exact match** - First priority
+2. **Widening** - Promotion (int → long → float → double)
+3. **Autoboxing** - If no widening match
+4. **Varargs** - Last resort
+
+```java
+class Test {
+    void m(int i)     { System.out.println("int"); }
+    void m(long l)    { System.out.println("long"); }
+    void m(Integer i) { System.out.println("Integer"); }
+    void m(int... i)  { System.out.println("varargs"); }
+
+    public static void main(String[] args) {
+        Test t = new Test();
+        t.m(5);      // "int" (exact match)
+        t.m(5L);     // "long" (exact match)
+        t.m(5.0);    // Error! No match
+
+        byte b = 5;
+        t.m(b);      // "int" (widening)
+    }
+}
+```
+
+---
+
 ## Key Takeaways
 
 1. **Four Pillars**: Encapsulation, Inheritance, Polymorphism, Abstraction

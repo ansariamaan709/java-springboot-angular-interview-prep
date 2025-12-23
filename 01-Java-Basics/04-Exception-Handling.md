@@ -1436,6 +1436,234 @@ catch (IOException | SQLException e) {
 
 ---
 
+### Q13: What is the output?
+
+```java
+public class Test {
+    public static void main(String[] args) {
+        System.out.println(getValue());
+    }
+
+    static int getValue() {
+        int x = 10;
+        try {
+            x = 20;
+            return x;
+        } finally {
+            x = 30;
+        }
+    }
+}
+```
+
+**Answer:** `20`
+
+**Explanation:** The return value (20) is saved before finally executes. Finally can modify x to 30, but the returned value is already determined.
+
+---
+
+### Q14: What is the difference between throw and throws in exception handling?
+
+**Answer:**
+
+| throw                     | throws                          |
+| ------------------------- | ------------------------------- |
+| Used inside method        | Used in method signature        |
+| Actually throws exception | Declares possible exceptions    |
+| Can throw one exception   | Can declare multiple exceptions |
+| Followed by instance      | Followed by class names         |
+
+```java
+// throws - declaring
+public void readFile() throws IOException, FileNotFoundException {
+    // throw - actually throwing
+    if (!file.exists()) {
+        throw new FileNotFoundException("File not found");
+    }
+}
+```
+
+---
+
+### Q15: Explain try-with-resources statement.
+
+**Answer:**
+Try-with-resources (Java 7+) automatically closes resources implementing `AutoCloseable`.
+
+```java
+// Old way
+BufferedReader br = null;
+try {
+    br = new BufferedReader(new FileReader("file.txt"));
+    return br.readLine();
+} finally {
+    if (br != null) br.close();
+}
+
+// Modern way (try-with-resources)
+try (BufferedReader br = new BufferedReader(new FileReader("file.txt"))) {
+    return br.readLine();
+}  // br.close() called automatically
+
+// Multiple resources (closed in reverse order)
+try (FileInputStream fis = new FileInputStream("in.txt");
+     FileOutputStream fos = new FileOutputStream("out.txt")) {
+    // Use both
+}  // fos closed first, then fis
+```
+
+---
+
+### Q16: What is the order of catch blocks?
+
+**Answer:**
+Catch blocks must be ordered from most specific to most general (child to parent).
+
+```java
+try {
+    // Code
+} catch (FileNotFoundException e) {  // Specific first
+    // Handle
+} catch (IOException e) {            // Then parent
+    // Handle
+} catch (Exception e) {              // Most general last
+    // Handle
+}
+
+// WRONG - compilation error
+try {
+    // Code
+} catch (Exception e) {              // Too general
+    // Handle
+} catch (IOException e) {            // Unreachable!
+    // Handle
+}
+```
+
+---
+
+### Q17: How do you create a custom exception?
+
+**Answer:**
+
+```java
+// Checked exception
+public class BusinessException extends Exception {
+    private String errorCode;
+
+    public BusinessException(String message) {
+        super(message);
+    }
+
+    public BusinessException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public BusinessException(String message, String errorCode) {
+        super(message);
+        this.errorCode = errorCode;
+    }
+
+    public String getErrorCode() {
+        return errorCode;
+    }
+}
+
+// Unchecked exception
+public class ValidationException extends RuntimeException {
+    public ValidationException(String message) {
+        super(message);
+    }
+}
+
+// Usage
+throw new BusinessException("Invalid order", "ERR001");
+```
+
+---
+
+### Q18: What is the difference between Error and Exception?
+
+**Answer:**
+
+| Error                                | Exception                 |
+| ------------------------------------ | ------------------------- |
+| JVM/system problems                  | Application problems      |
+| Cannot recover                       | Can be handled            |
+| Don't catch                          | Should be caught/thrown   |
+| OutOfMemoryError, StackOverflowError | IOException, SQLException |
+
+```java
+// Error - don't catch
+// OutOfMemoryError, StackOverflowError, NoClassDefFoundError
+
+// Exception - handle appropriately
+try {
+    riskyOperation();
+} catch (IOException e) {
+    // Handle or rethrow
+}
+```
+
+---
+
+### Q19: What is exception hierarchy in Java?
+
+**Answer:**
+
+```
+Throwable (Root)
+├── Error (JVM errors, don't catch)
+│   ├── OutOfMemoryError
+│   ├── StackOverflowError
+│   └── NoClassDefFoundError
+└── Exception
+    ├── RuntimeException (Unchecked)
+    │   ├── NullPointerException
+    │   ├── ArrayIndexOutOfBoundsException
+    │   ├── IllegalArgumentException
+    │   └── ClassCastException
+    └── Checked Exceptions
+        ├── IOException
+        ├── SQLException
+        ├── ClassNotFoundException
+        └── InterruptedException
+```
+
+---
+
+### Q20: What is the best practice for exception handling?
+
+**Answer:**
+
+1. **Be specific:** Catch specific exceptions, not Exception
+2. **Don't swallow:** Always handle or propagate meaningfully
+3. **Use try-with-resources:** For AutoCloseable resources
+4. **Chain exceptions:** Preserve original cause
+5. **Fail fast:** Validate input early
+6. **Document:** Use @throws Javadoc
+7. **Don't use for flow control:** Exceptions are expensive
+8. **Log appropriately:** Include context and stack trace
+
+```java
+// Good practice
+public User findUser(Long id) throws UserNotFoundException {
+    if (id == null) {
+        throw new IllegalArgumentException("ID cannot be null");
+    }
+
+    try {
+        return repository.findById(id)
+            .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
+    } catch (DatabaseException e) {
+        logger.error("Database error finding user: {}", id, e);
+        throw new ServiceException("Failed to find user", e);
+    }
+}
+```
+
+---
+
 ## Common Interview Traps
 
 ### Trap 1: "Finally always executes"

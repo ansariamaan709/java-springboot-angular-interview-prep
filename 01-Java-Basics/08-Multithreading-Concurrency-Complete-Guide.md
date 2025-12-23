@@ -1610,6 +1610,357 @@ public enum Singleton {
 
 ---
 
+### Q11: What is the difference between wait() and sleep()?
+
+| wait()                         | sleep()             |
+| ------------------------------ | ------------------- |
+| Releases lock                  | Retains lock        |
+| Object method                  | Thread method       |
+| Must be in synchronized        | Can be anywhere     |
+| Wakes on notify/notifyAll      | Wakes after time    |
+| For inter-thread communication | For pause execution |
+
+```java
+// wait() - releases lock
+synchronized (lock) {
+    while (!condition) {
+        lock.wait();  // Releases lock, waits for notify
+    }
+}
+
+// sleep() - keeps lock
+synchronized (lock) {
+    Thread.sleep(1000);  // Still holds lock!
+}
+```
+
+---
+
+### Q12: What is ThreadLocal and when to use it?
+
+**Answer:**
+ThreadLocal provides thread-confined variables. Each thread has its own copy.
+
+```java
+public class UserContext {
+    private static final ThreadLocal<User> currentUser = new ThreadLocal<>();
+
+    public static void setUser(User user) {
+        currentUser.set(user);
+    }
+
+    public static User getUser() {
+        return currentUser.get();
+    }
+
+    public static void clear() {
+        currentUser.remove();  // Important! Prevent memory leaks
+    }
+}
+
+// Usage
+UserContext.setUser(loggedInUser);
+try {
+    // Access user anywhere in this thread
+    User user = UserContext.getUser();
+} finally {
+    UserContext.clear();  // Always clean up!
+}
+```
+
+**Use cases:**
+
+- User session/context
+- Database connections
+- Transaction management
+- SimpleDateFormat (not thread-safe)
+
+---
+
+### Q13: What is the difference between notify() and notifyAll()?
+
+| notify()                 | notifyAll()               |
+| ------------------------ | ------------------------- |
+| Wakes one waiting thread | Wakes all waiting threads |
+| Arbitrary selection      | All compete for lock      |
+| Risk of missed signals   | Safer but less efficient  |
+
+```java
+// Producer-Consumer
+synchronized (queue) {
+    while (queue.isEmpty()) {
+        queue.wait();
+    }
+    item = queue.poll();
+    queue.notifyAll();  // Wake all consumers
+}
+```
+
+**Best practice:** Use `notifyAll()` unless you're certain only one thread should wake up.
+
+---
+
+### Q14: What is the Java Memory Model (JMM)?
+
+**Answer:**
+JMM defines how threads interact through memory and what behaviors are allowed.
+
+**Key concepts:**
+
+1. **Visibility:** Changes by one thread may not be visible to others
+2. **Ordering:** Instructions may be reordered
+3. **Happens-before:** Guarantees ordering relationships
+
+```java
+// Without synchronization
+class SharedData {
+    boolean flag = false;
+    int value = 0;
+
+    void writer() {
+        value = 42;      // May be reordered
+        flag = true;
+    }
+
+    void reader() {
+        if (flag) {
+            // value might still be 0!
+        }
+    }
+}
+
+// With volatile
+class SharedData {
+    volatile boolean flag = false;
+    int value = 0;
+
+    void writer() {
+        value = 42;      // Happens-before flag write
+        flag = true;
+    }
+
+    void reader() {
+        if (flag) {
+            // value is guaranteed to be 42
+        }
+    }
+}
+```
+
+---
+
+### Q15: What is CompletableFuture and how to use it?
+
+**Answer:**
+CompletableFuture (Java 8+) enables asynchronous, non-blocking programming.
+
+```java
+// Simple async execution
+CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+    return fetchDataFromAPI();
+});
+
+// Chaining
+CompletableFuture.supplyAsync(() -> getUserId())
+    .thenApply(id -> getUser(id))             // Transform
+    .thenAccept(user -> sendEmail(user))      // Consume
+    .exceptionally(ex -> {                    // Handle error
+        log.error("Failed", ex);
+        return null;
+    });
+
+// Combining
+CompletableFuture<String> future1 = CompletableFuture.supplyAsync(() -> "Hello");
+CompletableFuture<String> future2 = CompletableFuture.supplyAsync(() -> "World");
+
+future1.thenCombine(future2, (s1, s2) -> s1 + " " + s2)
+       .thenAccept(System.out::println);  // "Hello World"
+
+// Wait for all
+CompletableFuture.allOf(future1, future2).join();
+
+// Wait for any
+CompletableFuture.anyOf(future1, future2).join();
+```
+
+---
+
+### Q16: What is the difference between ReentrantLock and synchronized?
+
+| synchronized          | ReentrantLock              |
+| --------------------- | -------------------------- |
+| Built-in keyword      | Explicit class             |
+| Auto unlock           | Manual unlock (in finally) |
+| No fairness           | Fairness option            |
+| No tryLock            | Has tryLock                |
+| No interruptible lock | lockInterruptibly()        |
+
+```java
+// synchronized
+synchronized (lock) {
+    // Critical section
+}
+
+// ReentrantLock
+ReentrantLock lock = new ReentrantLock(true);  // Fair mode
+lock.lock();
+try {
+    // Critical section
+} finally {
+    lock.unlock();
+}
+
+// Advanced features
+if (lock.tryLock(1, TimeUnit.SECONDS)) {
+    try {
+        // Got lock within 1 second
+    } finally {
+        lock.unlock();
+    }
+}
+```
+
+---
+
+### Q17: What is a CountDownLatch?
+
+**Answer:**
+CountDownLatch allows threads to wait for a count to reach zero.
+
+```java
+CountDownLatch latch = new CountDownLatch(3);
+
+// Worker threads
+for (int i = 0; i < 3; i++) {
+    new Thread(() -> {
+        doWork();
+        latch.countDown();  // Decrement count
+    }).start();
+}
+
+// Main thread waits
+latch.await();  // Blocks until count reaches 0
+System.out.println("All workers done!");
+
+// Timeout version
+if (latch.await(5, TimeUnit.SECONDS)) {
+    System.out.println("All done");
+} else {
+    System.out.println("Timeout!");
+}
+```
+
+**Use cases:**
+
+- Wait for services to start
+- Parallel test initialization
+- Batch processing synchronization
+
+---
+
+### Q18: What is CyclicBarrier?
+
+**Answer:**
+CyclicBarrier allows threads to wait for each other at a barrier point.
+
+```java
+CyclicBarrier barrier = new CyclicBarrier(3, () -> {
+    System.out.println("All threads reached barrier!");
+});
+
+for (int i = 0; i < 3; i++) {
+    new Thread(() -> {
+        System.out.println("Working...");
+        barrier.await();  // Wait for all threads
+        System.out.println("Continuing...");
+    }).start();
+}
+```
+
+| CountDownLatch                    | CyclicBarrier               |
+| --------------------------------- | --------------------------- |
+| One-time use                      | Reusable                    |
+| Count down from N                 | Wait for N parties          |
+| No barrier action                 | Optional barrier action     |
+| Threads don't wait for each other | Threads wait for each other |
+
+---
+
+### Q19: What is Semaphore?
+
+**Answer:**
+Semaphore controls access to a limited number of resources.
+
+```java
+// Connection pool with max 3 connections
+Semaphore semaphore = new Semaphore(3);
+
+void getConnection() {
+    semaphore.acquire();  // Get permit (blocks if none available)
+    try {
+        useConnection();
+    } finally {
+        semaphore.release();  // Return permit
+    }
+}
+
+// Non-blocking version
+if (semaphore.tryAcquire(1, TimeUnit.SECONDS)) {
+    try {
+        useConnection();
+    } finally {
+        semaphore.release();
+    }
+} else {
+    System.out.println("No connection available");
+}
+```
+
+---
+
+### Q20: What is the ForkJoinPool?
+
+**Answer:**
+ForkJoinPool is designed for divide-and-conquer parallel processing.
+
+```java
+// RecursiveTask returns a value
+class SumTask extends RecursiveTask<Long> {
+    private final int[] array;
+    private final int start, end;
+    private static final int THRESHOLD = 1000;
+
+    @Override
+    protected Long compute() {
+        if (end - start <= THRESHOLD) {
+            // Base case: compute directly
+            long sum = 0;
+            for (int i = start; i < end; i++) {
+                sum += array[i];
+            }
+            return sum;
+        }
+
+        // Divide
+        int mid = (start + end) / 2;
+        SumTask left = new SumTask(array, start, mid);
+        SumTask right = new SumTask(array, mid, end);
+
+        left.fork();  // Execute asynchronously
+        long rightResult = right.compute();  // Execute directly
+        long leftResult = left.join();  // Wait for fork
+
+        return leftResult + rightResult;
+    }
+}
+
+// Usage
+ForkJoinPool pool = ForkJoinPool.commonPool();
+long sum = pool.invoke(new SumTask(array, 0, array.length));
+```
+
+---
+
 ## Key Takeaways
 
 1. **Prefer Runnable over Thread** - More flexible, can extend other classes

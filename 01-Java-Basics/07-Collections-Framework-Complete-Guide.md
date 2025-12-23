@@ -1448,6 +1448,245 @@ synchronized (list) {
 
 ---
 
+### Q13: What is the difference between LinkedHashMap and HashMap?
+
+| HashMap            | LinkedHashMap             |
+| ------------------ | ------------------------- |
+| No order guarantee | Maintains insertion order |
+| Slightly faster    | Slightly slower           |
+| Less memory        | More memory (linked list) |
+| Use for most cases | Use when order matters    |
+
+```java
+Map<String, Integer> hashMap = new HashMap<>();
+hashMap.put("B", 2);
+hashMap.put("A", 1);
+hashMap.put("C", 3);
+// Order not guaranteed
+
+Map<String, Integer> linkedHashMap = new LinkedHashMap<>();
+linkedHashMap.put("B", 2);
+linkedHashMap.put("A", 1);
+linkedHashMap.put("C", 3);
+// Order: B, A, C (insertion order)
+
+// Access order mode
+Map<String, Integer> accessOrder = new LinkedHashMap<>(16, 0.75f, true);
+// Useful for LRU cache implementation
+```
+
+---
+
+### Q14: How does TreeMap work?
+
+**Answer:**
+TreeMap is a Red-Black tree based NavigableMap implementation.
+
+| Feature     | Details                       |
+| ----------- | ----------------------------- |
+| Ordering    | Natural order or Comparator   |
+| Operations  | O(log n) for get, put, remove |
+| Null keys   | Not allowed (throws NPE)      |
+| Null values | Allowed                       |
+
+```java
+TreeMap<String, Integer> map = new TreeMap<>();
+map.put("C", 3);
+map.put("A", 1);
+map.put("B", 2);
+
+// Automatically sorted by key
+System.out.println(map);  // {A=1, B=2, C=3}
+
+// Navigation methods
+map.firstKey();      // "A"
+map.lastKey();       // "C"
+map.lowerKey("B");   // "A" (strictly less)
+map.floorKey("B");   // "B" (less or equal)
+map.higherKey("B");  // "C" (strictly greater)
+map.subMap("A", "C"); // {A=1, B=2}
+```
+
+---
+
+### Q15: What is CopyOnWriteArrayList and when to use it?
+
+**Answer:**
+CopyOnWriteArrayList creates a new copy of the array for every write operation.
+
+| Feature  | Details                            |
+| -------- | ---------------------------------- |
+| Reads    | O(1), no locking                   |
+| Writes   | O(n), copies entire array          |
+| Iterator | Snapshot - doesn't reflect changes |
+| Use case | Read-heavy, write-rare scenarios   |
+
+```java
+CopyOnWriteArrayList<String> list = new CopyOnWriteArrayList<>();
+list.add("A");
+list.add("B");
+
+// Safe iteration during modification
+for (String s : list) {
+    list.add("C");  // No ConcurrentModificationException
+    System.out.println(s);  // Only prints A, B (snapshot)
+}
+```
+
+**When to use:**
+
+- Event listener lists
+- Configuration caching
+- High read, low write scenarios
+
+---
+
+### Q16: What is the output?
+
+```java
+Set<Integer> set = new TreeSet<>();
+set.add(5);
+set.add(2);
+set.add(8);
+set.add(1);
+
+Iterator<Integer> it = set.iterator();
+while (it.hasNext()) {
+    System.out.print(it.next() + " ");
+}
+```
+
+**Answer:** `1 2 5 8`
+
+TreeSet maintains elements in sorted order.
+
+---
+
+### Q17: What is the difference between Comparable and Comparator?
+
+| Comparable                  | Comparator            |
+| --------------------------- | --------------------- |
+| In the class being compared | Separate class        |
+| `compareTo(T o)`            | `compare(T o1, T o2)` |
+| Single natural ordering     | Multiple orderings    |
+| Modifies original class     | Doesn't modify        |
+
+```java
+// Comparable - natural ordering
+class Employee implements Comparable<Employee> {
+    String name;
+    int salary;
+
+    @Override
+    public int compareTo(Employee other) {
+        return this.salary - other.salary;  // By salary
+    }
+}
+
+// Comparator - custom ordering
+Comparator<Employee> byName = (e1, e2) -> e1.name.compareTo(e2.name);
+Comparator<Employee> bySalaryDesc = Comparator.comparingInt(Employee::getSalary).reversed();
+
+// Multiple orderings
+Collections.sort(employees);                    // Natural order (by salary)
+Collections.sort(employees, byName);            // By name
+Collections.sort(employees, bySalaryDesc);      // By salary descending
+```
+
+---
+
+### Q18: What is PriorityQueue?
+
+**Answer:**
+PriorityQueue is a heap-based queue where elements are ordered by priority.
+
+```java
+// Min-heap (default)
+PriorityQueue<Integer> minHeap = new PriorityQueue<>();
+minHeap.addAll(List.of(5, 2, 8, 1));
+minHeap.poll();  // 1 (smallest)
+minHeap.poll();  // 2
+
+// Max-heap
+PriorityQueue<Integer> maxHeap = new PriorityQueue<>(Comparator.reverseOrder());
+maxHeap.addAll(List.of(5, 2, 8, 1));
+maxHeap.poll();  // 8 (largest)
+
+// Custom priority
+PriorityQueue<Task> taskQueue = new PriorityQueue<>(
+    Comparator.comparingInt(Task::getPriority)
+);
+```
+
+**Operations:**
+
+- `offer()` / `add()`: O(log n)
+- `poll()` / `remove()`: O(log n)
+- `peek()`: O(1)
+
+---
+
+### Q19: How to convert between Collection types?
+
+```java
+List<String> list = List.of("A", "B", "C");
+
+// List → Set (removes duplicates)
+Set<String> set = new HashSet<>(list);
+
+// Set → List
+List<String> backToList = new ArrayList<>(set);
+
+// List → Array
+String[] array = list.toArray(new String[0]);
+
+// Array → List (fixed-size)
+List<String> fixedList = Arrays.asList(array);
+
+// Array → List (modifiable)
+List<String> modifiableList = new ArrayList<>(Arrays.asList(array));
+
+// Map → Set of entries
+Set<Map.Entry<K, V>> entries = map.entrySet();
+
+// Map → Collection of values
+Collection<V> values = map.values();
+
+// Map → Set of keys
+Set<K> keys = map.keySet();
+```
+
+---
+
+### Q20: What is EnumSet and EnumMap?
+
+**Answer:**
+Specialized collections for enum types with better performance.
+
+```java
+enum Day { MON, TUE, WED, THU, FRI, SAT, SUN }
+
+// EnumSet - high-performance Set for enums
+EnumSet<Day> weekdays = EnumSet.range(Day.MON, Day.FRI);
+EnumSet<Day> weekend = EnumSet.of(Day.SAT, Day.SUN);
+EnumSet<Day> allDays = EnumSet.allOf(Day.class);
+EnumSet<Day> noDays = EnumSet.noneOf(Day.class);
+
+// EnumMap - high-performance Map for enum keys
+EnumMap<Day, String> activities = new EnumMap<>(Day.class);
+activities.put(Day.MON, "Work");
+activities.put(Day.SAT, "Rest");
+```
+
+**Benefits:**
+
+- Internally uses bit vectors (EnumSet)
+- Extremely fast operations
+- Compact memory representation
+- Type-safe
+
+---
+
 ## Key Takeaways
 
 1. **ArrayList** - Default choice for List (O(1) access)

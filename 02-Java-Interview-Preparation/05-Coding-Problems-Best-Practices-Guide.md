@@ -10,6 +10,7 @@
 6. [Dynamic Programming Problems](#dynamic-programming-problems)
 7. [Java Best Practices](#java-best-practices)
 8. [Code Review Checklist](#code-review-checklist)
+9. [Interview Questions & Answers](#interview-questions--answers)
 
 ---
 
@@ -1682,6 +1683,739 @@ for (int i = 0; i < 1000; i++) {
 - [ ] Complex logic commented
 - [ ] Public API documented
 - [ ] README updated if needed
+
+---
+
+## Interview Questions & Answers
+
+### Q1: What is the time complexity of HashMap operations?
+
+| Operation     | Average | Worst Case |
+| ------------- | ------- | ---------- |
+| get()         | O(1)    | O(n)       |
+| put()         | O(1)    | O(n)       |
+| remove()      | O(1)    | O(n)       |
+| containsKey() | O(1)    | O(n)       |
+
+**Worst case occurs when:** All keys hash to same bucket (poor hash function or hash collision attack).
+
+```java
+// Good: Using HashMap for O(1) lookup
+Map<String, Integer> map = new HashMap<>();
+map.put("key", 1);        // O(1) average
+int value = map.get("key"); // O(1) average
+```
+
+---
+
+### Q2: How do you find the time complexity of nested loops?
+
+```java
+// O(n²) - Two nested loops over same array
+for (int i = 0; i < n; i++) {
+    for (int j = 0; j < n; j++) {
+        // O(1) operation
+    }
+}
+
+// O(n log n) - Binary search in loop
+for (int i = 0; i < n; i++) {
+    binarySearch(array, target);  // O(log n)
+}
+
+// O(n) - Two pointers (not nested)
+int left = 0, right = n - 1;
+while (left < right) {
+    // O(1) operation
+    left++; right--;
+}
+```
+
+---
+
+### Q3: When should you use recursion vs iteration?
+
+| Recursion                       | Iteration                |
+| ------------------------------- | ------------------------ |
+| Tree/graph traversals           | Simple loops             |
+| Divide and conquer              | Large input sizes        |
+| More readable for some problems | Better memory efficiency |
+| Risk of StackOverflow           | No stack overhead        |
+
+```java
+// Prefer recursion: Tree traversal
+void inOrder(TreeNode node) {
+    if (node == null) return;
+    inOrder(node.left);
+    process(node);
+    inOrder(node.right);
+}
+
+// Prefer iteration: Fibonacci (avoid stack overflow)
+long fibonacci(int n) {
+    if (n <= 1) return n;
+    long a = 0, b = 1;
+    for (int i = 2; i <= n; i++) {
+        long temp = a + b;
+        a = b;
+        b = temp;
+    }
+    return b;
+}
+```
+
+---
+
+### Q4: How do you detect a cycle in a linked list?
+
+```java
+// Floyd's Tortoise and Hare Algorithm - O(n) time, O(1) space
+public boolean hasCycle(ListNode head) {
+    if (head == null || head.next == null) return false;
+
+    ListNode slow = head;
+    ListNode fast = head;
+
+    while (fast != null && fast.next != null) {
+        slow = slow.next;        // Move 1 step
+        fast = fast.next.next;   // Move 2 steps
+
+        if (slow == fast) return true;  // Cycle detected
+    }
+    return false;  // No cycle
+}
+```
+
+---
+
+### Q5: What is the Two Pointer technique and when to use it?
+
+**Use cases:**
+
+1. Finding pairs in sorted array
+2. Removing duplicates in-place
+3. Reversing arrays/strings
+4. Container with most water
+5. Three-sum, four-sum problems
+
+```java
+// Two Sum in sorted array - O(n)
+public int[] twoSum(int[] nums, int target) {
+    int left = 0, right = nums.length - 1;
+    while (left < right) {
+        int sum = nums[left] + nums[right];
+        if (sum == target) return new int[]{left, right};
+        else if (sum < target) left++;
+        else right--;
+    }
+    return new int[]{};
+}
+```
+
+---
+
+### Q6: Explain the Sliding Window technique.
+
+**Pattern:** Maintain a window that slides over data to find optimal substring/subarray.
+
+```java
+// Find max sum subarray of size k - O(n)
+public int maxSumSubarray(int[] nums, int k) {
+    int windowSum = 0;
+    int maxSum = 0;
+
+    // First window
+    for (int i = 0; i < k; i++) {
+        windowSum += nums[i];
+    }
+    maxSum = windowSum;
+
+    // Slide window
+    for (int i = k; i < nums.length; i++) {
+        windowSum += nums[i] - nums[i - k];  // Add new, remove old
+        maxSum = Math.max(maxSum, windowSum);
+    }
+    return maxSum;
+}
+```
+
+---
+
+### Q7: How do you approach Dynamic Programming problems?
+
+**Steps:**
+
+1. **Identify**: Optimal substructure + overlapping subproblems
+2. **Define state**: What variables define a subproblem?
+3. **Recurrence relation**: How does solution depend on smaller problems?
+4. **Base case**: Smallest subproblem solution
+5. **Order**: Bottom-up or top-down?
+
+```java
+// Example: Climbing stairs (n steps, 1 or 2 steps at a time)
+public int climbStairs(int n) {
+    if (n <= 2) return n;
+
+    // dp[i] = ways to reach step i
+    int[] dp = new int[n + 1];
+    dp[1] = 1;
+    dp[2] = 2;
+
+    // Recurrence: dp[i] = dp[i-1] + dp[i-2]
+    for (int i = 3; i <= n; i++) {
+        dp[i] = dp[i - 1] + dp[i - 2];
+    }
+    return dp[n];
+}
+
+// Space optimized - O(1)
+public int climbStairsOptimized(int n) {
+    if (n <= 2) return n;
+    int prev2 = 1, prev1 = 2;
+    for (int i = 3; i <= n; i++) {
+        int curr = prev1 + prev2;
+        prev2 = prev1;
+        prev1 = curr;
+    }
+    return prev1;
+}
+```
+
+---
+
+### Q8: What is the difference between BFS and DFS?
+
+| BFS                         | DFS                               |
+| --------------------------- | --------------------------------- |
+| Uses Queue                  | Uses Stack/Recursion              |
+| Level-by-level              | Goes deep first                   |
+| Shortest path (unweighted)  | Cycle detection, topological sort |
+| More memory for wide graphs | More memory for deep graphs       |
+
+```java
+// BFS - Level order traversal
+void bfs(Node root) {
+    Queue<Node> queue = new LinkedList<>();
+    queue.offer(root);
+    while (!queue.isEmpty()) {
+        Node node = queue.poll();
+        process(node);
+        for (Node neighbor : node.neighbors) {
+            queue.offer(neighbor);
+        }
+    }
+}
+
+// DFS - Recursive
+void dfs(Node node, Set<Node> visited) {
+    if (node == null || visited.contains(node)) return;
+    visited.add(node);
+    process(node);
+    for (Node neighbor : node.neighbors) {
+        dfs(neighbor, visited);
+    }
+}
+```
+
+---
+
+### Q9: How do you handle edge cases in coding problems?
+
+**Common edge cases:**
+
+1. Empty input (null, empty array/string)
+2. Single element
+3. All same elements
+4. Sorted/reverse sorted
+5. Negative numbers
+6. Integer overflow
+7. Duplicates
+
+```java
+public int findMax(int[] nums) {
+    // Edge case 1: Null check
+    if (nums == null) throw new IllegalArgumentException("Array cannot be null");
+
+    // Edge case 2: Empty array
+    if (nums.length == 0) throw new IllegalArgumentException("Array cannot be empty");
+
+    // Edge case 3: Single element
+    if (nums.length == 1) return nums[0];
+
+    int max = Integer.MIN_VALUE;  // Handle negative numbers
+    for (int num : nums) {
+        max = Math.max(max, num);
+    }
+    return max;
+}
+```
+
+---
+
+### Q10: What are the most common coding patterns to know?
+
+| Pattern                  | Problems                          |
+| ------------------------ | --------------------------------- |
+| **Two Pointers**         | Two Sum, Container Water, 3Sum    |
+| **Sliding Window**       | Max subarray, Substring problems  |
+| **Fast & Slow Pointers** | Cycle detection, Middle of list   |
+| **Merge Intervals**      | Meeting rooms, Insert interval    |
+| **Cyclic Sort**          | Find missing number, Duplicates   |
+| **Binary Search**        | Search sorted array, Peak element |
+| **BFS/DFS**              | Tree/graph traversals, Islands    |
+| **Heap/Priority Queue**  | Top K elements, Merge K lists     |
+| **Dynamic Programming**  | Knapsack, LCS, Climbing stairs    |
+| **Backtracking**         | Permutations, Subsets, N-Queens   |
+
+---
+
+### Q11: Implement a LRU Cache.
+
+**Answer:**
+
+```java
+class LRUCache {
+    private final int capacity;
+    private final Map<Integer, Node> map;
+    private final Node head, tail;
+
+    public LRUCache(int capacity) {
+        this.capacity = capacity;
+        this.map = new HashMap<>();
+        head = new Node(0, 0);
+        tail = new Node(0, 0);
+        head.next = tail;
+        tail.prev = head;
+    }
+
+    public int get(int key) {
+        if (!map.containsKey(key)) return -1;
+        Node node = map.get(key);
+        remove(node);
+        addToFront(node);
+        return node.value;
+    }
+
+    public void put(int key, int value) {
+        if (map.containsKey(key)) {
+            remove(map.get(key));
+        }
+        Node node = new Node(key, value);
+        map.put(key, node);
+        addToFront(node);
+
+        if (map.size() > capacity) {
+            Node lru = tail.prev;
+            remove(lru);
+            map.remove(lru.key);
+        }
+    }
+
+    private void remove(Node node) {
+        node.prev.next = node.next;
+        node.next.prev = node.prev;
+    }
+
+    private void addToFront(Node node) {
+        node.next = head.next;
+        node.prev = head;
+        head.next.prev = node;
+        head.next = node;
+    }
+
+    class Node {
+        int key, value;
+        Node prev, next;
+        Node(int k, int v) { key = k; value = v; }
+    }
+}
+```
+
+**Complexity:** O(1) for get and put.
+
+---
+
+### Q12: Find the Kth largest element in an array.
+
+**Answer:**
+
+```java
+// Approach 1: Min Heap - O(n log k)
+public int findKthLargest(int[] nums, int k) {
+    PriorityQueue<Integer> minHeap = new PriorityQueue<>();
+    for (int num : nums) {
+        minHeap.offer(num);
+        if (minHeap.size() > k) {
+            minHeap.poll();  // Remove smallest
+        }
+    }
+    return minHeap.peek();  // kth largest
+}
+
+// Approach 2: QuickSelect - O(n) average, O(n²) worst
+public int findKthLargestQuickSelect(int[] nums, int k) {
+    return quickSelect(nums, 0, nums.length - 1, nums.length - k);
+}
+
+private int quickSelect(int[] nums, int left, int right, int targetIndex) {
+    int pivotIndex = partition(nums, left, right);
+    if (pivotIndex == targetIndex) return nums[pivotIndex];
+    if (pivotIndex < targetIndex) {
+        return quickSelect(nums, pivotIndex + 1, right, targetIndex);
+    }
+    return quickSelect(nums, left, pivotIndex - 1, targetIndex);
+}
+```
+
+---
+
+### Q13: Validate if a binary tree is a BST.
+
+**Answer:**
+
+```java
+public boolean isValidBST(TreeNode root) {
+    return validate(root, Long.MIN_VALUE, Long.MAX_VALUE);
+}
+
+private boolean validate(TreeNode node, long min, long max) {
+    if (node == null) return true;
+    if (node.val <= min || node.val >= max) return false;
+
+    return validate(node.left, min, node.val) &&
+           validate(node.right, node.val, max);
+}
+
+// Alternative: Inorder traversal should be sorted
+public boolean isValidBSTInorder(TreeNode root) {
+    Stack<TreeNode> stack = new Stack<>();
+    TreeNode prev = null;
+
+    while (root != null || !stack.isEmpty()) {
+        while (root != null) {
+            stack.push(root);
+            root = root.left;
+        }
+        root = stack.pop();
+        if (prev != null && root.val <= prev.val) return false;
+        prev = root;
+        root = root.right;
+    }
+    return true;
+}
+```
+
+---
+
+### Q14: Merge K sorted lists.
+
+**Answer:**
+
+```java
+public ListNode mergeKLists(ListNode[] lists) {
+    if (lists == null || lists.length == 0) return null;
+
+    // Min heap based on node values
+    PriorityQueue<ListNode> heap = new PriorityQueue<>(
+        (a, b) -> a.val - b.val
+    );
+
+    // Add first node of each list
+    for (ListNode head : lists) {
+        if (head != null) heap.offer(head);
+    }
+
+    ListNode dummy = new ListNode(0);
+    ListNode current = dummy;
+
+    while (!heap.isEmpty()) {
+        ListNode smallest = heap.poll();
+        current.next = smallest;
+        current = current.next;
+
+        if (smallest.next != null) {
+            heap.offer(smallest.next);
+        }
+    }
+
+    return dummy.next;
+}
+```
+
+**Complexity:** O(n log k) where n = total nodes, k = number of lists.
+
+---
+
+### Q15: Find longest substring without repeating characters.
+
+**Answer:**
+
+```java
+public int lengthOfLongestSubstring(String s) {
+    Map<Character, Integer> lastSeen = new HashMap<>();
+    int maxLength = 0;
+    int windowStart = 0;
+
+    for (int windowEnd = 0; windowEnd < s.length(); windowEnd++) {
+        char c = s.charAt(windowEnd);
+
+        // If char seen and within current window, shrink window
+        if (lastSeen.containsKey(c) && lastSeen.get(c) >= windowStart) {
+            windowStart = lastSeen.get(c) + 1;
+        }
+
+        lastSeen.put(c, windowEnd);
+        maxLength = Math.max(maxLength, windowEnd - windowStart + 1);
+    }
+
+    return maxLength;
+}
+
+// Example: "abcabcbb" -> 3 ("abc")
+// Example: "bbbbb" -> 1 ("b")
+```
+
+---
+
+### Q16: Implement Binary Search variations.
+
+**Answer:**
+
+```java
+// Find first occurrence
+int findFirst(int[] arr, int target) {
+    int left = 0, right = arr.length - 1, result = -1;
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        if (arr[mid] == target) {
+            result = mid;
+            right = mid - 1;  // Continue searching left
+        } else if (arr[mid] < target) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    return result;
+}
+
+// Find last occurrence
+int findLast(int[] arr, int target) {
+    int left = 0, right = arr.length - 1, result = -1;
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        if (arr[mid] == target) {
+            result = mid;
+            left = mid + 1;  // Continue searching right
+        } else if (arr[mid] < target) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    return result;
+}
+
+// Search in rotated sorted array
+int searchRotated(int[] nums, int target) {
+    int left = 0, right = nums.length - 1;
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        if (nums[mid] == target) return mid;
+
+        // Left half is sorted
+        if (nums[left] <= nums[mid]) {
+            if (target >= nums[left] && target < nums[mid]) {
+                right = mid - 1;
+            } else {
+                left = mid + 1;
+            }
+        } else {  // Right half is sorted
+            if (target > nums[mid] && target <= nums[right]) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+    }
+    return -1;
+}
+```
+
+---
+
+### Q17: Number of Islands (Grid DFS/BFS).
+
+**Answer:**
+
+```java
+public int numIslands(char[][] grid) {
+    if (grid == null || grid.length == 0) return 0;
+
+    int islands = 0;
+    int rows = grid.length, cols = grid[0].length;
+
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (grid[i][j] == '1') {
+                islands++;
+                dfs(grid, i, j);  // Sink the island
+            }
+        }
+    }
+    return islands;
+}
+
+private void dfs(char[][] grid, int row, int col) {
+    if (row < 0 || row >= grid.length ||
+        col < 0 || col >= grid[0].length ||
+        grid[row][col] == '0') {
+        return;
+    }
+
+    grid[row][col] = '0';  // Mark as visited
+    dfs(grid, row - 1, col);  // Up
+    dfs(grid, row + 1, col);  // Down
+    dfs(grid, row, col - 1);  // Left
+    dfs(grid, row, col + 1);  // Right
+}
+```
+
+---
+
+### Q18: Coin Change (Dynamic Programming).
+
+**Answer:**
+
+```java
+// Minimum coins to make amount
+public int coinChange(int[] coins, int amount) {
+    int[] dp = new int[amount + 1];
+    Arrays.fill(dp, amount + 1);
+    dp[0] = 0;
+
+    for (int i = 1; i <= amount; i++) {
+        for (int coin : coins) {
+            if (coin <= i) {
+                dp[i] = Math.min(dp[i], dp[i - coin] + 1);
+            }
+        }
+    }
+
+    return dp[amount] > amount ? -1 : dp[amount];
+}
+
+// Number of ways to make amount
+public int coinChangeWays(int[] coins, int amount) {
+    int[] dp = new int[amount + 1];
+    dp[0] = 1;  // One way to make 0: use no coins
+
+    for (int coin : coins) {
+        for (int i = coin; i <= amount; i++) {
+            dp[i] += dp[i - coin];
+        }
+    }
+    return dp[amount];
+}
+```
+
+---
+
+### Q19: Valid Parentheses.
+
+**Answer:**
+
+```java
+public boolean isValid(String s) {
+    Stack<Character> stack = new Stack<>();
+    Map<Character, Character> pairs = Map.of(
+        ')', '(',
+        '}', '{',
+        ']', '['
+    );
+
+    for (char c : s.toCharArray()) {
+        if (pairs.containsKey(c)) {
+            if (stack.isEmpty() || stack.pop() != pairs.get(c)) {
+                return false;
+            }
+        } else {
+            stack.push(c);
+        }
+    }
+    return stack.isEmpty();
+}
+
+// Generate valid parentheses
+public List<String> generateParenthesis(int n) {
+    List<String> result = new ArrayList<>();
+    backtrack(result, "", 0, 0, n);
+    return result;
+}
+
+private void backtrack(List<String> result, String current,
+                       int open, int close, int max) {
+    if (current.length() == max * 2) {
+        result.add(current);
+        return;
+    }
+
+    if (open < max) {
+        backtrack(result, current + "(", open + 1, close, max);
+    }
+    if (close < open) {
+        backtrack(result, current + ")", open, close + 1, max);
+    }
+}
+```
+
+---
+
+### Q20: Subsets and Permutations (Backtracking).
+
+**Answer:**
+
+```java
+// Subsets - Power set
+public List<List<Integer>> subsets(int[] nums) {
+    List<List<Integer>> result = new ArrayList<>();
+    backtrackSubsets(result, new ArrayList<>(), nums, 0);
+    return result;
+}
+
+private void backtrackSubsets(List<List<Integer>> result, List<Integer> temp,
+                              int[] nums, int start) {
+    result.add(new ArrayList<>(temp));
+    for (int i = start; i < nums.length; i++) {
+        temp.add(nums[i]);
+        backtrackSubsets(result, temp, nums, i + 1);
+        temp.remove(temp.size() - 1);
+    }
+}
+
+// Permutations
+public List<List<Integer>> permute(int[] nums) {
+    List<List<Integer>> result = new ArrayList<>();
+    backtrackPermute(result, new ArrayList<>(), nums, new boolean[nums.length]);
+    return result;
+}
+
+private void backtrackPermute(List<List<Integer>> result, List<Integer> temp,
+                              int[] nums, boolean[] used) {
+    if (temp.size() == nums.length) {
+        result.add(new ArrayList<>(temp));
+        return;
+    }
+    for (int i = 0; i < nums.length; i++) {
+        if (used[i]) continue;
+        used[i] = true;
+        temp.add(nums[i]);
+        backtrackPermute(result, temp, nums, used);
+        temp.remove(temp.size() - 1);
+        used[i] = false;
+    }
+}
+```
 
 ---
 
