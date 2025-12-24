@@ -1,4 +1,4 @@
-# Angular HTTP, Interceptors & Testing - Complete Interview Guide
+﻿# Angular HTTP, Interceptors & Testing - Complete Interview Guide
 
 ## Table of Contents
 
@@ -315,30 +315,30 @@ export class UserListComponent implements OnInit {
 ### Interceptor Architecture
 
 ```
-┌──────────────────────────────────────────────────────────────────────────┐
-│                       HTTP INTERCEPTOR CHAIN                              │
-├──────────────────────────────────────────────────────────────────────────┤
-│                                                                           │
-│  Request Flow:                                                           │
-│  ┌─────────┐    ┌─────────────┐    ┌─────────────┐    ┌──────────┐      │
-│  │ Request │───▶│ Interceptor │───▶│ Interceptor │───▶│  Server  │      │
-│  │         │    │     1       │    │     2       │    │          │      │
-│  └─────────┘    └─────────────┘    └─────────────┘    └──────────┘      │
-│                                                                           │
-│  Response Flow:                                                          │
-│  ┌─────────┐    ┌─────────────┐    ┌─────────────┐    ┌──────────┐      │
-│  │Response │◀───│ Interceptor │◀───│ Interceptor │◀───│  Server  │      │
-│  │         │    │     1       │    │     2       │    │          │      │
-│  └─────────┘    └─────────────┘    └─────────────┘    └──────────┘      │
-│                                                                           │
-│  Common Use Cases:                                                       │
-│  • Authentication (add tokens)                                           │
-│  • Logging                                                               │
-│  • Error handling                                                        │
-│  • Caching                                                               │
-│  • Loading indicators                                                    │
-│                                                                           │
-└──────────────────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                       HTTP INTERCEPTOR CHAIN                              â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                                           â”‚
+â”‚  Request Flow:                                                           â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”      â”‚
+â”‚  â”‚ Request â”‚â”€â”€â”€â–¶â”‚ Interceptor â”‚â”€â”€â”€â–¶â”‚ Interceptor â”‚â”€â”€â”€â–¶â”‚  Server  â”‚      â”‚
+â”‚  â”‚         â”‚    â”‚     1       â”‚    â”‚     2       â”‚    â”‚          â”‚      â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜      â”‚
+â”‚                                                                           â”‚
+â”‚  Response Flow:                                                          â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”      â”‚
+â”‚  â”‚Response â”‚â—€â”€â”€â”€â”‚ Interceptor â”‚â—€â”€â”€â”€â”‚ Interceptor â”‚â—€â”€â”€â”€â”‚  Server  â”‚      â”‚
+â”‚  â”‚         â”‚    â”‚     1       â”‚    â”‚     2       â”‚    â”‚          â”‚      â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜      â”‚
+â”‚                                                                           â”‚
+â”‚  Common Use Cases:                                                       â”‚
+â”‚  â€¢ Authentication (add tokens)                                           â”‚
+â”‚  â€¢ Logging                                                               â”‚
+â”‚  â€¢ Error handling                                                        â”‚
+â”‚  â€¢ Caching                                                               â”‚
+â”‚  â€¢ Loading indicators                                                    â”‚
+â”‚                                                                           â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ### Functional Interceptors (Angular 15+)
@@ -1313,34 +1313,36 @@ describe("Login Page", () => {
 
 **Answer:**
 
-HTTP Interceptors are middleware that intercept HTTP requests/responses. They're used for:
-
-- **Authentication**: Add auth tokens to requests
-- **Logging**: Log requests/responses
-- **Error Handling**: Global error handling
-- **Caching**: Cache responses
-- **Loading Indicators**: Show/hide loading
+Interceptors are middleware that can transform HTTP requests/responses globally.
 
 ```typescript
+// Auth interceptor
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const token = inject(AuthService).getToken();
-
-  if (token) {
+  const authToken = inject(AuthService).getToken();
+  
+  if (authToken) {
     req = req.clone({
-      setHeaders: { Authorization: `Bearer ${token}` },
+      setHeaders: { Authorization: `Bearer ${authToken}` }
     });
   }
-
+  
   return next(req);
 };
+
+// Registration
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideHttpClient(withInterceptors([authInterceptor, loggingInterceptor]))
+  ]
+});
 ```
 
-**Key points:**
-
-- Requests are immutable (use `clone()`)
-- Multiple interceptors run in order
-- Can modify request AND response
-- Must call `next()` to continue chain
+**Common use cases:**
+- Authentication (add tokens)
+- Logging and analytics
+- Error handling (global)
+- Caching responses
+- Request/response transformation
 
 ---
 
@@ -1348,39 +1350,47 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
 **Answer:**
 
-Use `HttpClientTestingModule` with `HttpTestingController`:
-
 ```typescript
-beforeEach(() => {
-  TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule],
-    providers: [MyService],
+describe('UserService', () => {
+  let service: UserService;
+  let httpMock: HttpTestingController;
+  
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [UserService]
+    });
+    
+    service = TestBed.inject(UserService);
+    httpMock = TestBed.inject(HttpTestingController);
   });
-  httpMock = TestBed.inject(HttpTestingController);
-});
-
-it("should fetch data", () => {
-  service.getData().subscribe((data) => {
-    expect(data).toEqual(mockData);
+  
+  afterEach(() => {
+    httpMock.verify(); // Ensures no outstanding requests
   });
-
-  const req = httpMock.expectOne("/api/data");
-  expect(req.request.method).toBe("GET");
-  req.flush(mockData); // Provide mock response
-});
-
-afterEach(() => {
-  httpMock.verify(); // Ensure no outstanding requests
+  
+  it('should fetch users', () => {
+    const mockUsers = [{ id: 1, name: 'John' }];
+    
+    service.getUsers().subscribe(users => {
+      expect(users).toEqual(mockUsers);
+    });
+    
+    const req = httpMock.expectOne('/api/users');
+    expect(req.request.method).toBe('GET');
+    req.flush(mockUsers);
+  });
+  
+  it('should handle errors', () => {
+    service.getUsers().subscribe({
+      error: (err) => expect(err.status).toBe(404)
+    });
+    
+    const req = httpMock.expectOne('/api/users');
+    req.flush('Not found', { status: 404, statusText: 'Not Found' });
+  });
 });
 ```
-
-**Key methods:**
-
-- `expectOne()` - Expect single request
-- `expectNone()` - Expect no requests
-- `match()` - Match multiple requests
-- `flush()` - Provide response
-- `verify()` - Verify no outstanding requests
 
 ---
 
@@ -1388,29 +1398,19 @@ afterEach(() => {
 
 **Answer:**
 
-| Aspect           | Unit Tests                      | E2E Tests             |
-| ---------------- | ------------------------------- | --------------------- |
-| **Scope**        | Single unit (component/service) | Full application flow |
-| **Speed**        | Fast                            | Slow                  |
-| **Dependencies** | Mocked                          | Real                  |
-| **Tools**        | Jasmine/Jest, Karma             | Playwright, Cypress   |
-| **Purpose**      | Test isolated logic             | Test user journeys    |
-| **When**         | Every commit                    | Before release        |
+| Aspect | Unit Testing | E2E Testing |
+|--------|--------------|-------------|
+| Scope | Individual units | Full application |
+| Speed | Fast | Slow |
+| Dependencies | Mocked | Real/simulated |
+| Tools | Jasmine/Jest | Cypress/Playwright |
+| Isolation | High | Low |
+| Use case | Logic validation | User flow validation |
 
-```typescript
-// Unit test - Mock everything
-it("should show user name", () => {
-  userServiceSpy.getUser.and.returnValue(of({ name: "John" }));
-  fixture.detectChanges();
-  expect(component.userName).toBe("John");
-});
-
-// E2E test - Real browser
-test("should display user profile", async ({ page }) => {
-  await page.goto("/profile");
-  await expect(page.locator(".user-name")).toHaveText("John");
-});
-```
+**When to use:**
+- **Unit tests:** Business logic, services, pipes, utility functions
+- **Integration tests:** Component interactions, HTTP calls
+- **E2E tests:** Critical user journeys, smoke tests
 
 ---
 
@@ -1418,58 +1418,42 @@ test("should display user profile", async ({ page }) => {
 
 **Answer:**
 
-**Service Level:**
-
 ```typescript
-getUsers(): Observable<User[]> {
-  return this.http.get<User[]>('/api/users').pipe(
-    retry(2),
-    catchError(this.handleError)
-  );
-}
-
-private handleError(error: HttpErrorResponse): Observable<never> {
-  let message = 'An error occurred';
-
-  if (error.status === 0) {
-    message = 'Network error';
-  } else if (error.status === 401) {
-    message = 'Unauthorized';
-  } else if (error.status === 500) {
-    message = 'Server error';
-  }
-
-  return throwError(() => new Error(message));
-}
-```
-
-**Component Level:**
-
-```typescript
-loadUsers() {
-  this.loading = true;
-  this.error = null;
-
-  this.userService.getUsers().subscribe({
-    next: (users) => { this.users = users; this.loading = false; },
-    error: (err) => { this.error = err.message; this.loading = false; }
-  });
-}
-```
-
-**Global Level (Interceptor):**
-
-```typescript
+// Global error interceptor
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
         inject(AuthService).logout();
+        inject(Router).navigate(['/login']);
+      } else if (error.status === 503) {
+        inject(NotificationService).showError('Service unavailable');
       }
       return throwError(() => error);
     })
   );
 };
+
+// Service-level error handling
+@Injectable({ providedIn: 'root' })
+export class UserService {
+  getUser(id: string): Observable<User> {
+    return this.http.get<User>(`/api/users/${id}`).pipe(
+      retry({ count: 2, delay: 1000 }),
+      catchError(this.handleError)
+    );
+  }
+  
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    let message = 'Unknown error occurred';
+    if (error.error instanceof ErrorEvent) {
+      message = error.error.message; // Client-side error
+    } else {
+      message = `Server error: ${error.status}`; // Server-side error
+    }
+    return throwError(() => new Error(message));
+  }
+}
 ```
 
 ---
@@ -1478,87 +1462,511 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
 **Answer:**
 
-**1. Arrange-Act-Assert (AAA):**
-
 ```typescript
-it("should increment count", () => {
-  // Arrange
-  component.count = 0;
-
-  // Act
-  component.increment();
-
-  // Assert
-  expect(component.count).toBe(1);
-});
-```
-
-**2. Test user behavior, not implementation:**
-
-```typescript
-// Bad - tests implementation
-it("should call service method", () => {
-  component.loadUsers();
-  expect(serviceSpy.getUsers).toHaveBeenCalled();
-});
-
-// Good - tests behavior
-it("should display users after loading", () => {
-  serviceSpy.getUsers.and.returnValue(of(mockUsers));
-  fixture.detectChanges();
-
-  const userElements = fixture.debugElement.queryAll(By.css(".user"));
-  expect(userElements.length).toBe(mockUsers.length);
-});
-```
-
-**3. Test edge cases:**
-
-```typescript
-it("should handle empty list", () => {
-  serviceSpy.getUsers.and.returnValue(of([]));
-  fixture.detectChanges();
-
-  expect(fixture.debugElement.query(By.css(".empty-state"))).toBeTruthy();
-});
-
-it("should handle error", () => {
-  serviceSpy.getUsers.and.returnValue(throwError(() => new Error("Failed")));
-  fixture.detectChanges();
-
-  expect(component.error).toBeTruthy();
+describe('UserListComponent', () => {
+  let component: UserListComponent;
+  let fixture: ComponentFixture<UserListComponent>;
+  let userService: jasmine.SpyObj<UserService>;
+  
+  beforeEach(async () => {
+    const spy = jasmine.createSpyObj('UserService', ['getUsers']);
+    
+    await TestBed.configureTestingModule({
+      imports: [UserListComponent],
+      providers: [{ provide: UserService, useValue: spy }]
+    }).compileComponents();
+    
+    userService = TestBed.inject(UserService) as jasmine.SpyObj<UserService>;
+    fixture = TestBed.createComponent(UserListComponent);
+    component = fixture.componentInstance;
+  });
+  
+  it('should display users', () => {
+    userService.getUsers.and.returnValue(of([{ id: 1, name: 'John' }]));
+    fixture.detectChanges();
+    
+    const items = fixture.debugElement.queryAll(By.css('.user-item'));
+    expect(items.length).toBe(1);
+  });
+  
+  it('should show loading state', () => {
+    userService.getUsers.and.returnValue(NEVER);
+    fixture.detectChanges();
+    
+    const loader = fixture.debugElement.query(By.css('.loading'));
+    expect(loader).toBeTruthy();
+  });
 });
 ```
 
 ---
 
+### Q6: How do you implement request caching with interceptors?
+
+**Answer:**
+
+```typescript
+const cache = new Map<string, HttpResponse<unknown>>();
+
+export const cacheInterceptor: HttpInterceptorFn = (req, next) => {
+  // Only cache GET requests
+  if (req.method !== 'GET') {
+    return next(req);
+  }
+  
+  const cachedResponse = cache.get(req.url);
+  if (cachedResponse) {
+    return of(cachedResponse.clone());
+  }
+  
+  return next(req).pipe(
+    tap(event => {
+      if (event instanceof HttpResponse) {
+        cache.set(req.url, event.clone());
+        
+        // Clear cache after 5 minutes
+        setTimeout(() => cache.delete(req.url), 5 * 60 * 1000);
+      }
+    })
+  );
+};
+```
+
+---
+
+### Q7: How do you test components with async operations?
+
+**Answer:**
+
+```typescript
+describe('AsyncComponent', () => {
+  it('should handle async data with fakeAsync', fakeAsync(() => {
+    const fixture = TestBed.createComponent(AsyncComponent);
+    fixture.detectChanges();
+    
+    // Advance time for debounce
+    tick(500);
+    fixture.detectChanges();
+    
+    expect(fixture.nativeElement.textContent).toContain('Loaded');
+  }));
+  
+  it('should handle async with waitForAsync', waitForAsync(() => {
+    const fixture = TestBed.createComponent(AsyncComponent);
+    fixture.detectChanges();
+    
+    fixture.whenStable().then(() => {
+      fixture.detectChanges();
+      expect(fixture.nativeElement.textContent).toContain('Loaded');
+    });
+  }));
+  
+  it('should handle observables', (done) => {
+    service.getData().subscribe(data => {
+      expect(data).toBeDefined();
+      done();
+    });
+  });
+});
+```
+
+---
+
+### Q8: How do you implement retry logic for HTTP requests?
+
+**Answer:**
+
+```typescript
+// Simple retry
+this.http.get('/api/data').pipe(
+  retry(3) // Retry 3 times immediately
+);
+
+// Retry with delay (exponential backoff)
+this.http.get('/api/data').pipe(
+  retry({
+    count: 3,
+    delay: (error, retryCount) => {
+      const delay = Math.pow(2, retryCount) * 1000; // 2s, 4s, 8s
+      console.log(`Retry ${retryCount} in ${delay}ms`);
+      return timer(delay);
+    }
+  })
+);
+
+// Retry only specific errors
+this.http.get('/api/data').pipe(
+  retry({
+    count: 3,
+    delay: (error) => {
+      if (error.status === 503) {
+        return timer(2000); // Retry after 2s
+      }
+      return throwError(() => error); // Don't retry
+    }
+  })
+);
+```
+
+---
+
+### Q9: How do you test interceptors?
+
+**Answer:**
+
+```typescript
+describe('AuthInterceptor', () => {
+  let httpMock: HttpTestingController;
+  let httpClient: HttpClient;
+  let authService: jasmine.SpyObj<AuthService>;
+  
+  beforeEach(() => {
+    const authSpy = jasmine.createSpyObj('AuthService', ['getToken']);
+    
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(withInterceptors([authInterceptor])),
+        provideHttpClientTesting(),
+        { provide: AuthService, useValue: authSpy }
+      ]
+    });
+    
+    httpClient = TestBed.inject(HttpClient);
+    httpMock = TestBed.inject(HttpTestingController);
+    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+  });
+  
+  it('should add auth header', () => {
+    authService.getToken.and.returnValue('test-token');
+    
+    httpClient.get('/api/data').subscribe();
+    
+    const req = httpMock.expectOne('/api/data');
+    expect(req.request.headers.get('Authorization')).toBe('Bearer test-token');
+  });
+  
+  it('should not add header when no token', () => {
+    authService.getToken.and.returnValue(null);
+    
+    httpClient.get('/api/data').subscribe();
+    
+    const req = httpMock.expectOne('/api/data');
+    expect(req.request.headers.has('Authorization')).toBeFalse();
+  });
+});
+```
+
+---
+
+### Q10: How do you implement loading indicators with interceptors?
+
+**Answer:**
+
+```typescript
+@Injectable({ providedIn: 'root' })
+export class LoadingService {
+  private activeRequests = signal(0);
+  isLoading = computed(() => this.activeRequests() > 0);
+  
+  start() { this.activeRequests.update(n => n + 1); }
+  stop() { this.activeRequests.update(n => Math.max(0, n - 1)); }
+}
+
+export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
+  // Skip for certain requests
+  if (req.headers.has('X-Skip-Loading')) {
+    return next(req);
+  }
+  
+  const loadingService = inject(LoadingService);
+  loadingService.start();
+  
+  return next(req).pipe(
+    finalize(() => loadingService.stop())
+  );
+};
+
+// Usage in component
+@Component({
+  template: `
+    <div class="loading-overlay" *ngIf="loadingService.isLoading()">
+      <app-spinner></app-spinner>
+    </div>
+  `
+})
+export class AppComponent {
+  loadingService = inject(LoadingService);
+}
+```
+
+---
+
+### Q11: How do you mock services in Angular tests?
+
+**Answer:**
+
+```typescript
+// Method 1: Jasmine spy
+const userServiceSpy = jasmine.createSpyObj('UserService', ['getUser', 'updateUser']);
+userServiceSpy.getUser.and.returnValue(of({ id: 1, name: 'Test' }));
+
+// Method 2: Manual mock class
+class MockUserService {
+  getUser = jasmine.createSpy().and.returnValue(of({ id: 1, name: 'Test' }));
+}
+
+// Method 3: Jest mock (if using Jest)
+jest.mock('./user.service');
+const mockUserService = UserService as jest.Mocked<typeof UserService>;
+
+// TestBed configuration
+TestBed.configureTestingModule({
+  providers: [
+    { provide: UserService, useValue: userServiceSpy },
+    // OR
+    { provide: UserService, useClass: MockUserService }
+  ]
+});
+```
+
+---
+
+### Q12: How do you test components with @Input/@Output?
+
+**Answer:**
+
+```typescript
+@Component({
+  selector: 'app-counter',
+  template: `
+    <button (click)="decrement()">-</button>
+    <span>{{ count }}</span>
+    <button (click)="increment()">+</button>
+  `
+})
+export class CounterComponent {
+  @Input() count = 0;
+  @Output() countChange = new EventEmitter<number>();
+  
+  increment() { this.countChange.emit(++this.count); }
+  decrement() { this.countChange.emit(--this.count); }
+}
+
+// Tests
+describe('CounterComponent', () => {
+  let component: CounterComponent;
+  let fixture: ComponentFixture<CounterComponent>;
+  
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [CounterComponent]
+    }).compileComponents();
+    
+    fixture = TestBed.createComponent(CounterComponent);
+    component = fixture.componentInstance;
+  });
+  
+  it('should accept input', () => {
+    component.count = 5;
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('span').textContent).toBe('5');
+  });
+  
+  it('should emit on increment', () => {
+    spyOn(component.countChange, 'emit');
+    component.count = 5;
+    
+    component.increment();
+    
+    expect(component.countChange.emit).toHaveBeenCalledWith(6);
+  });
+  
+  it('should emit on button click', () => {
+    let emittedValue: number | undefined;
+    component.countChange.subscribe(v => emittedValue = v);
+    
+    const button = fixture.debugElement.queryAll(By.css('button'))[1];
+    button.triggerEventHandler('click');
+    
+    expect(emittedValue).toBe(1);
+  });
+});
+```
+
+---
+
+### Q13: How do you handle file uploads with HttpClient?
+
+**Answer:**
+
+```typescript
+@Injectable({ providedIn: 'root' })
+export class FileUploadService {
+  upload(file: File): Observable<UploadProgress> {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    return this.http.post('/api/upload', formData, {
+      reportProgress: true,
+      observe: 'events'
+    }).pipe(
+      map(event => {
+        switch (event.type) {
+          case HttpEventType.UploadProgress:
+            const progress = Math.round(100 * event.loaded / (event.total || 1));
+            return { status: 'progress', progress };
+          case HttpEventType.Response:
+            return { status: 'complete', body: event.body };
+          default:
+            return { status: 'pending', progress: 0 };
+        }
+      }),
+      catchError(error => of({ status: 'error', error }))
+    );
+  }
+}
+
+// Component usage
+uploadFile(file: File) {
+  this.uploadService.upload(file).subscribe(result => {
+    if (result.status === 'progress') {
+      this.progress = result.progress;
+    } else if (result.status === 'complete') {
+      this.uploadComplete = true;
+    }
+  });
+}
+```
+
+---
+
+### Q14: How do you test routing in Angular?
+
+**Answer:**
+
+```typescript
+describe('Routing', () => {
+  let router: Router;
+  let location: Location;
+  
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [
+        RouterTestingModule.withRoutes([
+          { path: '', component: HomeComponent },
+          { path: 'users', component: UserListComponent },
+          { path: 'users/:id', component: UserDetailComponent }
+        ])
+      ]
+    }).compileComponents();
+    
+    router = TestBed.inject(Router);
+    location = TestBed.inject(Location);
+  });
+  
+  it('should navigate to users', fakeAsync(() => {
+    router.navigate(['/users']);
+    tick();
+    expect(location.path()).toBe('/users');
+  }));
+  
+  it('should navigate with params', fakeAsync(() => {
+    router.navigate(['/users', 123]);
+    tick();
+    expect(location.path()).toBe('/users/123');
+  }));
+});
+
+// Testing guards
+describe('AuthGuard', () => {
+  it('should redirect to login if not authenticated', fakeAsync(() => {
+    authService.isLoggedIn.and.returnValue(false);
+    
+    router.navigate(['/protected']);
+    tick();
+    
+    expect(location.path()).toBe('/login');
+  }));
+});
+```
+
+---
+
+### Q15: How do you implement request/response transformation?
+
+**Answer:**
+
+```typescript
+// Transform request (add timestamp, convert to FormData)
+export const requestTransformInterceptor: HttpInterceptorFn = (req, next) => {
+  // Add timestamp to all requests
+  const modifiedReq = req.clone({
+    setHeaders: { 'X-Request-Time': Date.now().toString() }
+  });
+  
+  return next(modifiedReq);
+};
+
+// Transform response (unwrap data, convert dates)
+export const responseTransformInterceptor: HttpInterceptorFn = (req, next) => {
+  return next(req).pipe(
+    map(event => {
+      if (event instanceof HttpResponse) {
+        // Unwrap API response
+        const body = event.body as any;
+        if (body?.data) {
+          return event.clone({ body: body.data });
+        }
+        
+        // Convert date strings to Date objects
+        return event.clone({
+          body: convertDates(body)
+        });
+      }
+      return event;
+    })
+  );
+};
+
+function convertDates(obj: any): any {
+  if (!obj) return obj;
+  for (const key of Object.keys(obj)) {
+    if (typeof obj[key] === 'string' && isISODate(obj[key])) {
+      obj[key] = new Date(obj[key]);
+    }
+  }
+  return obj;
+}
+```
+
+---
 ## Summary Checklist
 
-✅ **HttpClient**
+âœ… **HttpClient**
 
 - GET, POST, PUT, PATCH, DELETE
 - Headers, query params, options
 - File upload with progress
 
-✅ **Interceptors**
+âœ… **Interceptors**
 
 - Functional vs class-based
 - Auth, logging, error handling
 - Token refresh pattern
 
-✅ **Error Handling**
+âœ… **Error Handling**
 
 - Service-level catchError
 - Component-level handling
 - Global interceptor handling
 
-✅ **Testing**
+âœ… **Testing**
 
 - Component testing with TestBed
 - Service testing with HttpTestingController
 - Mocking dependencies with spies
 
-✅ **E2E Testing**
+âœ… **E2E Testing**
 
 - Playwright/Cypress basics
 - Page object pattern

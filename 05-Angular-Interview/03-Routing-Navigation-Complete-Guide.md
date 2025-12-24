@@ -1,4 +1,4 @@
-# Angular Routing & Navigation - Complete Interview Guide
+﻿# Angular Routing & Navigation - Complete Interview Guide
 
 ## Table of Contents
 
@@ -21,44 +21,44 @@
 ### Angular Router Architecture
 
 ```
-┌──────────────────────────────────────────────────────────────────────────┐
-│                      ANGULAR ROUTER ARCHITECTURE                          │
-├──────────────────────────────────────────────────────────────────────────┤
-│                                                                           │
-│  URL                                                                      │
-│   │                                                                       │
-│   ▼                                                                       │
-│  ┌─────────────────┐                                                     │
-│  │  URL PARSING    │  Parse URL into segments                            │
-│  └────────┬────────┘                                                     │
-│           │                                                               │
-│           ▼                                                               │
-│  ┌─────────────────┐                                                     │
-│  │ ROUTE MATCHING  │  Match URL to route configuration                   │
-│  └────────┬────────┘                                                     │
-│           │                                                               │
-│           ▼                                                               │
-│  ┌─────────────────┐      ┌─────────────────┐                           │
-│  │    GUARDS       │─────▶│   Resolvers     │                           │
-│  │ (Can activate?) │      │  (Pre-fetch)    │                           │
-│  └────────┬────────┘      └────────┬────────┘                           │
-│           │                        │                                     │
-│           └────────────┬───────────┘                                     │
-│                        ▼                                                  │
-│  ┌──────────────────────────────────────────────────────────────┐       │
-│  │                    <router-outlet>                            │       │
-│  │  ┌────────────────────────────────────────────────────────┐  │       │
-│  │  │              ACTIVATED COMPONENT                        │  │       │
-│  │  │  ┌──────────────────────────────────────────────────┐  │  │       │
-│  │  │  │         <router-outlet> (child)                  │  │  │       │
-│  │  │  │  ┌────────────────────────────────────────────┐  │  │  │       │
-│  │  │  │  │         CHILD COMPONENT                    │  │  │  │       │
-│  │  │  │  └────────────────────────────────────────────┘  │  │  │       │
-│  │  │  └──────────────────────────────────────────────────┘  │  │       │
-│  │  └────────────────────────────────────────────────────────┘  │       │
-│  └──────────────────────────────────────────────────────────────┘       │
-│                                                                           │
-└──────────────────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                      ANGULAR ROUTER ARCHITECTURE                          â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                                           â”‚
+â”‚  URL                                                                      â”‚
+â”‚   â”‚                                                                       â”‚
+â”‚   â–¼                                                                       â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                                                     â”‚
+â”‚  â”‚  URL PARSING    â”‚  Parse URL into segments                            â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”˜                                                     â”‚
+â”‚           â”‚                                                               â”‚
+â”‚           â–¼                                                               â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                                                     â”‚
+â”‚  â”‚ ROUTE MATCHING  â”‚  Match URL to route configuration                   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”˜                                                     â”‚
+â”‚           â”‚                                                               â”‚
+â”‚           â–¼                                                               â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”      â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                           â”‚
+â”‚  â”‚    GUARDS       â”‚â”€â”€â”€â”€â”€â–¶â”‚   Resolvers     â”‚                           â”‚
+â”‚  â”‚ (Can activate?) â”‚      â”‚  (Pre-fetch)    â”‚                           â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”˜      â””â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”˜                           â”‚
+â”‚           â”‚                        â”‚                                     â”‚
+â”‚           â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                                     â”‚
+â”‚                        â–¼                                                  â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”       â”‚
+â”‚  â”‚                    <router-outlet>                            â”‚       â”‚
+â”‚  â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚       â”‚
+â”‚  â”‚  â”‚              ACTIVATED COMPONENT                        â”‚  â”‚       â”‚
+â”‚  â”‚  â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚  â”‚       â”‚
+â”‚  â”‚  â”‚  â”‚         <router-outlet> (child)                  â”‚  â”‚  â”‚       â”‚
+â”‚  â”‚  â”‚  â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚  â”‚  â”‚       â”‚
+â”‚  â”‚  â”‚  â”‚  â”‚         CHILD COMPONENT                    â”‚  â”‚  â”‚  â”‚       â”‚
+â”‚  â”‚  â”‚  â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚  â”‚  â”‚       â”‚
+â”‚  â”‚  â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚  â”‚       â”‚
+â”‚  â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚       â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜       â”‚
+â”‚                                                                           â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ### Basic Setup
@@ -190,7 +190,7 @@ const routes: Routes = [
   {
     path: "old-path",
     redirectTo: "/new-path",
-    pathMatch: "prefix", // /old-path/sub → /new-path/sub
+    pathMatch: "prefix", // /old-path/sub â†’ /new-path/sub
   },
 
   // Redirect to external (use guard)
@@ -703,20 +703,20 @@ provideRouter(routes, withPreloading(SelectivePreloadingStrategy));
 ### Guard Types Overview
 
 ```
-┌──────────────────────────────────────────────────────────────────────────┐
-│                           ROUTE GUARDS                                    │
-├──────────────────────────────────────────────────────────────────────────┤
-│                                                                           │
-│  canMatch        → Can the route be matched? (Lazy loading decision)     │
-│  canActivate     → Can the route be activated?                           │
-│  canActivateChild → Can child routes be activated?                       │
-│  canDeactivate   → Can the user leave the route?                         │
-│  resolve         → Pre-fetch data before activation                      │
-│                                                                           │
-│  EXECUTION ORDER:                                                        │
-│  canMatch → canActivate → canActivateChild → resolve → activate          │
-│                                                                           │
-└──────────────────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                           ROUTE GUARDS                                    â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                                           â”‚
+â”‚  canMatch        â†’ Can the route be matched? (Lazy loading decision)     â”‚
+â”‚  canActivate     â†’ Can the route be activated?                           â”‚
+â”‚  canActivateChild â†’ Can child routes be activated?                       â”‚
+â”‚  canDeactivate   â†’ Can the user leave the route?                         â”‚
+â”‚  resolve         â†’ Pre-fetch data before activation                      â”‚
+â”‚                                                                           â”‚
+â”‚  EXECUTION ORDER:                                                        â”‚
+â”‚  canMatch â†’ canActivate â†’ canActivateChild â†’ resolve â†’ activate          â”‚
+â”‚                                                                           â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ### Functional Guards (Angular 14+)
@@ -1213,144 +1213,165 @@ export class LowerCaseUrlSerializer implements UrlSerializer {
 
 ## Interview Questions & Answers
 
-### Q1: What is the difference between `canActivate` and `canMatch`?
+### Q1: What is the difference between RouterModule.forRoot() and RouterModule.forChild()?
 
 **Answer:**
 
-| Guard           | When Called            | Purpose                             |
-| --------------- | ---------------------- | ----------------------------------- |
-| **canActivate** | After route is matched | Prevent access to matched route     |
-| **canMatch**    | Before route matching  | Prevent route from being considered |
+| Aspect | forRoot() | forChild() |
+|--------|-----------|------------|
+| Usage | App module (once) | Feature modules |
+| Services | Creates Router, registers routes | Only registers routes |
+| Location | Main app.module.ts | Lazy-loaded modules |
 
 ```typescript
-// canMatch - affects which route is matched
-const routes: Routes = [
-  {
-    path: "dashboard",
-    canMatch: [premiumGuard], // If false, try next route
-    component: PremiumDashboard,
-  },
-  {
-    path: "dashboard",
-    component: BasicDashboard, // Fallback
-  },
-];
+// app.module.ts - Main application
+@NgModule({
+  imports: [RouterModule.forRoot(routes, {
+    preloadingStrategy: PreloadAllModules,
+    scrollPositionRestoration: 'enabled'
+  })]
+})
+export class AppModule {}
 
-// canActivate - blocks access to matched route
-const routes: Routes = [
-  {
-    path: "admin",
-    canActivate: [authGuard], // If false, navigation fails
-    component: AdminComponent,
-  },
-];
+// feature.module.ts - Feature module
+@NgModule({
+  imports: [RouterModule.forChild(featureRoutes)]
+})
+export class FeatureModule {}
 ```
 
-**Use canMatch when:**
-
-- Different components for different user types
-- Feature flags
-- A/B testing
-
-**Use canActivate when:**
-
-- Authorization/authentication
-- Redirecting to login
+**Important:** Using forRoot() in a lazy-loaded module creates duplicate Router service!
 
 ---
 
-### Q2: Explain lazy loading and preloading strategies.
+### Q2: How do you implement lazy loading in Angular?
 
 **Answer:**
 
-**Lazy Loading:**
-
-- Load modules/components on demand
-- Reduces initial bundle size
-- Improves initial load time
-
 ```typescript
+// Modern approach (Angular 14+)
 const routes: Routes = [
   {
-    path: "admin",
-    loadChildren: () =>
-      import("./admin/admin.routes").then((m) => m.ADMIN_ROUTES),
+    path: 'admin',
+    loadComponent: () => import('./admin/admin.component')
+      .then(m => m.AdminComponent)
   },
+  {
+    path: 'dashboard',
+    loadChildren: () => import('./dashboard/dashboard.routes')
+      .then(m => m.DASHBOARD_ROUTES)
+  }
 ];
+
+// With preloading strategy
+@NgModule({
+  imports: [RouterModule.forRoot(routes, {
+    preloadingStrategy: PreloadAllModules // or custom strategy
+  })]
+})
 ```
 
-**Preloading Strategies:**
-
-| Strategy              | Behavior                                    |
-| --------------------- | ------------------------------------------- |
-| **NoPreloading**      | Default - only load on navigation           |
-| **PreloadAllModules** | Preload all lazy modules after initial load |
-| **Custom**            | Selective preloading based on conditions    |
+**Custom preloading strategy:**
 
 ```typescript
-// Custom strategy
-@Injectable({ providedIn: "root" })
-export class SelectivePreloader implements PreloadingStrategy {
+@Injectable({ providedIn: 'root' })
+export class SelectivePreloadingStrategy implements PreloadingStrategy {
   preload(route: Route, load: () => Observable<any>): Observable<any> {
-    return route.data?.["preload"] ? load() : of(null);
+    return route.data?.['preload'] ? load() : of(null);
   }
 }
+
+// Route with preload flag
+{ path: 'reports', loadChildren: ..., data: { preload: true } }
 ```
 
 ---
 
-### Q3: How do you handle unsaved changes when navigating away?
+### Q3: Explain route guards and their execution order.
 
 **Answer:**
 
-Use **canDeactivate** guard:
+**Guard Types:**
+
+| Guard | Purpose | Runs When |
+|-------|---------|-----------|
+| canMatch | Check if route can match | Before route matching |
+| canActivate | Allow/deny navigation | Before activating route |
+| canActivateChild | Protect child routes | Before activating children |
+| canDeactivate | Allow leaving route | Before leaving current route |
+| canLoad | Control lazy loading | Before loading module |
+
+**Execution Order:**
+
+```
+URL Change  canMatch  canActivate  canActivateChild  Resolvers  Component
+                                                                       
+         canLoad (if lazy)                                     canDeactivate
+```
 
 ```typescript
-// Interface
-export interface CanComponentDeactivate {
-  canDeactivate: () => boolean | Observable<boolean>;
-}
-
-// Guard
-export const unsavedGuard: CanDeactivateFn<CanComponentDeactivate> =
-  (component) => component.canDeactivate();
-
-// Component
-@Component({...})
-export class EditComponent implements CanComponentDeactivate {
-  form = this.fb.group({ name: [''] });
-
-  canDeactivate(): boolean {
-    if (this.form.dirty) {
-      return confirm('Discard changes?');
-    }
+// Functional guard (modern approach)
+export const authGuard: CanActivateFn = (route, state) => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  
+  if (auth.isAuthenticated()) {
     return true;
   }
-}
+  
+  return router.createUrlTree(['/login'], {
+    queryParams: { returnUrl: state.url }
+  });
+};
+
+// Usage
+{ path: 'admin', component: AdminComponent, canActivate: [authGuard] }
 ```
 
 ---
 
-### Q4: What's the difference between `paramMap` and `queryParamMap`?
+### Q4: What is the difference between route params and query params?
 
 **Answer:**
 
-| Type              | URL Part      | Example                                             |
-| ----------------- | ------------- | --------------------------------------------------- |
-| **paramMap**      | Path segments | `/users/123` → `{ id: '123' }`                      |
-| **queryParamMap** | Query string  | `?page=1&sort=name` → `{ page: '1', sort: 'name' }` |
+| Aspect | Route Params | Query Params |
+|--------|--------------|--------------|
+| URL Format | /users/:id  /users/123 | /users?sort=name&page=1 |
+| Required | Yes | No (optional) |
+| Route Config | Defined in path | Not in route config |
+| Use Case | Resource identification | Filtering, pagination |
 
 ```typescript
-// Route: /users/:id?page=1&sort=name
-const id = route.snapshot.paramMap.get("id"); // '123'
-const page = route.snapshot.queryParamMap.get("page"); // '1'
+// Route params
+{ path: 'products/:category/:id', component: ProductComponent }
+// URL: /products/electronics/123
+
+// Accessing params
+@Component({...})
+export class ProductComponent {
+  private route = inject(ActivatedRoute);
+  
+  ngOnInit() {
+    // Route params (reactive)
+    this.route.paramMap.subscribe(params => {
+      this.categoryId = params.get('category');
+      this.productId = params.get('id');
+    });
+    
+    // Query params
+    this.route.queryParamMap.subscribe(params => {
+      this.sortBy = params.get('sort');
+      this.page = +(params.get('page') ?? 1);
+    });
+  }
+}
+
+// Navigating with both
+this.router.navigate(['/products', 'electronics', 123], {
+  queryParams: { sort: 'price', order: 'desc' },
+  queryParamsHandling: 'merge' // preserve existing
+});
 ```
-
-**Key differences:**
-
-- Route params are part of route definition
-- Query params are optional, not tied to route
-- Route params use `paramMap`, query params use `queryParamMap`
 
 ---
 
@@ -1360,76 +1381,469 @@ const page = route.snapshot.queryParamMap.get("page"); // '1'
 
 **Resolvers** pre-fetch data before a route activates.
 
-**How they work:**
-
-1. Navigation starts
-2. Guards run (canActivate, etc.)
-3. Resolvers run (parallel)
-4. All data resolved
-5. Component activates with data ready
+**Flow:**
+1. Navigation starts  Guards run  Resolvers run  Component activates
 
 ```typescript
-export const userResolver: ResolveFn<User> = (route) => {
-  const service = inject(UserService);
-  return service.getUser(route.paramMap.get('id')!);
+// Resolver function
+export const productResolver: ResolveFn<Product> = (route) => {
+  const service = inject(ProductService);
+  const router = inject(Router);
+  
+  return service.getProduct(route.paramMap.get('id')!).pipe(
+    catchError(() => {
+      router.navigate(['/404']);
+      return EMPTY;
+    })
+  );
 };
 
-// Route
-{ path: 'users/:id', component: UserComponent, resolve: { user: userResolver } }
+// Route configuration
+{
+  path: 'products/:id',
+  component: ProductDetailComponent,
+  resolve: { product: productResolver }
+}
 
 // Component - data available immediately
-ngOnInit() {
-  this.user = this.route.snapshot.data['user'];
+export class ProductDetailComponent {
+  product = inject(ActivatedRoute).snapshot.data['product'];
 }
 ```
 
-**When to use:**
-
-- ✅ Critical data needed before component renders
-- ✅ Prevent empty states/loading spinners
-- ✅ Handle errors before navigation completes
-
-**When NOT to use:**
-
-- ❌ Large datasets (blocks navigation)
-- ❌ Optional/secondary data
-- ❌ Real-time data (use services instead)
+**Use When:** Critical data needed before render, prevent loading states
+**Avoid When:** Large datasets (blocks navigation), optional data
 
 ---
 
+### Q6: How do you handle navigation errors and 404 routes?
+
+**Answer:**
+
+```typescript
+const routes: Routes = [
+  { path: '', component: HomeComponent },
+  { path: 'products', loadChildren: () => import('./products/routes') },
+  
+  // 404 catch-all (must be last)
+  { path: '**', component: NotFoundComponent }
+];
+
+// Global error handling via Router events
+@Injectable({ providedIn: 'root' })
+export class NavigationErrorHandler {
+  constructor(private router: Router) {
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationError)
+    ).subscribe((error: NavigationError) => {
+      console.error('Navigation failed:', error.url);
+      this.router.navigate(['/error'], {
+        queryParams: { url: error.url }
+      });
+    });
+  }
+}
+```
+
+---
+
+### Q7: Explain the difference between snapshot and paramMap observable.
+
+**Answer:**
+
+| Aspect | snapshot | paramMap (Observable) |
+|--------|----------|----------------------|
+| Type | Static value | Stream of values |
+| Updates | One-time read | Reacts to changes |
+| Use case | Initial load | Same component, different params |
+
+```typescript
+export class UserComponent {
+  private route = inject(ActivatedRoute);
+  
+  // Snapshot - won't update if params change on same component
+  userId = this.route.snapshot.paramMap.get('id');
+  
+  // Observable - updates when navigating /users/1  /users/2
+  ngOnInit() {
+    this.route.paramMap.subscribe(params => {
+      this.loadUser(params.get('id'));
+    });
+  }
+}
+```
+
+**When to use Observable:** Links within component navigate to same route with different params (e.g., "Next/Previous" buttons).
+
+---
+
+### Q8: How do you implement route animations?
+
+**Answer:**
+
+```typescript
+// animations.ts
+export const routeAnimations = trigger('routeAnimations', [
+  transition('* <=> *', [
+    query(':enter, :leave', [
+      style({
+        position: 'absolute',
+        width: '100%',
+        opacity: 0,
+        transform: 'translateX(100%)'
+      })
+    ], { optional: true }),
+    query(':leave', [
+      animate('300ms ease-out', style({ opacity: 0, transform: 'translateX(-100%)' }))
+    ], { optional: true }),
+    query(':enter', [
+      animate('300ms ease-out', style({ opacity: 1, transform: 'translateX(0)' }))
+    ], { optional: true })
+  ])
+]);
+
+// app.component.ts
+@Component({
+  animations: [routeAnimations],
+  template: `
+    <div [@routeAnimations]="getRouteAnimationData()">
+      <router-outlet></router-outlet>
+    </div>
+  `
+})
+export class AppComponent {
+  getRouteAnimationData() {
+    return this.route.snapshot.firstChild?.data['animation'];
+  }
+}
+
+// Route config
+{ path: 'home', component: HomeComponent, data: { animation: 'HomePage' } }
+```
+
+---
+
+### Q9: How do you pass data between routes?
+
+**Answer:**
+
+```typescript
+// Method 1: Route params
+this.router.navigate(['/user', userId]);
+
+// Method 2: Query params
+this.router.navigate(['/search'], { 
+  queryParams: { q: 'angular', page: 1 } 
+});
+
+// Method 3: State (hidden from URL)
+this.router.navigate(['/checkout'], { 
+  state: { cart: this.cartItems } 
+});
+
+// Accessing state
+constructor() {
+  const navigation = this.router.getCurrentNavigation();
+  this.cart = navigation?.extras.state?.['cart'];
+  // OR
+  this.cart = history.state.cart;
+}
+
+// Method 4: Route data (static)
+{ path: 'admin', component: AdminComponent, data: { role: 'admin' } }
+
+// Method 5: Shared service (for complex data)
+@Injectable({ providedIn: 'root' })
+export class DataTransferService {
+  private data = signal<any>(null);
+  setData(data: any) { this.data.set(data); }
+  getData() { return this.data(); }
+}
+```
+
+---
+
+### Q10: What is ActivatedRoute and how do you use it?
+
+**Answer:**
+
+```typescript
+@Component({...})
+export class ProductComponent {
+  private route = inject(ActivatedRoute);
+  
+  ngOnInit() {
+    // Access various route information
+    
+    // URL segments
+    this.route.url.subscribe(segments => {
+      console.log('URL:', segments.map(s => s.path).join('/'));
+    });
+    
+    // Route params
+    this.route.paramMap.subscribe(params => {
+      this.id = params.get('id');
+    });
+    
+    // Query params
+    this.route.queryParamMap.subscribe(params => {
+      this.filter = params.get('filter');
+    });
+    
+    // Fragment (#anchor)
+    this.route.fragment.subscribe(f => console.log('Fragment:', f));
+    
+    // Static route data
+    this.route.data.subscribe(data => {
+      this.title = data['title'];
+    });
+    
+    // Parent route access
+    this.route.parent?.paramMap.subscribe(...);
+    
+    // Children routes
+    this.route.children; // ActivatedRoute[]
+  }
+}
+```
+
+---
+
+### Q11: How do you implement breadcrumbs using Angular Router?
+
+**Answer:**
+
+```typescript
+// Route config with breadcrumb data
+const routes: Routes = [
+  { path: '', data: { breadcrumb: 'Home' }, children: [
+    { path: 'products', data: { breadcrumb: 'Products' }, children: [
+      { path: ':id', data: { breadcrumb: 'Details' }, component: ProductDetailComponent }
+    ]}
+  ]}
+];
+
+// Breadcrumb service
+@Injectable({ providedIn: 'root' })
+export class BreadcrumbService {
+  breadcrumbs$ = this.router.events.pipe(
+    filter(e => e instanceof NavigationEnd),
+    map(() => this.buildBreadcrumbs(this.route.root))
+  );
+  
+  private buildBreadcrumbs(route: ActivatedRoute, url = '', breadcrumbs: any[] = []): any[] {
+    const children = route.children;
+    
+    for (const child of children) {
+      const routeUrl = child.snapshot.url.map(s => s.path).join('/');
+      url += routeUrl ? '/' + routeUrl : '';
+      
+      const label = child.snapshot.data['breadcrumb'];
+      if (label) {
+        breadcrumbs.push({ label, url });
+      }
+      
+      return this.buildBreadcrumbs(child, url, breadcrumbs);
+    }
+    
+    return breadcrumbs;
+  }
+}
+```
+
+---
+
+### Q12: How do you handle authentication redirects with returnUrl?
+
+**Answer:**
+
+```typescript
+// Auth guard with returnUrl
+export const authGuard: CanActivateFn = (route, state) => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  
+  if (auth.isLoggedIn()) {
+    return true;
+  }
+  
+  // Store attempted URL for redirecting
+  return router.createUrlTree(['/login'], {
+    queryParams: { returnUrl: state.url }
+  });
+};
+
+// Login component
+@Component({...})
+export class LoginComponent {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  
+  onLoginSuccess() {
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+    this.router.navigateByUrl(returnUrl);
+  }
+}
+```
+
+---
+
+### Q13: What are secondary (named) routes and when to use them?
+
+**Answer:**
+
+```typescript
+// Route configuration
+const routes: Routes = [
+  { path: 'products', component: ProductListComponent },
+  { path: 'help', component: HelpComponent, outlet: 'sidebar' },
+  { path: 'chat', component: ChatComponent, outlet: 'sidebar' }
+];
+
+// Template with named outlet
+```html
+<router-outlet></router-outlet>
+<router-outlet name="sidebar"></router-outlet>
+```
+
+// Navigation
+// URL: /products(sidebar:help)
+<a [routerLink]="['/products', { outlets: { sidebar: 'help' } }]">
+  Show Help
+</a>
+
+// Programmatic
+this.router.navigate(['/products', { outlets: { sidebar: 'chat' } }]);
+
+// Close named outlet
+this.router.navigate([{ outlets: { sidebar: null } }]);
+```
+
+**Use cases:** Side panels, modals, chat widgets that coexist with main content
+
+---
+
+### Q14: How do you preload modules based on user actions?
+
+**Answer:**
+
+```typescript
+// Preload service for on-demand loading
+@Injectable({ providedIn: 'root' })
+export class OnDemandPreloadService implements PreloadingStrategy {
+  private preloadSubject = new Subject<string>();
+  
+  preload(route: Route, load: () => Observable<any>): Observable<any> {
+    return this.preloadSubject.pipe(
+      filter(path => route.path === path),
+      take(1),
+      switchMap(() => load())
+    );
+  }
+  
+  startPreload(path: string) {
+    this.preloadSubject.next(path);
+  }
+}
+
+// Usage - preload on hover
+@Directive({ selector: '[preloadOnHover]' })
+export class PreloadOnHoverDirective {
+  @Input() preloadOnHover!: string;
+  
+  constructor(private preloadService: OnDemandPreloadService) {}
+  
+  @HostListener('mouseenter')
+  onHover() {
+    this.preloadService.startPreload(this.preloadOnHover);
+  }
+}
+
+// Template
+<a routerLink="/reports" [preloadOnHover]="'reports'">Reports</a>
+```
+
+---
+
+### Q15: How do you handle route reuse strategies?
+
+**Answer:**
+
+```typescript
+// Custom RouteReuseStrategy
+@Injectable()
+export class CacheRouteReuseStrategy implements RouteReuseStrategy {
+  private cache = new Map<string, DetachedRouteHandle>();
+  
+  shouldDetach(route: ActivatedRouteSnapshot): boolean {
+    return route.data['reuse'] === true;
+  }
+  
+  store(route: ActivatedRouteSnapshot, handle: DetachedRouteHandle): void {
+    const key = this.getKey(route);
+    this.cache.set(key, handle);
+  }
+  
+  shouldAttach(route: ActivatedRouteSnapshot): boolean {
+    return this.cache.has(this.getKey(route));
+  }
+  
+  retrieve(route: ActivatedRouteSnapshot): DetachedRouteHandle | null {
+    return this.cache.get(this.getKey(route)) || null;
+  }
+  
+  shouldReuseRoute(future: ActivatedRouteSnapshot, curr: ActivatedRouteSnapshot): boolean {
+    return future.routeConfig === curr.routeConfig;
+  }
+  
+  private getKey(route: ActivatedRouteSnapshot): string {
+    return route.pathFromRoot.map(r => r.url.join('/')).join('/');
+  }
+}
+
+// Register strategy
+providers: [
+  { provide: RouteReuseStrategy, useClass: CacheRouteReuseStrategy }
+]
+
+// Mark route as reusable
+{ path: 'search', component: SearchComponent, data: { reuse: true } }
+```
+
+---
 ## Summary Checklist
 
-✅ **Route Configuration**
+âœ… **Route Configuration**
 
 - Understand all route properties
 - Know pathMatch strategies
 - Handle wildcards correctly
 
-✅ **Navigation**
+âœ… **Navigation**
 
 - RouterLink for templates
 - Router.navigate for code
 - Handle query params and fragments
 
-✅ **Child Routes**
+âœ… **Child Routes**
 
 - Nested router-outlets
 - Accessing parent params
 - Named outlets
 
-✅ **Lazy Loading**
+âœ… **Lazy Loading**
 
 - loadChildren vs loadComponent
 - Preloading strategies
 - Route-level providers
 
-✅ **Guards**
+âœ… **Guards**
 
 - canActivate, canDeactivate, canMatch
 - Functional vs class-based
 - Return types (boolean, UrlTree, Observable)
 
-✅ **Resolvers**
+âœ… **Resolvers**
 
 - Pre-fetch data
 - Handle errors

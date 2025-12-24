@@ -1,4 +1,4 @@
-# Java Collections Internals & Concurrency Utilities (java.util.concurrent) — Complete Interview Guide
+﻿# Java Collections Internals & Concurrency Utilities (java.util.concurrent) â€” Complete Interview Guide
 
 ## Audience
 
@@ -15,7 +15,7 @@ Senior Java developers / Application Leads targeting product + enterprise interv
 7. [Fail-Fast vs Fail-Safe Iterators](#fail-fast-vs-fail-safe-iterators)
 8. [ConcurrentHashMap Internals (Java 8+)](#concurrenthashmap-internals-java-8)
 9. [CopyOnWrite Collections](#copyonwrite-collections)
-10. [BlockingQueue & Producer–Consumer](#blockingqueue--producerconsumer)
+10. [BlockingQueue & Producerâ€“Consumer](#blockingqueue--producerconsumer)
 11. [Executors & ThreadPoolExecutor Deep Dive](#executors--threadpoolexecutor-deep-dive)
 12. [CompletableFuture Essentials](#completablefuture-essentials)
 13. [Locks, Atomics, and Synchronizers](#locks-atomics-and-synchronizers)
@@ -127,10 +127,10 @@ final class User {
 
 1. Compute `hash(key)` (spread bits).
 2. Index = `(n - 1) & hash`.
-3. If bin empty → place node.
-4. If key match in bin → replace value.
+3. If bin empty â†’ place node.
+4. If key match in bin â†’ replace value.
 5. Else append to list; possibly treeify.
-6. If size exceeds threshold → resize/rehash.
+6. If size exceeds threshold â†’ resize/rehash.
 
 ### Why Java 8 added tree bins
 
@@ -138,7 +138,7 @@ Worst-case collision lists used to allow near $O(n)$ lookups under adversarial k
 
 ### Treeification thresholds (conceptual)
 
-- Treeify when bin gets “too long” **and** table is “large enough”.
+- Treeify when bin gets â€œtoo longâ€ **and** table is â€œlarge enoughâ€.
 - Otherwise resize first.
 
 ### Resize insights
@@ -150,7 +150,7 @@ Worst-case collision lists used to allow near $O(n)$ lookups under adversarial k
 
 If key fields change after insertion:
 
-- `hashCode` changes → lookup fails.
+- `hashCode` changes â†’ lookup fails.
 - bucket location becomes wrong.
 
 **Avoid:** using mutable objects as map keys.
@@ -165,7 +165,7 @@ If key fields change after insertion:
 
 ### Common traps
 
-- Comparator inconsistent with equals → “missing” elements or overwrites.
+- Comparator inconsistent with equals â†’ â€œmissingâ€ elements or overwrites.
 - Null keys: `TreeMap` supports null only in some cases (implementation-dependent); in practice avoid.
 
 ---
@@ -226,8 +226,8 @@ public class LruCache<K, V> extends LinkedHashMap<K, V> {
 
 ### Put mechanics (simplified)
 
-- If bin empty → CAS insert.
-- If bin non-empty → synchronize on bin head, mutate list/tree.
+- If bin empty â†’ CAS insert.
+- If bin non-empty â†’ synchronize on bin head, mutate list/tree.
 - Resizing happens cooperatively (threads help transfer bins).
 
 ### Why it scales
@@ -235,7 +235,7 @@ public class LruCache<K, V> extends LinkedHashMap<K, V> {
 - Locks are localized to a bin (not a global map lock).
 - Reduced contention compared to `Collections.synchronizedMap(new HashMap<>())`.
 
-### Don’t do this
+### Donâ€™t do this
 
 ```java
 // Anti-pattern: check-then-act race
@@ -258,14 +258,14 @@ map.computeIfAbsent(k, key -> expensiveCompute(key));
 ### CopyOnWriteArrayList
 
 - Writes copy the entire backing array; reads are very fast.
-- Great for “read-mostly, write-rarely” workloads (listeners, config snapshots).
+- Great for â€œread-mostly, write-rarelyâ€ workloads (listeners, config snapshots).
 - Iterators are snapshot-based.
 
 Trade-off: heavy memory churn on frequent writes.
 
 ---
 
-## BlockingQueue & Producer–Consumer
+## BlockingQueue & Producerâ€“Consumer
 
 ### Key types
 
@@ -352,7 +352,7 @@ public class Pools {
 
 ### CallerRunsPolicy meaning
 
-When the pool is saturated, the submitting thread executes the task → slows producers → backpressure.
+When the pool is saturated, the submitting thread executes the task â†’ slows producers â†’ backpressure.
 
 ---
 
@@ -424,39 +424,409 @@ Interview must-know:
 
 ## Interview Questions (with crisp answers)
 
-1. **Why can HashMap become slow?**
+### Q1: Why can HashMap become slow?
 
-   - Collisions create long bins; Java 8 mitigates via tree bins. Poor `hashCode` or adversarial keys degrade performance.
+Collisions create long bins; Java 8 mitigates via tree bins. Poor `hashCode` or adversarial keys degrade performance.
 
-2. **What’s the difference between `Collections.synchronizedMap` and `ConcurrentHashMap`?**
+```java
+// Bad hashCode - all objects go to same bucket
+class BadKey {
+    @Override public int hashCode() { return 1; } // O(n) lookups!
+}
 
-   - SynchronizedMap uses a single lock → contention. CHM uses finer-grained synchronization/CAS → higher throughput.
-
-3. **Why is `CopyOnWriteArrayList` iteration safe?**
-
-   - Iterators hold a snapshot array; writes copy and swap.
-
-4. **What’s the biggest pitfall with `ThreadPoolExecutor`?**
-
-   - Misconfigured queue/capacity causing unbounded memory growth or unbounded thread creation; also missing backpressure.
-
-5. **Why is check-then-act dangerous in concurrency?**
-
-   - Another thread can change state between check and action. Use atomic map ops or locks.
-
-6. **What does “weakly consistent iterator” mean?**
-
-   - It doesn’t throw CME and may reflect some concurrent updates, but not guaranteed.
-
-7. **When would you prefer `TreeMap` over `HashMap`?**
-
-   - When you need sorted keys, range queries (`subMap`), or ordered iteration.
-
-8. **Why should map keys be immutable?**
-   - Changing fields affecting `hashCode/equals` breaks retrieval and violates map invariants.
+// Good hashCode - well distributed
+class GoodKey {
+    private final int id;
+    private final String name;
+    
+    @Override public int hashCode() {
+        return Objects.hash(id, name); // Uses 31-based algorithm
+    }
+}
+```
 
 ---
 
+### Q2: What's the difference between `Collections.synchronizedMap` and `ConcurrentHashMap`?
+
+| Aspect | synchronizedMap | ConcurrentHashMap |
+|--------|-----------------|-------------------|
+| Locking | Single global lock | Lock striping / CAS |
+| Read concurrency | Blocked by writes | Lock-free reads |
+| Iteration | Fail-fast (CME risk) | Weakly consistent |
+| Null keys/values | Depends on backing map | Not allowed |
+| Atomic operations | Manual sync needed | Built-in (computeIfAbsent) |
+
+---
+
+### Q3: Why is `CopyOnWriteArrayList` iteration safe?
+
+Iterators hold a snapshot array; writes copy and swap.
+
+```java
+CopyOnWriteArrayList<String> list = new CopyOnWriteArrayList<>();
+list.addAll(List.of("a", "b", "c"));
+
+// Safe iteration - uses snapshot
+for (String s : list) {
+    list.add("new"); // Creates new array, doesn't affect iteration
+    System.out.println(s); // Prints: a, b, c
+}
+// After loop: ["a", "b", "c", "new", "new", "new"]
+```
+
+---
+
+### Q4: What's the biggest pitfall with `ThreadPoolExecutor`?
+
+Misconfigured queue/capacity causing unbounded memory growth or unbounded thread creation; also missing backpressure.
+
+```java
+// DANGEROUS: Unbounded queue can cause OOM
+ExecutorService bad = Executors.newFixedThreadPool(10); // Uses LinkedBlockingQueue()
+
+// SAFE: Bounded queue with rejection policy
+ExecutorService safe = new ThreadPoolExecutor(
+    10, 20, 60L, TimeUnit.SECONDS,
+    new ArrayBlockingQueue<>(100),
+    new ThreadPoolExecutor.CallerRunsPolicy() // Backpressure
+);
+```
+
+---
+
+### Q5: Why is check-then-act dangerous in concurrency?
+
+Another thread can change state between check and action. Use atomic map ops or locks.
+
+```java
+// RACE CONDITION
+if (!map.containsKey(key)) {   // Thread A checks
+    // Thread B inserts here!
+    map.put(key, value);       // Thread A overwrites
+}
+
+// CORRECT: Atomic operation
+map.putIfAbsent(key, value);
+map.computeIfAbsent(key, k -> computeValue(k));
+```
+
+---
+
+### Q6: What does "weakly consistent iterator" mean?
+
+It doesn't throw CME and may reflect some concurrent updates, but not guaranteed.
+
+```java
+ConcurrentHashMap<String, Integer> map = new ConcurrentHashMap<>();
+map.put("a", 1);
+
+Iterator<String> it = map.keySet().iterator();
+map.put("b", 2); // May or may not be seen by iterator
+
+while (it.hasNext()) {
+    System.out.println(it.next()); // No ConcurrentModificationException
+}
+```
+
+---
+
+### Q7: When would you prefer `TreeMap` over `HashMap`?
+
+When you need sorted keys, range queries (`subMap`), or ordered iteration.
+
+```java
+TreeMap<LocalDate, Event> events = new TreeMap<>();
+events.put(LocalDate.of(2024, 1, 15), new Event("A"));
+events.put(LocalDate.of(2024, 2, 20), new Event("B"));
+events.put(LocalDate.of(2024, 3, 10), new Event("C"));
+
+// Range query: events in February
+SortedMap<LocalDate, Event> febEvents = events.subMap(
+    LocalDate.of(2024, 2, 1),
+    LocalDate.of(2024, 3, 1)
+);
+```
+
+---
+
+### Q8: Why should map keys be immutable?
+
+Changing fields affecting `hashCode/equals` breaks retrieval and violates map invariants.
+
+```java
+class MutableKey {
+    String name;
+    @Override public int hashCode() { return name.hashCode(); }
+    @Override public boolean equals(Object o) { 
+        return o instanceof MutableKey && ((MutableKey)o).name.equals(name);
+    }
+}
+
+Map<MutableKey, String> map = new HashMap<>();
+MutableKey key = new MutableKey();
+key.name = "original";
+map.put(key, "value");
+
+key.name = "changed"; // hashCode changes!
+map.get(key);         // Returns null - lost forever!
+```
+
+---
+
+### Q9: How does HashMap handle hash collisions in Java 8+?
+
+Java 8 introduced tree bins to handle high-collision scenarios. When bin length exceeds TREEIFY_THRESHOLD (8) AND table size >= MIN_TREEIFY_CAPACITY (64), the bin converts from linked list to red-black tree.
+
+| Bin Type | Threshold | Lookup Complexity |
+|----------|-----------|-------------------|
+| Linked List | < 8 nodes | O(n) |
+| Red-Black Tree | >= 8 nodes | O(log n) |
+| Untreeify | < 6 nodes | Back to list |
+
+---
+
+### Q10: How do you implement a thread-safe lazy singleton with double-checked locking?
+
+```java
+public class Singleton {
+    private static volatile Singleton instance; // volatile is CRITICAL
+    
+    private Singleton() {}
+    
+    public static Singleton getInstance() {
+        if (instance == null) {                    // First check (no locking)
+            synchronized (Singleton.class) {
+                if (instance == null) {            // Second check (with lock)
+                    instance = new Singleton();
+                }
+            }
+        }
+        return instance;
+    }
+}
+// Why volatile? Without it, constructor may not complete before reference is assigned
+```
+
+---
+
+### Q11: What's the difference between `ReentrantLock` and `synchronized`?
+
+| Feature | synchronized | ReentrantLock |
+|---------|--------------|---------------|
+| Lock acquisition | Implicit | Explicit lock()/unlock() |
+| Try lock | No | tryLock(timeout) |
+| Interruptible | No | lockInterruptibly() |
+| Fairness | No control | Fair/unfair option |
+| Condition variables | Single (wait/notify) | Multiple Conditions |
+
+```java
+ReentrantLock lock = new ReentrantLock(true); // fair lock
+Condition notEmpty = lock.newCondition();
+
+lock.lock();
+try {
+    while (count == 0) notEmpty.await();
+    // consume...
+} finally {
+    lock.unlock();
+}
+```
+
+---
+
+### Q12: How does `LinkedHashMap` support LRU cache implementation?
+
+```java
+public class LRUCache<K, V> extends LinkedHashMap<K, V> {
+    private final int capacity;
+    
+    public LRUCache(int capacity) {
+        // accessOrder=true: iteration order = access order (LRU)
+        super(capacity, 0.75f, true);
+        this.capacity = capacity;
+    }
+    
+    @Override
+    protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+        return size() > capacity;
+    }
+}
+
+// Usage
+LRUCache<String, String> cache = new LRUCache<>(3);
+cache.put("a", "1"); cache.put("b", "2"); cache.put("c", "3");
+cache.get("a");        // Access "a" - moves to end
+cache.put("d", "4");   // Evicts "b" (least recently used)
+```
+
+---
+
+### Q13: What are the differences between different `BlockingQueue` implementations?
+
+| Implementation | Bounded | Ordering | Use Case |
+|----------------|---------|----------|----------|
+| `ArrayBlockingQueue` | Yes (fixed) | FIFO | Standard producer-consumer |
+| `LinkedBlockingQueue` | Optional | FIFO | Higher throughput (separate locks) |
+| `PriorityBlockingQueue` | No | Priority | Task scheduling |
+| `SynchronousQueue` | Zero capacity | Direct handoff | Thread pools |
+
+---
+
+### Q14: How do you prevent deadlock in concurrent code?
+
+```java
+// Deadlock scenario:
+// Thread 1: lock(A) -> lock(B)
+// Thread 2: lock(B) -> lock(A)
+
+// Solution 1: Lock ordering (always acquire in same order)
+void safeMethod() {
+    synchronized (LOCK_A) {  // Always A first
+        synchronized (LOCK_B) { /* work */ }
+    }
+}
+
+// Solution 2: tryLock with timeout
+boolean acquireBoth() throws InterruptedException {
+    while (true) {
+        if (lock1.tryLock(100, TimeUnit.MILLISECONDS)) {
+            try {
+                if (lock2.tryLock(100, TimeUnit.MILLISECONDS)) {
+                    return true;
+                }
+            } finally { lock1.unlock(); }
+        }
+        Thread.sleep(50); // Back off
+    }
+}
+```
+
+---
+
+### Q15: How does `CompletableFuture` differ from `Future`?
+
+| Feature | Future | CompletableFuture |
+|---------|--------|-------------------|
+| Completion | Cannot complete manually | complete(), completeExceptionally() |
+| Chaining | No | thenApply, thenCompose, thenCombine |
+| Exception handling | get() throws | exceptionally(), handle() |
+| Combining | Manual | allOf(), anyOf() |
+
+```java
+CompletableFuture<String> future = CompletableFuture
+    .supplyAsync(() -> fetchUser())
+    .thenCompose(user -> fetchOrders(user))
+    .exceptionally(ex -> "Error: " + ex.getMessage())
+    .orTimeout(5, TimeUnit.SECONDS);
+```
+
+---
+
+### Q16: What's the purpose of `Phaser` vs `CountDownLatch` vs `CyclicBarrier`?
+
+| Synchronizer | Reusable | Dynamic Parties | Use Case |
+|--------------|----------|-----------------|----------|
+| `CountDownLatch` | No | No | One-time event gate |
+| `CyclicBarrier` | Yes | No | Fixed threads, repeated sync |
+| `Phaser` | Yes | Yes | Dynamic participants, phases |
+
+---
+
+### Q17: How do you implement a rate limiter using `Semaphore`?
+
+```java
+public class RateLimiter {
+    private final Semaphore semaphore;
+    private final ScheduledExecutorService scheduler;
+    
+    public RateLimiter(int permitsPerSecond) {
+        this.semaphore = new Semaphore(permitsPerSecond);
+        this.scheduler = Executors.newSingleThreadScheduledExecutor();
+        
+        scheduler.scheduleAtFixedRate(() -> {
+            int toAdd = permitsPerSecond - semaphore.availablePermits();
+            semaphore.release(toAdd);
+        }, 1, 1, TimeUnit.SECONDS);
+    }
+    
+    public boolean tryAcquire() { return semaphore.tryAcquire(); }
+}
+```
+
+---
+
+### Q18: What are visibility issues in concurrent code and how to fix them?
+
+```java
+// PROBLEM: Visibility issue without volatile
+class Visibility {
+    private boolean running = true; // Should be volatile!
+    void stop() { running = false; }
+    void run() {
+        while (running) { } // May never see update!
+    }
+}
+
+// SOLUTIONS:
+// 1. volatile keyword
+private volatile boolean running = true;
+
+// 2. AtomicBoolean
+private final AtomicBoolean running = new AtomicBoolean(true);
+
+// 3. synchronized access
+synchronized void stop() { running = false; }
+```
+
+---
+
+### Q19: How do you safely publish an object in concurrent code?
+
+```java
+// UNSAFE: Object may be seen partially constructed
+public static Holder holder;
+public static void init() { holder = new Holder(42); }
+
+// SAFE PUBLICATION TECHNIQUES:
+// 1. Static initializer
+public static final Holder holder = new Holder(42);
+
+// 2. Volatile field
+private volatile Holder holder;
+
+// 3. Final field (immutable object)
+public class SafeHolder {
+    private final int value; // Safe via final
+    public SafeHolder(int v) { this.value = v; }
+}
+```
+
+---
+
+### Q20: What's the difference between `parallelStream()` and using an `ExecutorService`?
+
+| Aspect | parallelStream() | ExecutorService |
+|--------|------------------|-----------------|
+| Thread pool | Common ForkJoinPool | Custom pool |
+| Control | Limited | Full control |
+| Best for | CPU-bound, stateless | I/O-bound, custom requirements |
+| Blocking ops | Blocks FJP threads | Dedicated threads |
+
+```java
+// parallelStream: Uses common ForkJoinPool
+List<Result> results = data.parallelStream()
+    .map(this::cpuIntensiveTask)
+    .collect(Collectors.toList());
+
+// Custom pool for I/O operations
+ExecutorService ioPool = Executors.newFixedThreadPool(50);
+List<CompletableFuture<Result>> futures = data.stream()
+    .map(item -> CompletableFuture.supplyAsync(() -> ioOp(item), ioPool))
+    .collect(Collectors.toList());
+```
+
+---
 ## Quick mental model (one-liners)
 
 - `HashMap`: fast average lookup; correctness hinges on key contracts.

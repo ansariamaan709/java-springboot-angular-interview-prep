@@ -1,4 +1,4 @@
-# Angular Performance & Security - Complete Interview Guide
+﻿# Angular Performance & Security - Complete Interview Guide
 
 ## Table of Contents
 
@@ -21,46 +21,46 @@
 ### How Change Detection Works
 
 ```
-┌──────────────────────────────────────────────────────────────────────────┐
-│                    ANGULAR CHANGE DETECTION                              │
-├──────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│  Zone.js patches async APIs (setTimeout, Promise, DOM events, etc.)     │
-│                              │                                           │
-│                              ▼                                           │
-│                     ┌───────────────┐                                   │
-│                     │ Async Event   │                                   │
-│                     │ (click, http) │                                   │
-│                     └───────┬───────┘                                   │
-│                             │                                           │
-│                             ▼                                           │
-│                     ┌───────────────┐                                   │
-│                     │   Zone.js     │                                   │
-│                     │   Notifies    │                                   │
-│                     └───────┬───────┘                                   │
-│                             │                                           │
-│                             ▼                                           │
-│                     ┌───────────────┐                                   │
-│                     │    Angular    │                                   │
-│                     │    CD Run     │                                   │
-│                     └───────┬───────┘                                   │
-│                             │                                           │
-│              ┌──────────────┼──────────────┐                           │
-│              │              │              │                            │
-│              ▼              ▼              ▼                            │
-│        ┌──────────┐  ┌──────────┐  ┌──────────┐                        │
-│        │Component │  │Component │  │Component │                        │
-│        │    A     │  │    B     │  │    C     │                        │
-│        └────┬─────┘  └────┬─────┘  └────┬─────┘                        │
-│             │             │             │                               │
-│             ▼             ▼             ▼                               │
-│        Check & Update  Check & Update  Check & Update                  │
-│             DOM            DOM            DOM                           │
-│                                                                          │
-│  DEFAULT Strategy: Checks ALL components top-to-bottom                  │
-│  OnPush Strategy:  Checks ONLY when inputs change or events fire       │
-│                                                                          │
-└──────────────────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                    ANGULAR CHANGE DETECTION                              â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                                          â”‚
+â”‚  Zone.js patches async APIs (setTimeout, Promise, DOM events, etc.)     â”‚
+â”‚                              â”‚                                           â”‚
+â”‚                              â–¼                                           â”‚
+â”‚                     â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                                   â”‚
+â”‚                     â”‚ Async Event   â”‚                                   â”‚
+â”‚                     â”‚ (click, http) â”‚                                   â”‚
+â”‚                     â””â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜                                   â”‚
+â”‚                             â”‚                                           â”‚
+â”‚                             â–¼                                           â”‚
+â”‚                     â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                                   â”‚
+â”‚                     â”‚   Zone.js     â”‚                                   â”‚
+â”‚                     â”‚   Notifies    â”‚                                   â”‚
+â”‚                     â””â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜                                   â”‚
+â”‚                             â”‚                                           â”‚
+â”‚                             â–¼                                           â”‚
+â”‚                     â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                                   â”‚
+â”‚                     â”‚    Angular    â”‚                                   â”‚
+â”‚                     â”‚    CD Run     â”‚                                   â”‚
+â”‚                     â””â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜                                   â”‚
+â”‚                             â”‚                                           â”‚
+â”‚              â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                           â”‚
+â”‚              â”‚              â”‚              â”‚                            â”‚
+â”‚              â–¼              â–¼              â–¼                            â”‚
+â”‚        â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                        â”‚
+â”‚        â”‚Component â”‚  â”‚Component â”‚  â”‚Component â”‚                        â”‚
+â”‚        â”‚    A     â”‚  â”‚    B     â”‚  â”‚    C     â”‚                        â”‚
+â”‚        â””â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”˜                        â”‚
+â”‚             â”‚             â”‚             â”‚                               â”‚
+â”‚             â–¼             â–¼             â–¼                               â”‚
+â”‚        Check & Update  Check & Update  Check & Update                  â”‚
+â”‚             DOM            DOM            DOM                           â”‚
+â”‚                                                                          â”‚
+â”‚  DEFAULT Strategy: Checks ALL components top-to-bottom                  â”‚
+â”‚  OnPush Strategy:  Checks ONLY when inputs change or events fire       â”‚
+â”‚                                                                          â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ### Change Detection Triggers
@@ -129,7 +129,7 @@ export class OnPushComponent {
   constructor(private cdr: ChangeDetectorRef) {}
 
   // 1. Input reference changes (primitive or new object reference)
-  // @Input() data changes → triggers CD
+  // @Input() data changes â†’ triggers CD
 
   // 2. DOM event within component
   onClick() {
@@ -137,7 +137,7 @@ export class OnPushComponent {
   }
 
   // 3. Async pipe emits
-  // Observable | async → triggers CD
+  // Observable | async â†’ triggers CD
 
   // 4. Manual trigger
   manualTrigger() {
@@ -592,28 +592,28 @@ export class HeavyComponent implements OnInit, OnDestroy {
 ### Security Overview
 
 ```
-┌──────────────────────────────────────────────────────────────────────────┐
-│                    ANGULAR SECURITY LAYERS                               │
-├──────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│  CLIENT SIDE (Angular)                                                  │
-│  ├── XSS Prevention (built-in sanitization)                            │
-│  ├── Template security (no eval/innerHTML by default)                   │
-│  ├── Route guards (authorization)                                       │
-│  └── HttpOnly cookie handling                                          │
-│                                                                          │
-│  TRANSPORT                                                              │
-│  ├── HTTPS only                                                         │
-│  ├── CSRF tokens                                                        │
-│  └── Secure headers (CSP, HSTS, etc.)                                  │
-│                                                                          │
-│  SERVER SIDE (API)                                                      │
-│  ├── Authentication (JWT, OAuth)                                       │
-│  ├── Authorization (roles, permissions)                                │
-│  ├── Input validation                                                   │
-│  └── Rate limiting                                                      │
-│                                                                          │
-└──────────────────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                    ANGULAR SECURITY LAYERS                               â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                                          â”‚
+â”‚  CLIENT SIDE (Angular)                                                  â”‚
+â”‚  â”œâ”€â”€ XSS Prevention (built-in sanitization)                            â”‚
+â”‚  â”œâ”€â”€ Template security (no eval/innerHTML by default)                   â”‚
+â”‚  â”œâ”€â”€ Route guards (authorization)                                       â”‚
+â”‚  â””â”€â”€ HttpOnly cookie handling                                          â”‚
+â”‚                                                                          â”‚
+â”‚  TRANSPORT                                                              â”‚
+â”‚  â”œâ”€â”€ HTTPS only                                                         â”‚
+â”‚  â”œâ”€â”€ CSRF tokens                                                        â”‚
+â”‚  â””â”€â”€ Secure headers (CSP, HSTS, etc.)                                  â”‚
+â”‚                                                                          â”‚
+â”‚  SERVER SIDE (API)                                                      â”‚
+â”‚  â”œâ”€â”€ Authentication (JWT, OAuth)                                       â”‚
+â”‚  â”œâ”€â”€ Authorization (roles, permissions)                                â”‚
+â”‚  â”œâ”€â”€ Input validation                                                   â”‚
+â”‚  â””â”€â”€ Rate limiting                                                      â”‚
+â”‚                                                                          â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ---
@@ -936,214 +936,677 @@ export class TokenService {
 
 ## Interview Questions & Answers
 
-### Q1: What is Change Detection and how does OnPush improve performance?
+### Q1: What is change detection in Angular and how do you optimize it?
 
 **Answer:**
 
-**Change Detection (CD)** is Angular's mechanism to keep the DOM in sync with component data.
+Change detection is how Angular updates the DOM when data changes.
 
-**Default Strategy:**
+```typescript
+// Default: Checks entire component tree
+@Component({ ... })
+export class DefaultComponent { }
 
-- Runs for ALL components on every async event
-- Top-down traversal of component tree
-- Expensive for large apps
+// OnPush: Only checks when inputs change or events occur
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class OptimizedComponent {
+  @Input() data!: Data;
+  
+  // Manual trigger when needed
+  constructor(private cdr: ChangeDetectorRef) {}
+  
+  forceUpdate() {
+    this.cdr.markForCheck();  // Marks path to root
+    // OR
+    this.cdr.detectChanges(); // Runs detection immediately
+  }
+}
+```
 
-**OnPush Strategy:**
+**Best practices:**
+- Use `OnPush` for all presentational components
+- Use immutable data patterns
+- Use `trackBy` in `ngFor`
+- Detach change detection for frequently updating data
 
-- Only runs when:
-  1. Input reference changes
-  2. Event fires within component
-  3. Async pipe emits
-  4. Manual trigger (`markForCheck()`)
+---
+
+### Q2: What is XSS and how does Angular protect against it?
+
+**Answer:**
+
+XSS (Cross-Site Scripting) allows attackers to inject malicious scripts.
+
+```typescript
+// Angular auto-sanitizes by default
+@Component({
+  template: `
+    <!-- Safe: Angular sanitizes this -->
+    <div>{{ userInput }}</div>
+    <div [innerHTML]="htmlContent"></div>
+    
+    <!-- DANGEROUS: Bypassing security -->
+    <div [innerHTML]="trustedHtml"></div>
+  `
+})
+export class SecurityComponent {
+  // Auto-sanitized
+  userInput = '<script>alert("xss")</script>';
+  htmlContent = '<img src=x onerror=alert(1)>';
+  
+  // Only when ABSOLUTELY necessary and content is trusted
+  constructor(private sanitizer: DomSanitizer) {}
+  
+  get trustedHtml() {
+    // CAREFUL: Only use for trusted content
+    return this.sanitizer.bypassSecurityTrustHtml(this.htmlContent);
+  }
+}
+```
+
+**Angular protections:**
+- Auto-sanitizes interpolation `{{ }}`
+- Sanitizes property bindings `[innerHTML]`
+- Sanitizes URL bindings `[href]`, `[src]`
+
+---
+
+### Q3: How do you implement lazy loading for performance?
+
+**Answer:**
+
+```typescript
+// Route-level lazy loading
+const routes: Routes = [
+  {
+    path: 'admin',
+    loadComponent: () => import('./admin/admin.component')
+      .then(m => m.AdminComponent)
+  },
+  {
+    path: 'dashboard',
+    loadChildren: () => import('./dashboard/routes')
+      .then(m => m.DASHBOARD_ROUTES)
+  }
+];
+
+// Component-level lazy loading with @defer
+@Component({
+  template: `
+    @defer (on viewport) {
+      <app-heavy-chart [data]="chartData"></app-heavy-chart>
+    } @loading {
+      <div class="skeleton"></div>
+    } @placeholder {
+      <div>Chart will load when visible</div>
+    }
+  `
+})
+export class DashboardComponent { }
+
+// Preloading strategies
+@NgModule({
+  imports: [RouterModule.forRoot(routes, {
+    preloadingStrategy: PreloadAllModules
+  })]
+})
+```
+
+---
+
+### Q4: What is CSRF protection and how does Angular handle it?
+
+**Answer:**
+
+CSRF (Cross-Site Request Forgery) tricks users into performing unwanted actions.
+
+```typescript
+// Angular automatically reads XSRF token from cookie
+// and includes it in requests
+
+// Server sets cookie: XSRF-TOKEN=abc123
+// Angular includes header: X-XSRF-TOKEN=abc123
+
+// Configure custom header/cookie names
+@NgModule({
+  imports: [
+    HttpClientModule,
+    HttpClientXsrfModule.withOptions({
+      cookieName: 'MY-CSRF-TOKEN',
+      headerName: 'X-MY-CSRF-TOKEN'
+    })
+  ]
+})
+export class AppModule { }
+
+// Manual token handling for non-standard setups
+@Injectable()
+export class CsrfInterceptor implements HttpInterceptor {
+  intercept(req: HttpRequest<any>, next: HttpHandler) {
+    const token = this.cookieService.get('csrf');
+    if (token) {
+      req = req.clone({
+        setHeaders: { 'X-CSRF-Token': token }
+      });
+    }
+    return next.handle(req);
+  }
+}
+```
+
+---
+
+### Q5: How do you use trackBy to improve ngFor performance?
+
+**Answer:**
 
 ```typescript
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `{{ data | async }}`, // async pipe handles CD
+  template: `
+    <!-- Without trackBy: Entire list re-renders on change -->
+    <div *ngFor="let item of items">{{ item.name }}</div>
+    
+    <!-- With trackBy: Only changed items re-render -->
+    <div *ngFor="let item of items; trackBy: trackById">{{ item.name }}</div>
+  `
 })
-export class OptimizedComponent {
-  @Input() data!: Observable<Data>;
-}
-```
-
-**Performance gain:** Can skip checking hundreds of components when only one needs update.
-
----
-
-### Q2: How do you optimize Angular bundle size?
-
-**Answer:**
-
-**1. Lazy Loading:**
-
-```typescript
-{ path: 'admin', loadChildren: () => import('./admin/admin.routes') }
-```
-
-**2. Tree Shaking:**
-
-```typescript
-// Import only what you need
-import { map } from "lodash-es"; // Not: import * as _ from 'lodash'
-```
-
-**3. Production Build:**
-
-```bash
-ng build --configuration=production
-```
-
-**4. Bundle Budgets:**
-
-```json
-"budgets": [{ "type": "initial", "maximumWarning": "500kb" }]
-```
-
-**5. Analyze Bundles:**
-
-```bash
-ng build --stats-json
-npx webpack-bundle-analyzer dist/stats.json
-```
-
-**6. Remove unused code:**
-
-- Remove unused imports
-- Use `providedIn: 'root'` for tree-shakeable services
-- Avoid importing entire libraries
-
----
-
-### Q3: What are common Angular security vulnerabilities and how do you prevent them?
-
-**Answer:**
-
-| Vulnerability               | Prevention                                                               |
-| --------------------------- | ------------------------------------------------------------------------ |
-| **XSS**                     | Angular auto-sanitizes; never use `bypassSecurityTrust*` with user input |
-| **CSRF**                    | Use HttpOnly cookies + CSRF tokens                                       |
-| **Injection**               | Validate inputs server-side                                              |
-| **Sensitive Data Exposure** | Don't store secrets in frontend code                                     |
-| **Broken Auth**             | Use JWT properly, refresh tokens, secure storage                         |
-
-```typescript
-// XSS Prevention - Angular does this automatically
-// NEVER do this with user input:
-this.sanitizer.bypassSecurityTrustHtml(userInput); // DANGEROUS!
-
-// CSRF Protection
-provideHttpClient(
-  withXsrfConfiguration({
-    cookieName: "XSRF-TOKEN",
-    headerName: "X-XSRF-TOKEN",
-  })
-);
-```
-
----
-
-### Q4: How do you prevent memory leaks in Angular?
-
-**Answer:**
-
-**Common Leak Sources:**
-
-1. Unsubscribed Observables
-2. Event listeners
-3. Timers
-
-**Solutions:**
-
-```typescript
-// 1. takeUntil pattern
-private destroy$ = new Subject<void>();
-
-ngOnInit() {
-  source$.pipe(takeUntil(this.destroy$)).subscribe();
-}
-
-ngOnDestroy() {
-  this.destroy$.next();
-  this.destroy$.complete();
-}
-
-// 2. Angular 16+ takeUntilDestroyed
-source$.pipe(takeUntilDestroyed()).subscribe();
-
-// 3. Async pipe (auto-unsubscribes)
-<div>{{ data$ | async }}</div>
-
-// 4. Store and clear
-private sub!: Subscription;
-ngOnInit() { this.sub = source$.subscribe(); }
-ngOnDestroy() { this.sub.unsubscribe(); }
-```
-
----
-
-### Q5: Explain trackBy and why it's important for ngFor.
-
-**Answer:**
-
-Without `trackBy`, Angular:
-
-- Can't identify which items changed
-- Destroys and recreates ALL DOM elements on any change
-- Loses component state, causes flicker
-
-With `trackBy`:
-
-- Angular tracks items by unique identifier
-- Only updates/creates/removes changed items
-- Preserves DOM and component state
-
-```typescript
-// Template
-<li *ngFor="let item of items; trackBy: trackById">{{ item.name }}</li>
-
-// Component
-trackById(index: number, item: Item): number {
-  return item.id;  // Unique identifier
+export class ListComponent {
+  items: Item[] = [];
+  
+  // Track by unique identifier
+  trackById(index: number, item: Item): number {
+    return item.id;
+  }
+  
+  // Alternative: track by index (use when no unique ID)
+  trackByIndex(index: number): number {
+    return index;
+  }
 }
 ```
 
 **Performance impact:**
-
-- List of 1000 items: updating 1 item
-- Without trackBy: 1000 DOM operations
-- With trackBy: 1 DOM operation
+- Without `trackBy`: O(n) DOM operations
+- With `trackBy`: Only changed elements update
 
 ---
 
+### Q6: What is Content Security Policy and how do you configure it?
+
+**Answer:**
+
+CSP prevents unauthorized script execution.
+
+```html
+<!-- Server response header -->
+Content-Security-Policy: 
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://apis.google.com;
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' data: https:;
+  connect-src 'self' https://api.example.com;
+  font-src 'self' https://fonts.gstatic.com;
+```
+
+```typescript
+// Angular CLI configuration for nonce-based CSP
+// angular.json
+{
+  "projects": {
+    "app": {
+      "architect": {
+        "build": {
+          "options": {
+            "outputHashing": "all",
+            "crossOrigin": "anonymous"
+          }
+        }
+      }
+    }
+  }
+}
+
+// Server-side nonce injection (express example)
+app.use((req, res, next) => {
+  res.locals.nonce = crypto.randomBytes(16).toString('base64');
+  res.setHeader('Content-Security-Policy', 
+    `script-src 'nonce-${res.locals.nonce}' 'strict-dynamic'`);
+  next();
+});
+```
+
+---
+
+### Q7: How do you optimize bundle size in Angular?
+
+**Answer:**
+
+```bash
+# Analyze bundle
+ng build --stats-json
+npx webpack-bundle-analyzer dist/app/stats.json
+
+# Production build optimizations
+ng build --configuration=production
+```
+
+```typescript
+// Lazy load routes
+loadComponent: () => import('./feature.component')
+
+// Avoid barrel imports
+// BAD
+import { something } from '@shared';  // Imports entire barrel
+
+// GOOD
+import { something } from '@shared/utils/something';
+
+// Use ES modules for libraries
+// package.json
+{
+  "sideEffects": false
+}
+
+// Tree-shakeable providers
+@Injectable({ providedIn: 'root' })  // Tree-shakeable
+export class MyService { }
+
+// Remove unused imports
+import { map } from 'rxjs/operators';  // Good
+import * as rxjs from 'rxjs';  // Bad - imports everything
+```
+
+---
+
+### Q8: What are Signals and how do they improve performance?
+
+**Answer:**
+
+```typescript
+@Component({
+  template: `
+    <p>Count: {{ count() }}</p>
+    <p>Double: {{ doubled() }}</p>
+    <button (click)="increment()">+</button>
+  `
+})
+export class SignalComponent {
+  // Writable signal
+  count = signal(0);
+  
+  // Computed signal (automatically tracked)
+  doubled = computed(() => this.count() * 2);
+  
+  // Effect (side effects on signal changes)
+  constructor() {
+    effect(() => {
+      console.log('Count changed:', this.count());
+    });
+  }
+  
+  increment() {
+    this.count.update(c => c + 1);
+    // OR
+    this.count.set(this.count() + 1);
+  }
+}
+
+// Performance benefits:
+// - Fine-grained reactivity (only affected parts update)
+// - No zone.js dependency possible
+// - Better memory efficiency than RxJS for simple state
+```
+
+---
+
+### Q9: How do you prevent memory leaks in Angular?
+
+**Answer:**
+
+```typescript
+@Component({...})
+export class MemoryLeakFreeComponent implements OnDestroy {
+  private destroy$ = new Subject<void>();
+  
+  // Method 1: takeUntil
+  ngOnInit() {
+    this.dataService.getData().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(data => this.data = data);
+  }
+  
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+}
+
+// Method 2: DestroyRef (Angular 16+)
+@Component({...})
+export class ModernComponent {
+  private destroyRef = inject(DestroyRef);
+  
+  ngOnInit() {
+    this.dataService.getData().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe();
+  }
+}
+
+// Method 3: Async pipe (auto-unsubscribes)
+@Component({
+  template: `<div>{{ data$ | async }}</div>`
+})
+export class AsyncComponent {
+  data$ = this.service.getData();
+}
+
+// Common leak sources:
+// - Unsubscribed observables
+// - Event listeners not removed
+// - setInterval/setTimeout not cleared
+// - DOM references in services
+```
+
+---
+
+### Q10: How do you implement route guards for authorization?
+
+**Answer:**
+
+```typescript
+// Functional guard
+export const authGuard: CanActivateFn = (route, state) => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  
+  if (!auth.isAuthenticated()) {
+    return router.createUrlTree(['/login'], {
+      queryParams: { returnUrl: state.url }
+    });
+  }
+  
+  // Role-based access
+  const requiredRole = route.data['role'];
+  if (requiredRole && !auth.hasRole(requiredRole)) {
+    return router.createUrlTree(['/unauthorized']);
+  }
+  
+  return true;
+};
+
+// Route configuration
+const routes: Routes = [
+  {
+    path: 'admin',
+    component: AdminComponent,
+    canActivate: [authGuard],
+    data: { role: 'admin' }
+  },
+  {
+    path: 'dashboard',
+    loadChildren: () => import('./dashboard/routes'),
+    canMatch: [authGuard]  // Prevents even loading if unauthorized
+  }
+];
+```
+
+---
+
+### Q11: What is zone.js and can you run Angular without it?
+
+**Answer:**
+
+```typescript
+// Zone.js patches async APIs to trigger change detection
+// Default behavior
+
+// Zoneless Angular (experimental)
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideExperimentalZonelessChangeDetection()
+  ]
+});
+
+// Manual change detection without zone.js
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class ZonelessComponent {
+  data = signal('');
+  
+  // Signals work without zone.js
+  updateData() {
+    this.data.set('new value');  // Auto-updates view
+  }
+  
+  // For observables, manual trigger needed
+  constructor(private cdr: ChangeDetectorRef) {
+    someObservable$.subscribe(value => {
+      this.value = value;
+      this.cdr.markForCheck();
+    });
+  }
+}
+```
+
+---
+
+### Q12: How do you secure API calls in Angular?
+
+**Answer:**
+
+```typescript
+// 1. Add authentication token
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const token = inject(AuthService).getToken();
+  if (token) {
+    req = req.clone({
+      setHeaders: { Authorization: `Bearer ${token}` }
+    });
+  }
+  return next(req);
+};
+
+// 2. Handle token expiration
+export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
+  const auth = inject(AuthService);
+  
+  return next(req).pipe(
+    catchError(error => {
+      if (error.status === 401) {
+        return auth.refreshToken().pipe(
+          switchMap(newToken => {
+            req = req.clone({
+              setHeaders: { Authorization: `Bearer ${newToken}` }
+            });
+            return next(req);
+          })
+        );
+      }
+      return throwError(() => error);
+    })
+  );
+};
+
+// 3. Use HTTPS only
+// environment.ts
+export const environment = {
+  apiUrl: 'https://api.example.com'  // Never http://
+};
+
+// 4. Validate responses
+@Injectable({ providedIn: 'root' })
+export class ApiService {
+  getData(): Observable<Data> {
+    return this.http.get<Data>('/api/data').pipe(
+      map(response => this.validateResponse(response))
+    );
+  }
+}
+```
+
+---
+
+### Q13: How do you implement virtual scrolling for large lists?
+
+**Answer:**
+
+```typescript
+import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
+
+@Component({
+  template: `
+    <cdk-virtual-scroll-viewport itemSize="50" class="viewport">
+      <div *cdkVirtualFor="let item of items; trackBy: trackById" class="item">
+        {{ item.name }}
+      </div>
+    </cdk-virtual-scroll-viewport>
+  `,
+  styles: [`
+    .viewport {
+      height: 400px;
+      width: 100%;
+    }
+    .item {
+      height: 50px;
+    }
+  `]
+})
+export class VirtualScrollComponent {
+  items: Item[] = Array.from({ length: 10000 }, (_, i) => ({
+    id: i,
+    name: `Item ${i}`
+  }));
+  
+  trackById(index: number, item: Item) {
+    return item.id;
+  }
+}
+
+// Dynamic item sizes
+<cdk-virtual-scroll-viewport
+  [itemSize]="50"
+  [minBufferPx]="200"
+  [maxBufferPx]="400">
+```
+
+---
+
+### Q14: What are the Angular security best practices?
+
+**Answer:**
+
+| Practice | Description |
+|----------|-------------|
+| Never bypass sanitizer | Unless absolutely necessary for trusted content |
+| Use HttpClient | Built-in XSRF protection |
+| AOT compilation | Prevents template injection |
+| HTTPS only | All API calls over TLS |
+| CSP headers | Prevent unauthorized scripts |
+| Validate inputs | Both client and server side |
+| Avoid innerHTML | Use template binding instead |
+
+```typescript
+// Security checklist
+@Component({...})
+export class SecureComponent {
+  // GOOD: Safe binding
+  safeUrl = '/api/resource';
+  
+  // BAD: Never do this
+  // [innerHTML]="userInput"
+  // [href]="untrustedUrl"
+  
+  // Use pipes for display
+  // {{ value | date }}
+  
+  // Sanitize if needed
+  getSafeHtml(content: string) {
+    // Only for trusted, server-validated content
+    return this.sanitizer.bypassSecurityTrustHtml(content);
+  }
+}
+```
+
+---
+
+### Q15: How do you optimize images and assets in Angular?
+
+**Answer:**
+
+```typescript
+// NgOptimizedImage directive (Angular 15+)
+import { NgOptimizedImage } from '@angular/common';
+
+@Component({
+  imports: [NgOptimizedImage],
+  template: `
+    <!-- Optimized image with lazy loading -->
+    <img ngSrc="/assets/hero.jpg" 
+         width="800" 
+         height="600"
+         priority
+         placeholder="blur">
+    
+    <!-- Responsive images -->
+    <img ngSrc="/assets/product.jpg"
+         width="400" height="300"
+         sizes="(max-width: 768px) 100vw, 50vw"
+         [ngSrcset]="'320w, 640w, 960w'">
+  `
+})
+export class ImageComponent { }
+
+// Image loader for CDN
+providers: [
+  provideImgixLoader('https://my-site.imgix.net/')
+]
+
+// Lazy load images below fold
+@Component({
+  template: `
+    @defer (on viewport) {
+      <img ngSrc="/large-image.jpg" width="800" height="600">
+    } @placeholder {
+      <div class="image-placeholder"></div>
+    }
+  `
+})
+```
+
+---
 ## Summary Checklist
 
-✅ **Change Detection**
+âœ… **Change Detection**
 
 - Understand default vs OnPush
 - Use OnPush with immutable data
 - Prefer async pipe
 
-✅ **Performance**
+âœ… **Performance**
 
 - Lazy load routes
 - Use trackBy with ngFor
 - Avoid expensive template expressions
 - Virtual scrolling for long lists
 
-✅ **Bundle Optimization**
+âœ… **Bundle Optimization**
 
 - Tree shaking
 - Bundle budgets
 - Analyze with webpack-bundle-analyzer
 
-✅ **Security**
+âœ… **Security**
 
 - Trust Angular's sanitization
 - Never bypass security with user input
 - Use CSRF tokens
 - Implement proper auth guards
 
-✅ **Memory Management**
+âœ… **Memory Management**
 
 - Always unsubscribe
 - Use takeUntilDestroyed

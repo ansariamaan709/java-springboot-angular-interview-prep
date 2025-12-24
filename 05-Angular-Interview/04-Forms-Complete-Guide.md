@@ -1,4 +1,4 @@
-# Angular Forms - Complete Interview Guide
+﻿# Angular Forms - Complete Interview Guide
 
 ## Table of Contents
 
@@ -21,25 +21,25 @@
 ### Template-Driven vs Reactive Forms
 
 ```
-┌──────────────────────────────────────────────────────────────────────────┐
-│              TEMPLATE-DRIVEN vs REACTIVE FORMS                           │
-├──────────────────────────────────────────────────────────────────────────┤
-│                                                                           │
-│  TEMPLATE-DRIVEN                    │  REACTIVE                          │
-│  ─────────────────                  │  ────────                          │
-│                                     │                                     │
-│  • Form model in template           │  • Form model in component class   │
-│  • Two-way binding (ngModel)        │  • Programmatic control            │
-│  • Less code for simple forms       │  • More testable                   │
-│  • Async (relies on change det.)    │  • Synchronous                     │
-│  • Hard to unit test                │  • Easy to unit test               │
-│  • Good for simple forms            │  • Good for complex forms          │
-│                                     │                                     │
-│  FormsModule                        │  ReactiveFormsModule               │
-│                                     │                                     │
-│  <input [(ngModel)]="name">         │  <input [formControl]="nameCtrl">  │
-│                                     │                                     │
-└──────────────────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚              TEMPLATE-DRIVEN vs REACTIVE FORMS                           â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                                           â”‚
+â”‚  TEMPLATE-DRIVEN                    â”‚  REACTIVE                          â”‚
+â”‚  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€                  â”‚  â”€â”€â”€â”€â”€â”€â”€â”€                          â”‚
+â”‚                                     â”‚                                     â”‚
+â”‚  â€¢ Form model in template           â”‚  â€¢ Form model in component class   â”‚
+â”‚  â€¢ Two-way binding (ngModel)        â”‚  â€¢ Programmatic control            â”‚
+â”‚  â€¢ Less code for simple forms       â”‚  â€¢ More testable                   â”‚
+â”‚  â€¢ Async (relies on change det.)    â”‚  â€¢ Synchronous                     â”‚
+â”‚  â€¢ Hard to unit test                â”‚  â€¢ Easy to unit test               â”‚
+â”‚  â€¢ Good for simple forms            â”‚  â€¢ Good for complex forms          â”‚
+â”‚                                     â”‚                                     â”‚
+â”‚  FormsModule                        â”‚  ReactiveFormsModule               â”‚
+â”‚                                     â”‚                                     â”‚
+â”‚  <input [(ngModel)]="name">         â”‚  <input [formControl]="nameCtrl">  â”‚
+â”‚                                     â”‚                                     â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ### When to Use Which
@@ -587,11 +587,11 @@ const form = this.fb.group({
 
 // Display detailed password errors
 <div *ngIf="password.errors?.['passwordStrength'] as errors">
-  <div [class.valid]="errors.hasUpperCase">✓ Uppercase letter</div>
-  <div [class.valid]="errors.hasLowerCase">✓ Lowercase letter</div>
-  <div [class.valid]="errors.hasNumber">✓ Number</div>
-  <div [class.valid]="errors.hasSpecial">✓ Special character</div>
-  <div [class.valid]="errors.minLength">✓ Minimum 8 characters</div>
+  <div [class.valid]="errors.hasUpperCase">âœ“ Uppercase letter</div>
+  <div [class.valid]="errors.hasLowerCase">âœ“ Lowercase letter</div>
+  <div [class.valid]="errors.hasNumber">âœ“ Number</div>
+  <div [class.valid]="errors.hasSpecial">âœ“ Special character</div>
+  <div [class.valid]="errors.minLength">âœ“ Minimum 8 characters</div>
 </div>
 ```
 
@@ -752,7 +752,7 @@ export class RegisterComponent {
 
   <!-- Success -->
   <div *ngIf="username.valid && username.dirty" class="success">
-    ✓ Username available
+    âœ“ Username available
   </div>
 </div>
 
@@ -1174,8 +1174,8 @@ export class TypedFormComponent {
     const nameControl = this.userForm.controls.name;
     // Type: FormControl<string>
 
-    nameControl.setValue('John');    // ✅ OK
-    // nameControl.setValue(123);    // ❌ Error: number not assignable to string
+    nameControl.setValue('John');    // âœ… OK
+    // nameControl.setValue(123);    // âŒ Error: number not assignable to string
   }
 }
 ```
@@ -1326,7 +1326,7 @@ export class CheckoutComponent {
       *ngFor="let star of stars; let i = index"
       (click)="setRating(i + 1)"
       [class.filled]="i < value"
-      >★</span
+      >â˜…</span
     >
   `,
   providers: [
@@ -1378,202 +1378,631 @@ export class StarRatingComponent implements ControlValueAccessor {
 
 ## Interview Questions & Answers
 
-### Q1: What's the difference between setValue and patchValue?
+### Q1: What is the difference between RouterModule.forRoot() and RouterModule.forChild()?
 
 **Answer:**
 
-| Method         | Behavior                                                                |
-| -------------- | ----------------------------------------------------------------------- |
-| **setValue**   | Requires ALL form controls to be provided. Throws error if any missing. |
-| **patchValue** | Allows partial updates. Only updates provided controls.                 |
+| Aspect | forRoot() | forChild() |
+|--------|-----------|------------|
+| Usage | App module (once) | Feature modules |
+| Services | Creates Router, registers routes | Only registers routes |
+| Location | Main app.module.ts | Lazy-loaded modules |
 
 ```typescript
-const form = this.fb.group({
-  name: [""],
-  email: [""],
-  age: [null],
-});
+// app.module.ts - Main application
+@NgModule({
+  imports: [RouterModule.forRoot(routes, {
+    preloadingStrategy: PreloadAllModules,
+    scrollPositionRestoration: 'enabled'
+  })]
+})
+export class AppModule {}
 
-// setValue - must include all
-form.setValue({
-  name: "John",
-  email: "john@example.com",
-  age: 30,
-});
-// form.setValue({ name: 'John' }); // ERROR!
+// feature.module.ts - Feature module
+@NgModule({
+  imports: [RouterModule.forChild(featureRoutes)]
+})
+export class FeatureModule {}
+```
 
-// patchValue - can be partial
-form.patchValue({ name: "Jane" }); // Works fine
+**Important:** Using forRoot() in a lazy-loaded module creates duplicate Router service!
+
+---
+
+### Q2: How do you implement lazy loading in Angular?
+
+**Answer:**
+
+```typescript
+// Modern approach (Angular 14+)
+const routes: Routes = [
+  {
+    path: 'admin',
+    loadComponent: () => import('./admin/admin.component')
+      .then(m => m.AdminComponent)
+  },
+  {
+    path: 'dashboard',
+    loadChildren: () => import('./dashboard/dashboard.routes')
+      .then(m => m.DASHBOARD_ROUTES)
+  }
+];
+
+// With preloading strategy
+@NgModule({
+  imports: [RouterModule.forRoot(routes, {
+    preloadingStrategy: PreloadAllModules // or custom strategy
+  })]
+})
+```
+
+**Custom preloading strategy:**
+
+```typescript
+@Injectable({ providedIn: 'root' })
+export class SelectivePreloadingStrategy implements PreloadingStrategy {
+  preload(route: Route, load: () => Observable<any>): Observable<any> {
+    return route.data?.['preload'] ? load() : of(null);
+  }
+}
+
+// Route with preload flag
+{ path: 'reports', loadChildren: ..., data: { preload: true } }
 ```
 
 ---
 
-### Q2: How do async validators work?
+### Q3: Explain route guards and their execution order.
 
 **Answer:**
 
-Async validators return an `Observable` or `Promise` that resolves to `ValidationErrors | null`.
+**Guard Types:**
+
+| Guard | Purpose | Runs When |
+|-------|---------|-----------|
+| canMatch | Check if route can match | Before route matching |
+| canActivate | Allow/deny navigation | Before activating route |
+| canActivateChild | Protect child routes | Before activating children |
+| canDeactivate | Allow leaving route | Before leaving current route |
+| canLoad | Control lazy loading | Before loading module |
+
+**Execution Order:**
+
+```
+URL Change  canMatch  canActivate  canActivateChild  Resolvers  Component
+                                                                       
+         canLoad (if lazy)                                     canDeactivate
+```
 
 ```typescript
-export function uniqueEmailValidator(service: UserService): AsyncValidatorFn {
-  return (control: AbstractControl): Observable<ValidationErrors | null> => {
-    return timer(300).pipe(
-      // Debounce
-      switchMap(() => service.checkEmail(control.value)),
-      map((exists) => (exists ? { emailTaken: true } : null)),
-      catchError(() => of(null))
-    );
-  };
-}
+// Functional guard (modern approach)
+export const authGuard: CanActivateFn = (route, state) => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  
+  if (auth.isAuthenticated()) {
+    return true;
+  }
+  
+  return router.createUrlTree(['/login'], {
+    queryParams: { returnUrl: state.url }
+  });
+};
 
 // Usage
-email: [
-  "",
-  [Validators.required], // Sync validators (2nd arg)
-  [uniqueEmailValidator(svc)], // Async validators (3rd arg)
+{ path: 'admin', component: AdminComponent, canActivate: [authGuard] }
+```
+
+---
+
+### Q4: What is the difference between route params and query params?
+
+**Answer:**
+
+| Aspect | Route Params | Query Params |
+|--------|--------------|--------------|
+| URL Format | /users/:id  /users/123 | /users?sort=name&page=1 |
+| Required | Yes | No (optional) |
+| Route Config | Defined in path | Not in route config |
+| Use Case | Resource identification | Filtering, pagination |
+
+```typescript
+// Route params
+{ path: 'products/:category/:id', component: ProductComponent }
+// URL: /products/electronics/123
+
+// Accessing params
+@Component({...})
+export class ProductComponent {
+  private route = inject(ActivatedRoute);
+  
+  ngOnInit() {
+    // Route params (reactive)
+    this.route.paramMap.subscribe(params => {
+      this.categoryId = params.get('category');
+      this.productId = params.get('id');
+    });
+    
+    // Query params
+    this.route.queryParamMap.subscribe(params => {
+      this.sortBy = params.get('sort');
+      this.page = +(params.get('page') ?? 1);
+    });
+  }
+}
+
+// Navigating with both
+this.router.navigate(['/products', 'electronics', 123], {
+  queryParams: { sort: 'price', order: 'desc' },
+  queryParamsHandling: 'merge' // preserve existing
+});
+```
+
+---
+
+### Q5: How do resolvers work and when should you use them?
+
+**Answer:**
+
+**Resolvers** pre-fetch data before a route activates.
+
+**Flow:**
+1. Navigation starts  Guards run  Resolvers run  Component activates
+
+```typescript
+// Resolver function
+export const productResolver: ResolveFn<Product> = (route) => {
+  const service = inject(ProductService);
+  const router = inject(Router);
+  
+  return service.getProduct(route.paramMap.get('id')!).pipe(
+    catchError(() => {
+      router.navigate(['/404']);
+      return EMPTY;
+    })
+  );
+};
+
+// Route configuration
+{
+  path: 'products/:id',
+  component: ProductDetailComponent,
+  resolve: { product: productResolver }
+}
+
+// Component - data available immediately
+export class ProductDetailComponent {
+  product = inject(ActivatedRoute).snapshot.data['product'];
+}
+```
+
+**Use When:** Critical data needed before render, prevent loading states
+**Avoid When:** Large datasets (blocks navigation), optional data
+
+---
+
+### Q6: How do you handle navigation errors and 404 routes?
+
+**Answer:**
+
+```typescript
+const routes: Routes = [
+  { path: '', component: HomeComponent },
+  { path: 'products', loadChildren: () => import('./products/routes') },
+  
+  // 404 catch-all (must be last)
+  { path: '**', component: NotFoundComponent }
 ];
-```
 
-**Key points:**
-
-- Run AFTER sync validators pass
-- Form status becomes `PENDING` while running
-- Should include debounce to avoid excessive API calls
-- Should handle errors gracefully
-
----
-
-### Q3: What is ControlValueAccessor and when would you use it?
-
-**Answer:**
-
-`ControlValueAccessor` is an interface that bridges custom form controls with Angular forms (both template-driven and reactive).
-
-**When to use:**
-
-- Creating custom input components
-- Wrapping third-party UI components
-- Building complex inputs (date pickers, color pickers, ratings)
-
-**Required methods:**
-
-```typescript
-interface ControlValueAccessor {
-  writeValue(value: any): void; // Form → Component
-  registerOnChange(fn: any): void; // Component → Form
-  registerOnTouched(fn: any): void; // Touch handling
-  setDisabledState?(disabled: boolean): void; // Disable state
+// Global error handling via Router events
+@Injectable({ providedIn: 'root' })
+export class NavigationErrorHandler {
+  constructor(private router: Router) {
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationError)
+    ).subscribe((error: NavigationError) => {
+      console.error('Navigation failed:', error.url);
+      this.router.navigate(['/error'], {
+        queryParams: { url: error.url }
+      });
+    });
+  }
 }
 ```
 
 ---
 
-### Q4: How do you handle form submission with validation?
+### Q7: Explain the difference between snapshot and paramMap observable.
+
+**Answer:**
+
+| Aspect | snapshot | paramMap (Observable) |
+|--------|----------|----------------------|
+| Type | Static value | Stream of values |
+| Updates | One-time read | Reacts to changes |
+| Use case | Initial load | Same component, different params |
+
+```typescript
+export class UserComponent {
+  private route = inject(ActivatedRoute);
+  
+  // Snapshot - won't update if params change on same component
+  userId = this.route.snapshot.paramMap.get('id');
+  
+  // Observable - updates when navigating /users/1  /users/2
+  ngOnInit() {
+    this.route.paramMap.subscribe(params => {
+      this.loadUser(params.get('id'));
+    });
+  }
+}
+```
+
+**When to use Observable:** Links within component navigate to same route with different params (e.g., "Next/Previous" buttons).
+
+---
+
+### Q8: How do you implement route animations?
 
 **Answer:**
 
 ```typescript
-onSubmit() {
-  // 1. Check validity
-  if (this.form.invalid) {
-    // Mark all as touched to show errors
-    this.form.markAllAsTouched();
-    return;
-  }
+// animations.ts
+export const routeAnimations = trigger('routeAnimations', [
+  transition('* <=> *', [
+    query(':enter, :leave', [
+      style({
+        position: 'absolute',
+        width: '100%',
+        opacity: 0,
+        transform: 'translateX(100%)'
+      })
+    ], { optional: true }),
+    query(':leave', [
+      animate('300ms ease-out', style({ opacity: 0, transform: 'translateX(-100%)' }))
+    ], { optional: true }),
+    query(':enter', [
+      animate('300ms ease-out', style({ opacity: 1, transform: 'translateX(0)' }))
+    ], { optional: true })
+  ])
+]);
 
-  // 2. Check if async validation pending
-  if (this.form.pending) {
-    // Wait for async validators
-    this.form.statusChanges.pipe(
-      filter(status => status !== 'PENDING'),
-      take(1)
-    ).subscribe(() => this.submitForm());
-    return;
+// app.component.ts
+@Component({
+  animations: [routeAnimations],
+  template: `
+    <div [@routeAnimations]="getRouteAnimationData()">
+      <router-outlet></router-outlet>
+    </div>
+  `
+})
+export class AppComponent {
+  getRouteAnimationData() {
+    return this.route.snapshot.firstChild?.data['animation'];
   }
-
-  this.submitForm();
 }
 
-private submitForm() {
-  const data = this.form.getRawValue();  // Includes disabled fields
-  this.service.save(data).subscribe({
-    next: () => {
-      this.form.reset();
-      this.router.navigate(['/success']);
-    },
-    error: (err) => {
-      // Handle server-side validation errors
-      if (err.errors) {
-        Object.keys(err.errors).forEach(key => {
-          this.form.get(key)?.setErrors({ serverError: err.errors[key] });
-        });
+// Route config
+{ path: 'home', component: HomeComponent, data: { animation: 'HomePage' } }
+```
+
+---
+
+### Q9: How do you pass data between routes?
+
+**Answer:**
+
+```typescript
+// Method 1: Route params
+this.router.navigate(['/user', userId]);
+
+// Method 2: Query params
+this.router.navigate(['/search'], { 
+  queryParams: { q: 'angular', page: 1 } 
+});
+
+// Method 3: State (hidden from URL)
+this.router.navigate(['/checkout'], { 
+  state: { cart: this.cartItems } 
+});
+
+// Accessing state
+constructor() {
+  const navigation = this.router.getCurrentNavigation();
+  this.cart = navigation?.extras.state?.['cart'];
+  // OR
+  this.cart = history.state.cart;
+}
+
+// Method 4: Route data (static)
+{ path: 'admin', component: AdminComponent, data: { role: 'admin' } }
+
+// Method 5: Shared service (for complex data)
+@Injectable({ providedIn: 'root' })
+export class DataTransferService {
+  private data = signal<any>(null);
+  setData(data: any) { this.data.set(data); }
+  getData() { return this.data(); }
+}
+```
+
+---
+
+### Q10: What is ActivatedRoute and how do you use it?
+
+**Answer:**
+
+```typescript
+@Component({...})
+export class ProductComponent {
+  private route = inject(ActivatedRoute);
+  
+  ngOnInit() {
+    // Access various route information
+    
+    // URL segments
+    this.route.url.subscribe(segments => {
+      console.log('URL:', segments.map(s => s.path).join('/'));
+    });
+    
+    // Route params
+    this.route.paramMap.subscribe(params => {
+      this.id = params.get('id');
+    });
+    
+    // Query params
+    this.route.queryParamMap.subscribe(params => {
+      this.filter = params.get('filter');
+    });
+    
+    // Fragment (#anchor)
+    this.route.fragment.subscribe(f => console.log('Fragment:', f));
+    
+    // Static route data
+    this.route.data.subscribe(data => {
+      this.title = data['title'];
+    });
+    
+    // Parent route access
+    this.route.parent?.paramMap.subscribe(...);
+    
+    // Children routes
+    this.route.children; // ActivatedRoute[]
+  }
+}
+```
+
+---
+
+### Q11: How do you implement breadcrumbs using Angular Router?
+
+**Answer:**
+
+```typescript
+// Route config with breadcrumb data
+const routes: Routes = [
+  { path: '', data: { breadcrumb: 'Home' }, children: [
+    { path: 'products', data: { breadcrumb: 'Products' }, children: [
+      { path: ':id', data: { breadcrumb: 'Details' }, component: ProductDetailComponent }
+    ]}
+  ]}
+];
+
+// Breadcrumb service
+@Injectable({ providedIn: 'root' })
+export class BreadcrumbService {
+  breadcrumbs$ = this.router.events.pipe(
+    filter(e => e instanceof NavigationEnd),
+    map(() => this.buildBreadcrumbs(this.route.root))
+  );
+  
+  private buildBreadcrumbs(route: ActivatedRoute, url = '', breadcrumbs: any[] = []): any[] {
+    const children = route.children;
+    
+    for (const child of children) {
+      const routeUrl = child.snapshot.url.map(s => s.path).join('/');
+      url += routeUrl ? '/' + routeUrl : '';
+      
+      const label = child.snapshot.data['breadcrumb'];
+      if (label) {
+        breadcrumbs.push({ label, url });
       }
+      
+      return this.buildBreadcrumbs(child, url, breadcrumbs);
     }
-  });
+    
+    return breadcrumbs;
+  }
 }
 ```
 
 ---
 
-### Q5: Template-Driven vs Reactive Forms - When to use which?
+### Q12: How do you handle authentication redirects with returnUrl?
 
 **Answer:**
 
-| Aspect             | Template-Driven | Reactive        |
-| ------------------ | --------------- | --------------- |
-| **Form model**     | Template        | Component class |
-| **Complexity**     | Simple forms    | Complex forms   |
-| **Testing**        | Harder (async)  | Easy (sync)     |
-| **Dynamic fields** | Difficult       | Easy            |
-| **Validation**     | Directives      | Functions       |
-| **Scalability**    | Poor            | Good            |
-
-**Template-Driven:**
-
-```html
-<input [(ngModel)]="user.name" required #name="ngModel" />
-```
-
-**Reactive:**
-
 ```typescript
-name = new FormControl("", Validators.required);
+// Auth guard with returnUrl
+export const authGuard: CanActivateFn = (route, state) => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  
+  if (auth.isLoggedIn()) {
+    return true;
+  }
+  
+  // Store attempted URL for redirecting
+  return router.createUrlTree(['/login'], {
+    queryParams: { returnUrl: state.url }
+  });
+};
+
+// Login component
+@Component({...})
+export class LoginComponent {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  
+  onLoginSuccess() {
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+    this.router.navigateByUrl(returnUrl);
+  }
+}
 ```
-
-**Recommendation:**
-
-- Prototypes, simple forms → Template-Driven
-- Enterprise apps, complex validation, testing → Reactive
 
 ---
 
+### Q13: What are secondary (named) routes and when to use them?
+
+**Answer:**
+
+```typescript
+// Route configuration
+const routes: Routes = [
+  { path: 'products', component: ProductListComponent },
+  { path: 'help', component: HelpComponent, outlet: 'sidebar' },
+  { path: 'chat', component: ChatComponent, outlet: 'sidebar' }
+];
+
+// Template with named outlet
+```html
+<router-outlet></router-outlet>
+<router-outlet name="sidebar"></router-outlet>
+```
+
+// Navigation
+// URL: /products(sidebar:help)
+<a [routerLink]="['/products', { outlets: { sidebar: 'help' } }]">
+  Show Help
+</a>
+
+// Programmatic
+this.router.navigate(['/products', { outlets: { sidebar: 'chat' } }]);
+
+// Close named outlet
+this.router.navigate([{ outlets: { sidebar: null } }]);
+```
+
+**Use cases:** Side panels, modals, chat widgets that coexist with main content
+
+---
+
+### Q14: How do you preload modules based on user actions?
+
+**Answer:**
+
+```typescript
+// Preload service for on-demand loading
+@Injectable({ providedIn: 'root' })
+export class OnDemandPreloadService implements PreloadingStrategy {
+  private preloadSubject = new Subject<string>();
+  
+  preload(route: Route, load: () => Observable<any>): Observable<any> {
+    return this.preloadSubject.pipe(
+      filter(path => route.path === path),
+      take(1),
+      switchMap(() => load())
+    );
+  }
+  
+  startPreload(path: string) {
+    this.preloadSubject.next(path);
+  }
+}
+
+// Usage - preload on hover
+@Directive({ selector: '[preloadOnHover]' })
+export class PreloadOnHoverDirective {
+  @Input() preloadOnHover!: string;
+  
+  constructor(private preloadService: OnDemandPreloadService) {}
+  
+  @HostListener('mouseenter')
+  onHover() {
+    this.preloadService.startPreload(this.preloadOnHover);
+  }
+}
+
+// Template
+<a routerLink="/reports" [preloadOnHover]="'reports'">Reports</a>
+```
+
+---
+
+### Q15: How do you handle route reuse strategies?
+
+**Answer:**
+
+```typescript
+// Custom RouteReuseStrategy
+@Injectable()
+export class CacheRouteReuseStrategy implements RouteReuseStrategy {
+  private cache = new Map<string, DetachedRouteHandle>();
+  
+  shouldDetach(route: ActivatedRouteSnapshot): boolean {
+    return route.data['reuse'] === true;
+  }
+  
+  store(route: ActivatedRouteSnapshot, handle: DetachedRouteHandle): void {
+    const key = this.getKey(route);
+    this.cache.set(key, handle);
+  }
+  
+  shouldAttach(route: ActivatedRouteSnapshot): boolean {
+    return this.cache.has(this.getKey(route));
+  }
+  
+  retrieve(route: ActivatedRouteSnapshot): DetachedRouteHandle | null {
+    return this.cache.get(this.getKey(route)) || null;
+  }
+  
+  shouldReuseRoute(future: ActivatedRouteSnapshot, curr: ActivatedRouteSnapshot): boolean {
+    return future.routeConfig === curr.routeConfig;
+  }
+  
+  private getKey(route: ActivatedRouteSnapshot): string {
+    return route.pathFromRoot.map(r => r.url.join('/')).join('/');
+  }
+}
+
+// Register strategy
+providers: [
+  { provide: RouteReuseStrategy, useClass: CacheRouteReuseStrategy }
+]
+
+// Mark route as reusable
+{ path: 'search', component: SearchComponent, data: { reuse: true } }
+```
+
+---
 ## Summary Checklist
 
-✅ **Template-Driven Forms**
+âœ… **Template-Driven Forms**
 
 - FormsModule, ngModel, ngForm
 - Validation directives
 - Template reference variables
 
-✅ **Reactive Forms**
+âœ… **Reactive Forms**
 
 - FormControl, FormGroup, FormArray
 - FormBuilder patterns
 - setValue vs patchValue
 
-✅ **Validation**
+âœ… **Validation**
 
 - Built-in validators
 - Custom sync/async validators
 - Cross-field validation
 
-✅ **Advanced**
+âœ… **Advanced**
 
 - Typed Forms (Angular 14+)
 - ControlValueAccessor
 - Dynamic forms
 
-✅ **Best Practices**
+âœ… **Best Practices**
 
 - Separate form creation logic
 - Reusable form components
